@@ -14,4 +14,9 @@ class QRCode extends Model
     protected $primaryKey = 'qr_code_id';
 
     protected $fillable = ['attendance_record_id', 'expiry'];
+
+    public function attendanceRecord()
+    {
+        return $this->belongsTo(AttendanceRecord::class, 'attendance_record_id');
+    }
 }

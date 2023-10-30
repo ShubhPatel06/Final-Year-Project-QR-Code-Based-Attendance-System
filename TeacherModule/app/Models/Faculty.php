@@ -13,4 +13,19 @@ class Faculty extends Model
     protected $primaryKey = 'faculty_id';
 
     protected $fillable = ['faculty_name'];
+
+    public function courses()
+    {
+        return $this->hasMany(Course::class);
+    }
+
+    public function lecturers()
+    {
+        return $this->hasMany(Lecturer::class);
+    }
+
+    public function lectures()
+    {
+        return $this->hasMany(Lecture::class);
+    }
 }

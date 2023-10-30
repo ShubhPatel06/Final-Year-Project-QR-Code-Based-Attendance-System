@@ -14,4 +14,14 @@ class StudentAttendance extends Model
     protected $primaryKey = 'attendance_id';
 
     protected $fillable = ['attendance_record_id', 'student_adm_no', 'is_present'];
+
+    public function attendanceRecord()
+    {
+        return $this->belongsTo(AttendanceRecord::class, 'attendance_record_id');
+    }
+
+    public function student()
+    {
+        return $this->belongsTo(Student::class, 'student_adm_no');
+    }
 }

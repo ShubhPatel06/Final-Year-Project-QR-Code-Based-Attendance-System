@@ -14,4 +14,19 @@ class AttendanceRecord extends Model
     protected $primaryKey = 'record_id';
 
     protected $fillable = ['lecture_id', 'date'];
+
+    public function lecture()
+    {
+        return $this->belongsTo(Lecture::class);
+    }
+
+    public function studentAttendance()
+    {
+        return $this->hasMany(StudentAttendance::class, 'attendance_record_id');
+    }
+
+    public function qrCode()
+    {
+        return $this->hasOne(QRCode::class, 'attendance_record_id');
+    }
 }

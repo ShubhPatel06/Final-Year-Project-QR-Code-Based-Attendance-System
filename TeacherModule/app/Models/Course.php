@@ -14,4 +14,14 @@ class Courses extends Model
     protected $primaryKey = 'course_id';
 
     protected $fillable = ['course_code', 'course_name', 'faculty_id'];
+
+    public function faculty()
+    {
+        return $this->belongsTo(Faculty::class);
+    }
+
+    public function lectures()
+    {
+        return $this->hasMany(Lecture::class);
+    }
 }

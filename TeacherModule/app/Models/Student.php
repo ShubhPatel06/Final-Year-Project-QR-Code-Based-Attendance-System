@@ -14,4 +14,24 @@ class Student extends Model
     protected $primaryKey = 'adm_no';
 
     protected $fillable = ['user_id', 'adm_no',  'course_id', 'year_of_study', 'semester', 'group_id'];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function course()
+    {
+        return $this->belongsTo(Course::class);
+    }
+
+    public function group()
+    {
+        return $this->belongsTo(Group::class);
+    }
+
+    public function studentAttendance()
+    {
+        return $this->hasMany(StudentAttendance::class, 'student_adm_no');
+    }
 }

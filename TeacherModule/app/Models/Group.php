@@ -14,4 +14,9 @@ class Groups extends Model
     protected $primaryKey = 'group_id';
 
     protected $fillable = ['group_name', 'year', 'semester'];
+
+    public function lectures()
+    {
+        return $this->belongsToMany(Lecture::class, 'lecture_groups', 'group_id', 'lecture_id');
+    }
 }

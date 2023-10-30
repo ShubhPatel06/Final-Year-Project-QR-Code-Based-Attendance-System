@@ -49,4 +49,19 @@ class User extends Authenticatable
     protected $casts = [
         'password' => 'hashed',
     ];
+
+    public function role()
+    {
+        return $this->belongsTo(Roles::class);
+    }
+
+    public function lecturer()
+    {
+        return $this->hasOne(Lecturer::class, 'user_id');
+    }
+
+    public function student()
+    {
+        return $this->hasOne(Student::class, 'user_id');
+    }
 }
