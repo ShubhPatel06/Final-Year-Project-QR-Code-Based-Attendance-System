@@ -12,13 +12,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('courses', function (Blueprint $table) {
-            $table->id('course_id');
-            $table->string('course_code', 255);
-            $table->string('course_name', 255);
-            $table->foreignId('faculty_id');
+        Schema::create('student_attendance', function (Blueprint $table) {
+            $table->id('attendance_id');
+            $table->unsignedBigInteger('attendance_record_id');
+            $table->unsignedBigInteger('student_adm_no');
+            $table->boolean('is_present');
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
+
+            $table->foreign('attendance_record_id')->references('record_id')->on('attendance_records');
+            $table->foreign('student_adm_no')->references('adm_no')->on('students');
         });
     }
 
@@ -27,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('courses');
+        Schema::dropIfExists('student_attendance');
     }
 };

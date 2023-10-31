@@ -20,10 +20,12 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('phoneNo')->unique();
             $table->string('password');
-            $table->foreignId('role_id');
+            $table->unsignedBigInteger('role_id');
             $table->rememberToken();
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
+
+            $table->foreign('role_id')->references('role_id')->on('roles');
         });
     }
 

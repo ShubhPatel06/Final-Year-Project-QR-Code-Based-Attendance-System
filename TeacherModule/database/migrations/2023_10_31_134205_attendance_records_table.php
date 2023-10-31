@@ -14,9 +14,11 @@ return new class extends Migration
     {
         Schema::create('attendance_records', function (Blueprint $table) {
             $table->id("record_id");
-            $table->foreignId("lecture_id");
+            $table->unsignedBigInteger("lecture_id");
             $table->date("date");
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
+
+            $table->foreign('lecture_id')->references('lecture_id')->on('lectures');
         });
     }
 
