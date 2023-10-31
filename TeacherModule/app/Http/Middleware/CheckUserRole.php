@@ -13,7 +13,7 @@ class CheckUserRole
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next, $role): Response
     {
         if (auth()->check() && auth()->user()->role_id == $role) {
             // User has the correct role, allow them to proceed

@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\TeacherController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,23 +16,23 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('auth.login');
-});
 
-Route::get('/register', [AuthController::class, 'index'])->name('register');
+Route::get('/', [AuthController::class, 'index'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 
+// Admin routes
+Route::group(['middleware' => ['auth', 'checkUserRole:1']], function () {
+    Route::get('/admin-dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+});
+
+// Teacher routes
+Route::group(['middleware' => ['auth', 'checkUserRole:2']], function () {
+    Route::get('/teacher-dashboard', [TeacherController::class, 'index'])->name('teacher.dashboard');
+});
+
+Route::group(['middleware' => 'auth'], function () {
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+});
+
+// Modify/Remove later
 Route::post('/store', [AuthController::class, 'store'])->name('register.post');
-
-
-
-Route::group(['middleware' => ['auth', 'role:1']], function () {
-    // Admin routes
-    Route::get('/admin-dashboard', 'AdminController@index')->name('admin.dashboard');
-});
-
-Route::group(['middleware' => ['auth', 'role:2']], function () {
-    // Teacher routes
-    Route::get('/teacher-dashboard', 'TeacherController@index')->name('teacher.dashboard');
-});
