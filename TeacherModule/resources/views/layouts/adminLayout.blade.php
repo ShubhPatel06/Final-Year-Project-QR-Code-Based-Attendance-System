@@ -6,8 +6,7 @@
         @yield('sidebar')
     </div>
 
-
-    <div class="md:w-[90%] w-full pt-20 bg-slate-50 md:pt-0 m-4">
+    <div class="md:w-[90%] w-full pt-20 bg-slate-50 md:pt-0 m-4 shadow-md">
         @yield('content')
     </div>
 

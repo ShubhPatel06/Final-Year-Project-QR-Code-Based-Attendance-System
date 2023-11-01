@@ -23,6 +23,7 @@ Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 // Admin routes
 Route::group(['middleware' => ['auth', 'checkUserRole:1']], function () {
     Route::get('/admin-dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+    Route::get('/admin-roles', [AdminController::class, 'getRoles'])->name('admin.roles');
 });
 
 // Teacher routes
