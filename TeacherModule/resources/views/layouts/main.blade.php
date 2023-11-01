@@ -6,7 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Teacher Module</title>
     <script src="https://cdn.tailwindcss.com"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://kit.fontawesome.com/d3e0a0693f.js" crossorigin="anonymous"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -17,21 +18,20 @@
     @php
     $user = Auth::User();
     @endphp
-    <nav class="fixed flex top-0 w-full h-16 z-50 border-b-2 justify-between items-center px-11">
-        <div class="text-black md:flex flex-col justify-center pl-3">
-            <P class="text-xl text-white">Attendance System</P>
-        </div>
 
-        <div class="flex items-center gap-x-3 h-full">
-            <span class="text-black">{{$user->first_name. " ".$user->last_name}}</span>
-            <div>
-                <form action="{{ route('logout') }}" method="POST">
-                    @csrf
-                    <button type="submit" class="ml-3 text-red-500 hover:underline"> Logout </button>
-                </form>
-            </div>
+    <nav class="fixed md:z-50 top-0 w-full h-16 border-b-2 flex md:justify-between justify-end items-center px-8">
+
+        <div class="text-2xl text-white md:block hidden">Attendance System</div>
+
+        <div class="flex items-center gap-4 text-lg">
+            <span>{{ $user->first_name }} {{ $user->last_name }}</span>
+            <form action="{{ route('logout') }}" method="POST">
+                @csrf
+                <button type="submit" class="text-red-500 hover:text-red-700 hover:underline">Logout</button>
+            </form>
         </div>
     </nav>
+
 
     <!-- @yield('layoutContent') -->
     <div class="mt-16">
