@@ -17,15 +17,15 @@
                     <input type="hidden" name="course_id" id="course_id">
                     <div>
                         <label for="course_code" class="block mb-2 text-sm font-medium text-gray-900 ">Course Code</label>
-                        <input type="text" name="course_code" id="course_code" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  " required>
+                        <input type="text" name="course_code" id="course_code" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2" required>
                     </div>
                     <div>
                         <label for="course_name" class="block mb-2 text-sm font-medium text-gray-900 ">Course Name</label>
-                        <input type="text" name="course_name" id="course_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  " required>
+                        <input type="text" name="course_name" id="course_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2" required>
                     </div>
                     <div>
                         <label for="faculty_id" class="block mb-2 text-sm font-medium text-gray-900 ">Faculty</label>
-                        <select name="faculty_id" id="faculty_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  ">
+                        <select name="faculty_id" id="faculty_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2">
                             <option value="" selected disabled>Select Faculty</option>
                             @foreach ($faculties as $faculty)
                             {

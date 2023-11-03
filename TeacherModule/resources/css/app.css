@@ -5,3 +5,8 @@
 * {
     font-family: "Poppins", sans-serif;
 }
+
+/* Style the search bar container */
+div.dataTables_filter {
+    margin-bottom: 1rem;
+}

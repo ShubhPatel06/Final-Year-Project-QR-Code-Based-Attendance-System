@@ -29,7 +29,7 @@ class AdminController extends Controller
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
-                    $actionBtn = '<div class="flex gap-4 text-white font-semibold"><a href="javascript:void(0)" data-id="' . $row->role_id . '" class="edit bg-emerald-500 hover:bg-emerald-600 font-medium rounded-lg text-sm px-5 py-2 text-center editRole">Edit</a> <a href="javascript:void(0)"  data-id="' . $row->role_id . '" class="delete bg-red-500 hover:bg-red-600 font-medium rounded-lg text-sm px-5 py-2 text-center deleteRole">Delete</a></div>';
+                    $actionBtn = '<div class="flex gap-4 text-white font-semibold"><a href="javascript:void(0)" data-id="' . $row->role_id . '" class="edit bg-emerald-500 hover:bg-emerald-600 font-medium rounded-lg text-sm px-5 py-2 text-center editRole">Edit</a> ';
                     return $actionBtn;
                 })
                 ->rawColumns(['action'])
@@ -77,7 +77,7 @@ class AdminController extends Controller
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
-                    $actionBtn = '<div class="flex gap-4 text-white font-semibold"><a href="javascript:void(0)" data-id="' . $row->faculty_id . '" class="edit bg-emerald-500 hover:bg-emerald-600 font-medium rounded-lg text-sm px-5 py-2 text-center editFaculty">Edit</a> <a href="javascript:void(0)"  data-id="' . $row->faculty_id . '" class="delete bg-red-500 hover:bg-red-600 font-medium rounded-lg text-sm px-5 py-2 text-center deleteFaculty">Delete</a></div>';
+                    $actionBtn = '<div class="flex gap-4 text-white font-semibold"><a href="javascript:void(0)" data-id="' . $row->faculty_id . '" class="edit bg-emerald-500 hover:bg-emerald-600 font-medium rounded-lg text-sm px-5 py-2 text-center editFaculty">Edit</a> ';
                     return $actionBtn;
                 })
                 ->rawColumns(['action'])
@@ -103,8 +103,8 @@ class AdminController extends Controller
 
     public function editFaculty($id)
     {
-        $role = Faculty::find($id);
-        return response()->json($role);
+        $faculty = Faculty::find($id);
+        return response()->json($faculty);
     }
 
     public function deleteFaculty($id)
@@ -120,11 +120,14 @@ class AdminController extends Controller
         $faculties = Faculty::all();
 
         if ($request->ajax()) {
-            $data = Courses::all();
+            // $data = Courses::all();
+            $data = Courses::select('courses.*', 'faculty.faculty_name')
+                ->join('faculty', 'courses.faculty_id', '=', 'faculty.faculty_id')
+                ->get();
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
-                    $actionBtn = '<div class="flex gap-4 text-white font-semibold"><a href="javascript:void(0)" data-id="' . $row->faculty_id . '" class="edit bg-emerald-500 hover:bg-emerald-600 font-medium rounded-lg text-sm px-5 py-2 text-center editFaculty">Edit</a> <a href="javascript:void(0)"  data-id="' . $row->faculty_id . '" class="delete bg-red-500 hover:bg-red-600 font-medium rounded-lg text-sm px-5 py-2 text-center deleteFaculty">Delete</a></div>';
+                    $actionBtn = '<div class="flex gap-4 text-white font-semibold"><a href="javascript:void(0)" data-id="' . $row->course_id . '" class="edit bg-emerald-500 hover:bg-emerald-600 font-medium rounded-lg text-sm px-5 py-2 text-center editCourse">Edit</a></div>';
                     return $actionBtn;
                 })
                 ->rawColumns(['action'])
@@ -132,5 +135,27 @@ class AdminController extends Controller
         }
 
         return view('admin.courses', ['faculties' => $faculties]);
+    }
+
+    public function storeCourse(Request $request)
+    {
+        Courses::updateOrCreate(
+            [
+                'course_id' => $request->course_id
+            ],
+            [
+                'course_code' => $request->course_code,
+                'course_name' => $request->course_name,
+                'faculty_id' => $request->faculty_id,
+
+            ]
+        );
+        return response()->json(['success' => 'Course saved successfully.']);
+    }
+
+    public function editCourse($id)
+    {
+        $course = Courses::find($id);
+        return response()->json($course);
     }
 }

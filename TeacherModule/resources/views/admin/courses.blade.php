@@ -5,10 +5,10 @@
 @section('content')
 
 <div id="contentContainer" class="p-5 md:px-20 gap-y-20 mt-8 shadow-md">
-    <x-course-modal faculties='$faculties' />
+    <x-course-modal :faculties='$faculties' />
 
-    <div class="flex items-center justify-between">
-        <h1 class="text-3xl mb-6">Course Details</h1>
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-4xl ">Course Details</h1>
 
         <!-- Modal toggle -->
         <button data-modal-target="course-modal" data-modal-toggle="course-modal" class="block text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center addCourse" type="button">
@@ -55,8 +55,8 @@
                     class: "border border-slate-900 p-4"
                 },
                 {
-                    data: 'faculty_id',
-                    name: 'faculty_name',
+                    data: 'faculty_name',
+                    name: 'faculty_id',
                     class: "border border-slate-900 p-4"
                 },
                 {
@@ -107,15 +107,17 @@
         });
 
         $('body').on('click', '.editCourse', function() {
-            var faculty_id = $(this).data('id');
-            var url = "{{ url('edit-faculty') }}/" + faculty_id;
+            var course_id = $(this).data('id');
+            var url = "{{ url('edit-course') }}/" + course_id;
             $.get(url, function(data) {
-                $('#modalTitle').html("Edit Faculty");
+                $('#modalTitle').html("Edit Course");
                 $('#saveBtn').html("Save changes");
-                $('#faculty-modal').removeClass('hidden');
-                $('#faculty-modal').addClass('flex');
+                $('#course-modal').removeClass('hidden');
+                $('#course-modal').addClass('flex');
+                $('#course_id').val(data.course_id);
+                $('#course_code').val(data.course_code);
+                $('#course_name').val(data.course_name);
                 $('#faculty_id').val(data.faculty_id);
-                $('#faculty_name').val(data.faculty_name);
             })
         });
 

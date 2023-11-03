@@ -14,7 +14,7 @@
             @csrf
             <div class="my-4">
                 <label for="username" class="text-gray-700 font-semibold">Username</label>
-                <input type="text" id="username" name="username" autocomplete="off" class="rounded-md mt-1 w-full px-4 py-2 border border-gray-400 placeholder-gray-500 text-gray-700 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10" />
+                <input type="text" id="username" name="username" autocomplete="off" class="rounded-lg mt-1 w-full px-3 py-2 border border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500" />
                 @error('username')
                 <span class="text-red-500 text-sm" role="alert">
                     {{ $message }}
@@ -23,7 +23,7 @@
             </div>
             <div class="my-4">
                 <label for="password" class="text-gray-700 font-semibold">Password</label>
-                <input type="password" id="password" name="password" autocomplete="off" class="rounded-md mt-1 w-full px-4 py-2 border border-gray-400 placeholder-gray-500 text-gray-700 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10" />
+                <input type="password" id="password" name="password" autocomplete="off" class="rounded-lg mt-1 w-full px-3 py-2 border border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500" />
                 @error('password')
                 <span class="text-red-500 text-sm" role="alert">
                     {{ $message }}
@@ -31,7 +31,7 @@
                 @enderror
             </div>
 
-            <button type="submit" class="w-full mt-6 py-3 px-4 border border-transparent text-sm font-semibold rounded-md text-white bg-blue-500 hover:bg-blue-600">
+            <button type="submit" class="rounded-lg text-sm px-5 py-2.5 text-center w-full mt-6 border border-transparent font-semibold text-white bg-blue-500 hover:bg-blue-600">
                 Login
             </button>
         </form>

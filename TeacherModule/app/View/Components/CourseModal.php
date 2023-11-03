@@ -12,6 +12,7 @@ class CourseModal extends Component
      * Create a new component instance.
      */
     public $faculties;
+
     public function __construct($faculties)
     {
         $this->faculties = $faculties;
