@@ -16,14 +16,14 @@
         </button>
 
     </div>
-    <table class="min-w-full table-auto text-left border-collapse border-slate-900 bg-white shadow-md rounded-lg courses-table">
+    <table class="min-w-full table-auto text-leftbg-white shadow-md  courses-table">
         <thead>
             <tr class="bg-slate-200">
-                <th class="border border-slate-900 p-4 font-semibold text-gray-700">Course ID</th>
-                <th class="border border-slate-900 p-4 font-semibold text-gray-700">Course Code</th>
-                <th class="border border-slate-900 p-4 font-semibold text-gray-700">Course Name</th>
-                <th class="border border-slate-900 p-4 font-semibold text-gray-700">Faculty</th>
-                <th class="border border-slate-900 p-4 font-semibold text-gray-700">Action</th>
+                <th class="p-4 font-semibold text-gray-700">Course ID</th>
+                <th class="p-4 font-semibold text-gray-700">Course Code</th>
+                <th class="p-4 font-semibold text-gray-700">Course Name</th>
+                <th class="p-4 font-semibold text-gray-700">Faculty</th>
+                <th class="p-4 font-semibold text-gray-700">Action</th>
             </tr>
         </thead>
         <tbody class="bg-white">
@@ -42,27 +42,27 @@
             columns: [{
                     data: 'course_id',
                     name: 'course_id',
-                    class: "border border-slate-900 p-4"
+                    class: "p-4"
                 },
                 {
                     data: 'course_code',
                     name: 'course_code',
-                    class: "border border-slate-900 p-4"
+                    class: "p-4"
                 },
                 {
                     data: 'course_name',
                     name: 'course_name',
-                    class: "border border-slate-900 p-4"
+                    class: "p-4"
                 },
                 {
                     data: 'faculty_name',
                     name: 'faculty_id',
-                    class: "border border-slate-900 p-4"
+                    class: "p-4"
                 },
                 {
                     data: 'action',
                     name: 'action',
-                    class: "border border-slate-900 p-4",
+                    class: "p-4",
                     orderable: false,
                     searchable: false
                 },
@@ -119,28 +119,6 @@
                 $('#course_name').val(data.course_name);
                 $('#faculty_id').val(data.faculty_id);
             })
-        });
-
-
-        $('body').on('click', '.deleteFaculty', function() {
-            var faculty_id = $(this).data("id");
-            var url = "{{ url('delete-faculty') }}/" + faculty_id;
-            if (confirm("Are you sure you want to delete?")) {
-                var csrfToken = "{{ csrf_token() }}";
-                $.ajax({
-                    type: "DELETE",
-                    url: url,
-                    data: {
-                        "_token": csrfToken
-                    },
-                    success: function(data) {
-                        table.draw();
-                    },
-                    error: function(data) {
-                        console.log('Error:', data);
-                    }
-                });
-            }
         });
 
     });

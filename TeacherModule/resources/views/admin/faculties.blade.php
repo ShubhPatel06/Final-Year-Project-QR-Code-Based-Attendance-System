@@ -15,12 +15,12 @@
         </button>
 
     </div>
-    <table class="min-w-full table-auto text-left border-collapse border-slate-900 bg-white shadow-md rounded-lg faculties-table">
+    <table class="min-w-full table-auto text-left bg-white shadow-md rounded-lg faculties-table">
         <thead>
             <tr class="bg-slate-200">
-                <th class="border border-slate-900 p-4 font-semibold text-gray-700">Faculty ID</th>
-                <th class="border border-slate-900 p-4 font-semibold text-gray-700">Faculty Name</th>
-                <th class="border border-slate-900 p-4 font-semibold text-gray-700">Action</th>
+                <th class="font-semibold text-gray-700">Faculty ID</th>
+                <th class="font-semibold text-gray-700">Faculty Name</th>
+                <th class="font-semibold text-gray-700">Action</th>
             </tr>
         </thead>
         <tbody class="bg-white">
@@ -39,17 +39,17 @@
             columns: [{
                     data: 'faculty_id',
                     name: 'faculty_id',
-                    class: "border border-slate-900 p-4"
+                    class: "p-4"
                 },
                 {
                     data: 'faculty_name',
                     name: 'faculty_name',
-                    class: "border border-slate-900 p-4"
+                    class: "p-4"
                 },
                 {
                     data: 'action',
                     name: 'action',
-                    class: "border border-slate-900 p-4",
+                    class: "p-4",
                     orderable: false,
                     searchable: false
                 },

@@ -10,3 +10,24 @@
 div.dataTables_filter {
     margin-bottom: 1rem;
 }
+
+table.dataTable {
+    border-collapse: collapse;
+    border-spacing: 0;
+    width: 100%;
+    background-color: white;
+}
+
+/* Add borders to header cells */
+table.dataTable thead th {
+    border: 1px solid #817f7f; /* Header cell border color and width */
+    padding: 8px;
+    text-align: left;
+}
+
+/* Add borders to data cells */
+table.dataTable tbody td {
+    border: 1px solid #747272; /* Data cell border color and width */
+    padding: 8px;
+    text-align: left;
+}

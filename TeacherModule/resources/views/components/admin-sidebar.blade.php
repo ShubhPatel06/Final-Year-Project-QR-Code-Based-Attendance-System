@@ -1,20 +1,24 @@
 <div id="main-nav" class="pt-20 z-40 hidden w-[50%] top-0 left-0 md:flex md:w-[18%] fixed h-[100vh] bg-slate-200">
     <div class="flex flex-col gap-y-2 mt-2 items-start w-full text-sm my-8 px-8">
-        <div class="{{ $focus=='dashboard' ? 'bg-blue-500 text-white px-6' : 'text-black' }} flex flex-row h-12 items-center space-x-4 text-sm mx-4 lg:text-base rounded drop-shadow">
+        <div class="{{ $focus=='dashboard' ? 'bg-blue-500 text-white px-6' : 'text-black' }} flex flex-row h-12 items-center gap-4 text-sm mx-4 lg:text-base rounded drop-shadow">
             <i class="fa-solid fa-house"></i>
             <p class=""><a href="{{route('admin.dashboard')}}">Dashboard</a></p>
         </div>
-        <div class="{{ $focus=='roles' ? 'bg-blue-500 text-white px-6' : 'text-black' }} flex flex-row h-12 items-center space-x-4 text-sm mx-4 lg:text-base rounded drop-shadow">
+        <div class="{{ $focus=='roles' ? 'bg-blue-500 text-white px-6' : 'text-black' }} flex flex-row h-12 items-center gap-4 text-sm mx-4 lg:text-base rounded drop-shadow">
             <i class="fa-solid fa-users"></i>
             <p class=""><a href="{{route('admin.roles')}}">Roles</a></p>
         </div>
-        <div class="{{ $focus=='faculty' ? 'bg-blue-500 text-white px-6' : 'text-black' }} flex flex-row h-12 items-center space-x-4 text-sm mx-4 lg:text-base rounded drop-shadow">
+        <div class="{{ $focus=='faculty' ? 'bg-blue-500 text-white px-6' : 'text-black' }} flex flex-row h-12 items-center gap-4 text-sm mx-4 lg:text-base rounded drop-shadow">
             <i class="fa-solid fa-school"></i>
             <p class=""><a href="{{route('admin.faculties')}}">Faculties</a></p>
         </div>
-        <div class="{{ $focus=='course' ? 'bg-blue-500 text-white px-6' : 'text-black' }} flex flex-row h-12 items-center space-x-4 text-sm mx-4 lg:text-base rounded drop-shadow">
+        <div class="{{ $focus=='course' ? 'bg-blue-500 text-white px-6' : 'text-black' }} flex flex-row h-12 items-center gap-4 text-sm mx-4 lg:text-base rounded drop-shadow">
             <i class="fa-solid fa-graduation-cap"></i>
             <p class=""><a href="{{route('admin.courses')}}">Courses</a></p>
+        </div>
+        <div class="{{ $focus=='lecturer' ? 'bg-blue-500 text-white px-6' : 'text-black' }} flex flex-row h-12 items-center gap-4 text-sm mx-4 lg:text-base rounded drop-shadow">
+            <i class="fa-solid fa-person-chalkboard"></i>
+            <p class=""><a href="{{route('admin.lecturers')}}">Lecturers</a></p>
         </div>
     </div>
 </div>
@@ -44,6 +48,9 @@
     @break
     @case('course')
     <i class="fa-solid fa-graduation-cap"></i>
+    @break
+    @case('lecturer')
+    <i class="fa-solid fa-person-chalkboard"></i>
     @break
 
     @default

@@ -27,17 +27,23 @@ Route::group(['middleware' => ['auth', 'checkUserRole:1']], function () {
     Route::get('/admin-roles', [AdminController::class, 'getRoles'])->name('admin.roles');
     Route::post('/create-role', [AdminController::class, 'storeRole'])->name('role.store');
     Route::get('/edit-role/{id}', [AdminController::class, 'editRole'])->name('role.edit');
-    Route::delete('/delete-role/{id}', [AdminController::class, 'deleteRole'])->name('role.delete');
+    // Route::delete('/delete-role/{id}', [AdminController::class, 'deleteRole'])->name('role.delete');
     // Faculty
     Route::get('/admin-faculties', [AdminController::class, 'getFaculties'])->name('admin.faculties');
     Route::post('/create-faculty', [AdminController::class, 'storeFaculty'])->name('faculty.store');
     Route::get('/edit-faculty/{id}', [AdminController::class, 'editFaculty'])->name('faculty.edit');
-    Route::delete('/delete-faculty/{id}', [AdminController::class, 'deleteFaculty'])->name('faculty.delete');
+    // Route::delete('/delete-faculty/{id}', [AdminController::class, 'deleteFaculty'])->name('faculty.delete');
     // Course
     Route::get('/admin-courses', [AdminController::class, 'getCourses'])->name('admin.courses');
     Route::post('/create-course', [AdminController::class, 'storeCourse'])->name('course.store');
     Route::get('/edit-course/{id}', [AdminController::class, 'editCourse'])->name('course.edit');
-    Route::delete('/delete-course/{id}', [AdminController::class, 'deleteCourse'])->name('course.delete');
+    // Route::delete('/delete-course/{id}', [AdminController::class, 'deleteCourse'])->name('course.delete');
+    // Lecturer
+    Route::get('/admin-lecturers', [AdminController::class, 'getLecturers'])->name('admin.lecturers');
+    Route::post('/create-lecturer', [AdminController::class, 'storeLecturer'])->name('lecturer.store');
+    Route::get('/get-lecturer/{id}', [AdminController::class, 'getLecturerByID'])->name('lecturer.get');
+    Route::post('/edit-lecturer', [AdminController::class, 'editLecturer'])->name('lecturer.edit');
+    // Route::delete('/delete-lecturer/{id}', [AdminController::class, 'deleteLecturer'])->name('lecturer.delete');
 });
 
 // Teacher routes
