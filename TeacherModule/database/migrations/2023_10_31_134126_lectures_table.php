@@ -16,7 +16,6 @@ return new class extends Migration
             $table->id("lecture_id");
             $table->string("lecture_code");
             $table->string("lecture_name");
-            $table->unsignedBigInteger('faculty_id');
             $table->unsignedBigInteger('course_id');
             $table->unsignedBigInteger('lecturer_id');
             $table->integer('total_hours');
@@ -26,7 +25,6 @@ return new class extends Migration
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
 
-            $table->foreign('faculty_id')->references('faculty_id')->on('faculty');
             $table->foreign('course_id')->references('course_id')->on('courses');
             $table->foreign('lecturer_id')->references('user_id')->on('lecturers');
         });

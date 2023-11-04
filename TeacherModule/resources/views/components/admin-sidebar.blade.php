@@ -5,8 +5,12 @@
             <p class=""><a href="{{route('admin.dashboard')}}">Dashboard</a></p>
         </div>
         <div class="{{ $focus=='roles' ? 'bg-blue-500 text-white px-6' : 'text-black' }} flex flex-row h-12 items-center gap-4 text-sm mx-4 lg:text-base rounded drop-shadow">
-            <i class="fa-solid fa-users"></i>
+            <i class="fa-solid fa-user-shield"></i>
             <p class=""><a href="{{route('admin.roles')}}">Roles</a></p>
+        </div>
+        <div class="{{ $focus=='users' ? 'bg-blue-500 text-white px-6' : 'text-black' }} flex flex-row h-12 items-center gap-4 text-sm mx-4 lg:text-base rounded drop-shadow">
+            <i class="fa-solid fa-users"></i>
+            <p class=""><a href="{{route('admin.users')}}">Users</a></p>
         </div>
         <div class="{{ $focus=='faculty' ? 'bg-blue-500 text-white px-6' : 'text-black' }} flex flex-row h-12 items-center gap-4 text-sm mx-4 lg:text-base rounded drop-shadow">
             <i class="fa-solid fa-school"></i>
@@ -19,6 +23,18 @@
         <div class="{{ $focus=='lecturer' ? 'bg-blue-500 text-white px-6' : 'text-black' }} flex flex-row h-12 items-center gap-4 text-sm mx-4 lg:text-base rounded drop-shadow">
             <i class="fa-solid fa-person-chalkboard"></i>
             <p class=""><a href="{{route('admin.lecturers')}}">Lecturers</a></p>
+        </div>
+        <div class="{{ $focus=='lecture' ? 'bg-blue-500 text-white px-6' : 'text-black' }} flex flex-row h-12 items-center gap-4 text-sm mx-4 lg:text-base rounded drop-shadow">
+            <i class="fa-solid fa-book"></i>
+            <p class=""><a href="{{route('admin.lectures')}}">Lectures</a></p>
+        </div>
+        <div class="{{ $focus=='group' ? 'bg-blue-500 text-white px-6' : 'text-black' }} flex flex-row h-12 items-center gap-4 text-sm mx-4 lg:text-base rounded drop-shadow">
+            <i class="fa-solid fa-users-rectangle"></i>
+            <p class=""><a href="{{route('admin.groups')}}">Groups</a></p>
+        </div>
+        <div class="{{ $focus=='lecture_group' ? 'bg-blue-500 text-white px-6' : 'text-black' }} flex flex-row h-12 items-center gap-4 text-sm mx-4 lg:text-base rounded drop-shadow">
+            <i class="fa-solid fa-users-line"></i>
+            <p class=""><a href="{{route('admin.lecture_groups')}}">Lecture Groups</a></p>
         </div>
     </div>
 </div>
@@ -41,6 +57,9 @@
     <i class="fa-solid fa-house"></i>
     @break
     @case('roles')
+    <i class="fa-solid fa-user-shield"></i>
+    @break
+    @case('users')
     <i class="fa-solid fa-users"></i>
     @break
     @case('faculty')
@@ -51,6 +70,15 @@
     @break
     @case('lecturer')
     <i class="fa-solid fa-person-chalkboard"></i>
+    @break
+    @case('lecture')
+    <i class="fa-solid fa-book"></i>
+    @break
+    @case('group')
+    <i class="fa-solid fa-users-rectangle"></i>
+    @break
+    @case('lecture_group')
+    <i class="fa-solid fa-users-line"></i>
     @break
 
     @default

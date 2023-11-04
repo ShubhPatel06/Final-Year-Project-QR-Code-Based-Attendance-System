@@ -5,12 +5,17 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Courses;
 use App\Models\Faculty;
+use App\Models\Groups;
+use App\Models\LectureGroups;
 use App\Models\Lecturers;
+use App\Models\Lectures;
 use App\Models\Roles;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 use Yajra\DataTables\Facades\DataTables;
 
 
@@ -68,6 +73,67 @@ class AdminController extends Controller
         Roles::find($id)->delete();
 
         return response()->json(['success' => 'Role deleted successfully.']);
+    }
+
+    // USERS
+    public function getUsers(Request $request)
+    {
+        $roles = Roles::all();
+
+        if ($request->ajax()) {
+            $data = User::with('role')
+                ->get();
+
+            return DataTables::of($data)
+                ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+                    $actionBtn = '<div class="flex gap-4 text-white font-semibold"><a href="javascript:void(0)" data-id="' . $row->user_id . '" class="edit bg-emerald-500 hover:bg-emerald-600 font-medium rounded-lg text-sm px-5 py-2 text-center editUser">Edit</a> ';
+                    return $actionBtn;
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+
+        return view('admin.users', ['roles' => $roles]);
+    }
+
+    public function storeUser(Request $request)
+    {
+        $request->validate([
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
+            'username' => ['required', 'string', 'max:255', 'unique:users,username,' . $request->user_id . ',user_id'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $request->user_id . ',user_id'],
+            'phoneNo' => ['required', 'string', 'max:255'],
+            'role_id' => ['required', 'integer', 'in:1,2,3'],
+        ]);
+
+        $userData = [
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'username' => $request->username,
+            'email' => $request->email,
+            'phoneNo' => $request->phoneNo,
+            'role_id' => $request->role_id,
+        ];
+
+        if (!empty($request->password)) {
+            $userData['password'] = Hash::make($request->password);
+        }
+
+        User::updateOrCreate(
+            ['user_id' => $request->user_id],
+            $userData
+        );
+
+        return response()->json(['success' => 'User saved successfully.']);
+    }
+
+
+    public function editUser($id)
+    {
+        $user = User::find($id);
+        return response()->json($user);
     }
 
     // FACULTY
@@ -173,6 +239,7 @@ class AdminController extends Controller
             $data = Lecturers::with(['user', 'faculty'])
                 ->get();
 
+
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
@@ -244,5 +311,140 @@ class AdminController extends Controller
 
             return response()->json(['error' => 'An error occurred while saving the lecturer.']);
         }
+    }
+
+    // LECTURES
+    public function getLectures(Request $request)
+    {
+        $courses = Courses::all();
+        $lecturers = Lecturers::with('user')->get();
+
+        if ($request->ajax()) {
+            $data = Lectures::with(['course', 'lecturer.user'])
+                ->get();
+            return DataTables::of($data)
+                ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+                    $actionBtn = '<div class="flex gap-4 text-white font-semibold"><a href="javascript:void(0)" data-id="' . $row->lecture_id . '" class="edit bg-emerald-500 hover:bg-emerald-600 font-medium rounded-lg text-sm px-5 py-2 text-center editLecture">Edit</a></div>';
+                    return $actionBtn;
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+
+        return view('admin.lectures', ['courses' => $courses, 'lecturers' => $lecturers]);
+    }
+
+    public function storeLecture(Request $request)
+    {
+        Lectures::updateOrCreate(
+            [
+                'lecture_id' => $request->lecture_id
+            ],
+            [
+                'lecture_code' => $request->lecture_code,
+                'lecture_name' => $request->lecture_name,
+                'course_id' => $request->course_id,
+                'lecturer_id' => $request->lecturer_id,
+                'total_hours' => $request->total_hours,
+                'day' => $request->day,
+                'start_time' => $request->start_time,
+                'end_time' => $request->end_time,
+
+            ]
+        );
+        return response()->json(['success' => 'Lecture saved successfully.']);
+    }
+
+    public function editLecture($id)
+    {
+        $lecture = Lectures::with(['course', 'lecturer.user'])
+            ->find($id);
+        return response()->json($lecture);
+    }
+
+    // GROUPS
+    public function getGroups(Request $request)
+    {
+
+        if ($request->ajax()) {
+            $data = Groups::all();
+            return DataTables::of($data)
+                ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+                    $actionBtn = '<div class="flex gap-4 text-white font-semibold"><a href="javascript:void(0)" data-id="' . $row->group_id . '" class="edit bg-emerald-500 hover:bg-emerald-600 font-medium rounded-lg text-sm px-5 py-2 text-center editGroup">Edit</a> ';
+                    return $actionBtn;
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+
+        return view('admin.groups');
+    }
+
+    public function storeGroup(Request $request)
+    {
+        Groups::updateOrCreate(
+            [
+                'group_id' => $request->group_id
+            ],
+            [
+                'group_name' => $request->group_name,
+                'year' => $request->year,
+                'semester' => $request->semester,
+
+            ]
+        );
+
+        return response()->json(['success' => 'Group saved successfully.']);
+    }
+
+    public function editGroup($id)
+    {
+        $group = Groups::find($id);
+        return response()->json($group);
+    }
+
+    // LECTURE GROUPS
+    public function getLectureGroups(Request $request)
+    {
+        $lectures = Lectures::all();
+        $groups = Groups::all();
+
+        if ($request->ajax()) {
+            $lectureGroups = LectureGroups::with(['lecture', 'group'])->get();
+            return DataTables::of($lectureGroups)
+                ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+                    $actionBtn = '<div class="flex gap-4 text-white font-semibold"><a href="javascript:void(0)" data-id="' . $row->group_id . '" class="edit bg-emerald-500 hover:bg-emerald-600 font-medium rounded-lg text-sm px-5 py-2 text-center editLectureGroup">Edit</a> ';
+                    return $actionBtn;
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+
+        return view('admin.lecture_groups', ['lectures' => $lectures, 'groups' => $groups]);
+    }
+
+    public function storeLectureGroup(Request $request)
+    {
+        LectureGroups::updateOrCreate(
+            [
+                'group_id' => $request->group_id
+            ],
+            [
+                'lecture_id' => $request->lecture_id,
+                'group_id' => $request->group_id,
+            ]
+        );
+
+        return response()->json(['success' => 'Lecture Group saved successfully.']);
+    }
+
+    public function editLectureGroup($id)
+    {
+        $lectureGroup = LectureGroups::with(['lecture', 'group'])
+            ->find($id);
+        return response()->json($lectureGroup);
     }
 }

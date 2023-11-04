@@ -11,7 +11,11 @@ class LectureGroups extends Model
 
     protected $table = 'lecture_groups';
 
+    protected $primaryKey = 'group_id';
+
     protected $fillable = ['lecture_id', 'group_id'];
+
+    public $timestamps = false;
 
     public function user()
     {
@@ -26,5 +30,15 @@ class LectureGroups extends Model
     public function lectures()
     {
         return $this->hasMany(Lecture::class);
+    }
+
+    public function lecture()
+    {
+        return $this->belongsTo(Lectures::class, 'lecture_id', 'lecture_id');
+    }
+
+    public function group()
+    {
+        return $this->belongsTo(Groups::class, 'group_id', 'group_id');
     }
 }
