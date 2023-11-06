@@ -82,6 +82,7 @@ Route::group(['middleware' => ['auth', 'checkUserRole:1']], function () {
 // Teacher routes
 Route::group(['middleware' => ['auth', 'checkUserRole:2']], function () {
     Route::get('/teacher-dashboard', [TeacherController::class, 'index'])->name('teacher.dashboard');
+    Route::get('/teacher-lectures', [TeacherController::class, 'getLectures'])->name('teacher.lectures');
 });
 
 Route::group(['middleware' => 'auth'], function () {
