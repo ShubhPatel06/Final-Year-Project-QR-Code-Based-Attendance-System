@@ -17,17 +17,17 @@ class Student extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'user_id', 'user_id');
     }
 
     public function course()
     {
-        return $this->belongsTo(Course::class);
+        return $this->belongsTo(Courses::class, 'course_id', 'course_id');
     }
 
     public function group()
     {
-        return $this->belongsTo(Groups::class);
+        return $this->belongsTo(Groups::class, 'group_id', 'group_id');
     }
 
     public function studentAttendance()

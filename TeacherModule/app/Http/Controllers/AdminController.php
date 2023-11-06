@@ -10,6 +10,7 @@ use App\Models\LectureGroups;
 use App\Models\Lecturers;
 use App\Models\Lectures;
 use App\Models\Roles;
+use App\Models\Student;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -444,5 +445,100 @@ class AdminController extends Controller
         ])->delete();
 
         return response()->json(['success' => 'Lecture Group deleted successfully.']);
+    }
+
+    // LECTURERS 
+
+    public function getStudents(Request $request)
+    {
+        $courses = Courses::all();
+        $users = User::where('role_id', 3)->get();
+        $groups = Groups::all();
+
+
+        if ($request->ajax()) {
+            $data = Student::with(['user', 'course', 'group'])
+                ->get();
+
+            return DataTables::of($data)
+                ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+                    $actionBtn = '<div class="flex gap-4 text-white font-semibold"><a href="javascript:void(0)" data-id="' . $row->user_id . '" data-adm="' . $row->adm_no . '" class="edit bg-emerald-500 hover:bg-emerald-600 font-medium rounded-lg text-sm px-5 py-2 text-center editStudent">Edit</a></div>';
+                    return $actionBtn;
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+
+        return view('admin.students', ['courses' => $courses, 'users' => $users, 'groups' => $groups]);
+    }
+
+    public function storeStudent(Request $request)
+    {
+        Student::create(
+            [
+                'user_id' => $request->user_id,
+                'course_id' => $request->course_id,
+                'year_of_study' => $request->year_of_study,
+                'semester' => $request->semester,
+                'group_id' => $request->group_id,
+
+            ]
+        );
+        return response()->json(['success' => 'Lecturer saved successfully.']);
+    }
+
+    public function getStudentByID($id)
+    {
+        $data = Student::with(['user', 'course', 'group'])
+            ->where('user_id', $id)
+            ->first();
+
+        if (!$data) {
+            return response()->json(['error' => 'Student not found.']);
+        }
+
+        return response()->json($data);
+    }
+
+    public function editStudent(Request $request)
+    {
+        $user_id = $request->input('user_id');
+        $first_name = $request->input('first_name');
+        $last_name = $request->input('last_name');
+        $username = $request->input('username');
+        $email = $request->input('email');
+        $phoneNo = $request->input('phoneNo');
+        $course_id = $request->input('edit_course_id');
+        $year_of_study = $request->input('edit_year_of_study');
+        $semester = $request->input('edit_semester');
+        $group_id = $request->input('edit_group_id');
+
+        // Start a database transaction
+        DB::beginTransaction();
+
+        try {
+            // Update the users table
+            User::where('user_id', $user_id)->update([
+                'first_name' => $first_name,
+                'last_name' => $last_name,
+                'username' => $username,
+                'email' => $email,
+                'phoneNo' => $phoneNo,
+            ]);
+
+            // Update the lecturers table
+            Student::where('user_id', $user_id)->update(['course_id' => $course_id, 'year_of_study' => $year_of_study, 'semester' => $semester, 'group_id' => $group_id]);
+
+            // Commit the transaction if all updates were successful
+            DB::commit();
+
+            return response()->json(['success' => 'Student saved successfully.']);
+        } catch (\Exception $e) {
+            // If an error occurs, roll back the transaction
+            DB::rollBack();
+
+            return response()->json(['error' => 'An error occurred while saving the student.']);
+        }
     }
 }
