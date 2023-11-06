@@ -416,7 +416,7 @@ class AdminController extends Controller
             return DataTables::of($lectureGroups)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
-                    $actionBtn = '<div class="flex gap-4 text-white font-semibold"><a href="javascript:void(0)" data-id="' . $row->group_id . '" class="edit bg-emerald-500 hover:bg-emerald-600 font-medium rounded-lg text-sm px-5 py-2 text-center editLectureGroup">Edit</a> ';
+                    $actionBtn = '<div class="flex gap-4 text-white font-semibold"><a href="javascript:void(0)" data-id="' . $row->group_id . '" data-del="' . $row->lecture_id . '" class="delete bg-red-500 hover:bg-red-600 font-medium rounded-lg text-sm px-5 py-2 text-center deleteLectureGroup">Delete</a> ';
                     return $actionBtn;
                 })
                 ->rawColumns(['action'])
@@ -428,23 +428,21 @@ class AdminController extends Controller
 
     public function storeLectureGroup(Request $request)
     {
-        LectureGroups::updateOrCreate(
-            [
-                'group_id' => $request->group_id
-            ],
-            [
-                'lecture_id' => $request->lecture_id,
-                'group_id' => $request->group_id,
-            ]
-        );
+        LectureGroups::create([
+            'lecture_id' => $request->lecture_id,
+            'group_id' => $request->group_id,
+        ]);
 
         return response()->json(['success' => 'Lecture Group saved successfully.']);
     }
 
-    public function editLectureGroup($id)
+    public function deleteLectureGroup(Request $request)
     {
-        $lectureGroup = LectureGroups::with(['lecture', 'group'])
-            ->find($id);
-        return response()->json($lectureGroup);
+        LectureGroups::where([
+            'lecture_id' => $request->lecture_id,
+            'group_id' => $request->group_id,
+        ])->delete();
+
+        return response()->json(['success' => 'Lecture Group deleted successfully.']);
     }
 }

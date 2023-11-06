@@ -13,6 +13,8 @@
                 <h3 class="mb-4 text-xl font-medium text-gray-900 " id="modalTitle"></h3>
                 <form class="space-y-6" action="#" method="POST" id="lecture_groupForm">
                     @csrf
+                    <input type="hidden" id="groupID">
+                    <input type="hidden" id="lectureID">
                     <div class="col-span-2">
                         <label for="lecture_id" class="block mb-2 text-sm font-medium text-gray-900">Lecture</label>
                         <select name="lecture_id" id="lecture_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2">
@@ -32,6 +34,7 @@
                         </select>
                     </div>
                     <button type="submit" id="saveBtn" class="w-full text-white bg-emerald-700 hover:bg-emerald-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Save</button>
+                    <button type="submit" id="updateBtn" class="w-full text-white bg-emerald-700 hover:bg-emerald-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Save Changes</button>
                 </form>
 
             </div>

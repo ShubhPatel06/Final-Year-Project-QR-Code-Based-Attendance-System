@@ -61,6 +61,8 @@
             $('#lecture_group-modal').removeClass('hidden');
             $('#lecture_group-modal').addClass('flex');
             $('#saveBtn').html("Add Lecture Group");
+            $('#saveBtn').show();
+            $('#updateBtn').hide();
             $('#lecture_id').val('');
             $('#group_id').val('');
             $('#lecture_groupForm').trigger("reset");
@@ -95,30 +97,19 @@
             });
         });
 
-        $('body').on('click', '.editLectureGroup', function() {
-            var group_id = $(this).data('id');
-            var url = "{{ url('edit-lecture_group') }}/" + group_id;
-            $.get(url, function(data) {
-                $('#modalTitle').html("Edit Lecture Group");
-                $('#saveBtn').html("Save changes");
-                $('#lecture_group-modal').removeClass('hidden');
-                $('#lecture_group-modal').addClass('flex');
-                $('#lecture_id').val(data.lecture_id);
-                $('#group_id').val(data.group_id);
-            })
-        });
-
-
-        $('body').on('click', '.deleteRole', function() {
-            var role_id = $(this).data("id");
-            var url = "{{ url('delete-role') }}/" + role_id;
+        $('body').on('click', '.deleteLectureGroup', function() {
+            var group_id = $(this).data("id");
+            var lecture_id = $(this).data("del");
+            var url = "{{ url('delete-lecture_group') }}/" + lecture_id;
             if (confirm("Are you sure you want to delete?")) {
                 var csrfToken = "{{ csrf_token() }}";
                 $.ajax({
                     type: "DELETE",
-                    url: url,
+                    url: "{{ route('lecture_group.delete') }}",
                     data: {
-                        "_token": csrfToken
+                        "_token": csrfToken,
+                        'group_id': group_id,
+                        'lecture_id': lecture_id,
                     },
                     success: function(data) {
                         table.draw();
@@ -129,6 +120,7 @@
                 });
             }
         });
+
 
     });
 </script>

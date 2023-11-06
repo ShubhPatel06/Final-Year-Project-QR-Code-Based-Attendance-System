@@ -69,9 +69,7 @@ Route::group(['middleware' => ['auth', 'checkUserRole:1']], function () {
     // Lecture Groups
     Route::get('/admin-lecture_groups', [AdminController::class, 'getLectureGroups'])->name('admin.lecture_groups');
     Route::post('/create-lecture_group', [AdminController::class, 'storeLectureGroup'])->name('lecture_group.store');
-    Route::get('/edit-lecture_group/{id}', [AdminController::class, 'editLectureGroup'])->name('lecture_group.edit');
-    // Route::delete('/delete-lecture_group/{id}', [AdminController::class, 'deleteLectureGroup'])->name('lecture_group.delete');
-
+    Route::delete('/delete-lecture_group', [AdminController::class, 'deleteLectureGroup'])->name('lecture_group.delete');
 });
 
 // Teacher routes
