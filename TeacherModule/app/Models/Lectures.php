@@ -30,14 +30,20 @@ class Lectures extends Model
         return $this->belongsTo(Lecturers::class, 'lecturer_id', 'user_id');
     }
 
-    public function groups()
-    {
-        return $this->belongsToMany(Groups::class, 'lecture_groups', 'lecture_id', 'group_id');
-    }
+    // public function groups()
+    // {
+    //     return $this->belongsToMany(Groups::class, 'lecture_groups', 'lecture_id', 'group_id');
+    // }
+
 
     public function lectureGroups()
     {
         return $this->hasMany(LectureGroups::class, 'lecture_id', 'lecture_id');
+    }
+
+    public function groups()
+    {
+        return $this->hasManyThrough(Groups::class, LectureGroups::class, 'lecture_id', 'group_id', 'lecture_id', 'group_id');
     }
 
     public function attendanceRecords()

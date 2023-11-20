@@ -1,20 +1,21 @@
 <div id="main-nav" class="pt-20 z-40 hidden w-[50%] top-0 left-0 md:flex md:w-[18%] fixed h-[100vh] bg-slate-400 border-r-2">
     <div class="flex flex-col gap-y-2 mt-2 items-center w-full text-sm my-8 px-8">
-
-        <div class="{{$focus == 'dashboard' ? 'bg-blue-600 text-white':'hover:font-semibold' }} flex p-4 h-10 justify-center items-center gap-3 text-sm rounded-md">
+        <div class="{{$focus == 'dashboard' ? 'bg-blue-600 text-white px-6':'hover:font-semibold' }} flex flex-row h-12 items-center gap-4 text-sm mx-4 lg:text-base rounded drop-shadow">
             <i class="fa-solid fa-house"></i>
             <p class=""><a href="{{route('teacher.dashboard')}}">Dashboard</a></p>
         </div>
-        <div class="{{ $focus=='lecture' ? 'bg-blue-500 text-white px-6' : 'text-black' }} flex flex-row h-12 items-center gap-4 text-sm mx-4 lg:text-base rounded drop-shadow">
+        <div class="{{ $focus=='lecture' ? 'bg-blue-600 text-white px-6' : 'text-black' }} flex flex-row h-12 items-center gap-4 text-sm mx-4 lg:text-base rounded drop-shadow">
             <i class="fa-solid fa-book"></i>
             <p class=""><a href="{{route('teacher.lectures')}}">Lectures</a></p>
         </div>
-
+        <div class="{{ $focus=='lecture_group' ? 'bg-blue-600 text-white px-6' : 'text-black' }} flex flex-row h-12 items-center gap-4 text-sm mx-4 lg:text-base rounded drop-shadow">
+            <i class="fa-solid fa-users-line"></i>
+            <p class=""><a href="{{route('teacher.lecture_groups')}}">Lecture Groups</a></p>
+        </div>
         <div class="{{ $focus=='attendance' ? 'bg-blue-600 text-white px-6' : 'text-black' }} flex flex-row h-12 items-center space-x-4 text-sm mx-4 lg:text-base rounded drop-shadow">
             <i class="fa-solid fa-clipboard-user"></i>
             <p class=""><a href="">Attendance</a></p>
         </div>
-
     </div>
 
 </div>
@@ -24,15 +25,19 @@
         <i class="fa-solid fa-xmark"></i>
     </div>
     <div class="flex flex-col gap-4 items-start text-blue-strath w-full text-sm mt-10 px-5">
-        <div class="{{$focus == 'dashboard' ? 'bg-blue-600 text-white':'hover:font-semibold' }} flex p-4 h-10 justify-center items-center gap-3 text-sm rounded-md">
+        <div class="{{$focus == 'dashboard' ? 'bg-blue-600 text-white':'hover:font-semibold' }} flex flex-row h-12 items-center gap-4 text-sm mx-4 lg:text-base rounded drop-shadow">
             <i class="fa-solid fa-house"></i>
             <p class=""><a href="{{route('teacher.dashboard')}}">Dashboard</a></p>
         </div>
-        <div class="{{ $focus=='lecture' ? 'bg-blue-500 text-white px-6' : 'text-black' }} flex flex-row h-12 items-center gap-4 text-sm mx-4 lg:text-base rounded drop-shadow">
+        <div class="{{ $focus=='lecture' ? 'bg-blue-600 text-white px-6' : 'text-black' }} flex flex-row h-12 items-center gap-4 text-sm mx-4 lg:text-base rounded drop-shadow">
             <i class="fa-solid fa-book"></i>
             <p class=""><a href="{{route('teacher.lectures')}}">Lectures</a></p>
         </div>
-        <div class="{{$focus == 'dashboard' ? 'bg-blue-600 text-white':'hover:font-semibold' }} flex p-4 h-10 justify-center items-center gap-3 text-sm rounded-md">
+        <div class="{{ $focus=='lecture_group' ? 'bg-blue-600 text-white px-6' : 'text-black' }} flex flex-row h-12 items-center gap-4 text-sm mx-4 lg:text-base rounded drop-shadow">
+            <i class="fa-solid fa-users-line"></i>
+            <p class=""><a href="{{route('teacher.lecture_groups')}}">Lecture Groups</a></p>
+        </div>
+        <div class="{{ $focus=='attendance' ? 'bg-blue-600 text-white px-6' : 'text-black' }} flex flex-row h-12 items-center space-x-4 text-sm mx-4 lg:text-base rounded drop-shadow">
             <i class="fa-solid fa-clipboard-user"></i>
             <p class=""><a href="">Attendance</a></p>
         </div>
@@ -46,6 +51,9 @@
     @break
     @case('lecture')
     <i class="fa-solid fa-book"></i>
+    @break
+    @case('lecture_group')
+    <i class="fa-solid fa-users-line"></i>
     @break
 
     @default

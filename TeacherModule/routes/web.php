@@ -83,6 +83,8 @@ Route::group(['middleware' => ['auth', 'checkUserRole:1']], function () {
 Route::group(['middleware' => ['auth', 'checkUserRole:2']], function () {
     Route::get('/teacher-dashboard', [TeacherController::class, 'index'])->name('teacher.dashboard');
     Route::get('/teacher-lectures', [TeacherController::class, 'getLectures'])->name('teacher.lectures');
+    Route::get('/teacher-lecture-groups', [TeacherController::class, 'getLectureGroups'])->name('teacher.lecture_groups');
+    Route::get('/teacher-groupStudents/{groupID}', [TeacherController::class, 'getGroupStudents'])->name('teacher.group_students');
 });
 
 Route::group(['middleware' => 'auth'], function () {

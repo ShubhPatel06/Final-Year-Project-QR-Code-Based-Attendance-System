@@ -48,9 +48,45 @@
         <i class="fa-solid fa-xmark"></i>
     </div>
     <div class="flex flex-col gap-y-4 mt-16 items-center text-blue-strath w-full text-sm my-8 px-5">
-        <div class="{{$focus == 'dashboard' ? 'bg-blue-500 text-white':'hover:font-semibold' }} flex p-4 h-10 justify-center items-center gap-3 text-sm rounded-md">
+        <div class="{{ $focus=='dashboard' ? 'bg-blue-500 text-white px-6' : 'text-black' }} flex flex-row h-12 items-center gap-4 text-sm mx-4 lg:text-base rounded drop-shadow">
             <i class="fa-solid fa-house"></i>
-            <p class=""><a href="">Dashboard</a></p>
+            <p class=""><a href="{{route('admin.dashboard')}}">Dashboard</a></p>
+        </div>
+        <div class="{{ $focus=='roles' ? 'bg-blue-500 text-white px-6' : 'text-black' }} flex flex-row h-12 items-center gap-4 text-sm mx-4 lg:text-base rounded drop-shadow">
+            <i class="fa-solid fa-user-shield"></i>
+            <p class=""><a href="{{route('admin.roles')}}">Roles</a></p>
+        </div>
+        <div class="{{ $focus=='users' ? 'bg-blue-500 text-white px-6' : 'text-black' }} flex flex-row h-12 items-center gap-4 text-sm mx-4 lg:text-base rounded drop-shadow">
+            <i class="fa-solid fa-users"></i>
+            <p class=""><a href="{{route('admin.users')}}">Users</a></p>
+        </div>
+        <div class="{{ $focus=='faculty' ? 'bg-blue-500 text-white px-6' : 'text-black' }} flex flex-row h-12 items-center gap-4 text-sm mx-4 lg:text-base rounded drop-shadow">
+            <i class="fa-solid fa-school"></i>
+            <p class=""><a href="{{route('admin.faculties')}}">Faculties</a></p>
+        </div>
+        <div class="{{ $focus=='course' ? 'bg-blue-500 text-white px-6' : 'text-black' }} flex flex-row h-12 items-center gap-4 text-sm mx-4 lg:text-base rounded drop-shadow">
+            <i class="fa-solid fa-graduation-cap"></i>
+            <p class=""><a href="{{route('admin.courses')}}">Courses</a></p>
+        </div>
+        <div class="{{ $focus=='lecturer' ? 'bg-blue-500 text-white px-6' : 'text-black' }} flex flex-row h-12 items-center gap-4 text-sm mx-4 lg:text-base rounded drop-shadow">
+            <i class="fa-solid fa-person-chalkboard"></i>
+            <p class=""><a href="{{route('admin.lecturers')}}">Lecturers</a></p>
+        </div>
+        <div class="{{ $focus=='lecture' ? 'bg-blue-500 text-white px-6' : 'text-black' }} flex flex-row h-12 items-center gap-4 text-sm mx-4 lg:text-base rounded drop-shadow">
+            <i class="fa-solid fa-book"></i>
+            <p class=""><a href="{{route('admin.lectures')}}">Lectures</a></p>
+        </div>
+        <div class="{{ $focus=='group' ? 'bg-blue-500 text-white px-6' : 'text-black' }} flex flex-row h-12 items-center gap-4 text-sm mx-4 lg:text-base rounded drop-shadow">
+            <i class="fa-solid fa-users-rectangle"></i>
+            <p class=""><a href="{{route('admin.groups')}}">Groups</a></p>
+        </div>
+        <div class="{{ $focus=='lecture_group' ? 'bg-blue-500 text-white px-6' : 'text-black' }} flex flex-row h-12 items-center gap-4 text-sm mx-4 lg:text-base rounded drop-shadow">
+            <i class="fa-solid fa-users-line"></i>
+            <p class=""><a href="{{route('admin.lecture_groups')}}">Lecture Groups</a></p>
+        </div>
+        <div class="{{ $focus=='student' ? 'bg-blue-500 text-white px-6' : 'text-black' }} flex flex-row h-12 items-center gap-4 text-sm mx-4 lg:text-base rounded drop-shadow">
+            <i class="fa-solid fa-user-pen"></i>
+            <p class=""><a href="{{route('admin.students')}}">Students</a></p>
         </div>
     </div>
 </div>

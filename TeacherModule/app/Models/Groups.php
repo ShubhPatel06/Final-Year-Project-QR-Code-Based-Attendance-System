@@ -17,7 +17,7 @@ class Groups extends Model
 
     public function lectures()
     {
-        return $this->belongsToMany(Lecture::class, 'lecture_groups', 'group_id', 'lecture_id');
+        return $this->belongsToMany(Lectures::class, 'lecture_groups', 'group_id', 'lecture_id');
     }
 
     public function lectureGroups()

@@ -10,7 +10,7 @@
         <h1 class="text-4xl ">Lecture Details</h1>
 
     </div>
-    <table class="min-w-fug-white shadow-md rounded-lg lectures-table">
+    <table class="min-w-fug-white shadow-md rounded-lg lectures-table" id="lectures-table">
         <thead>
             <tr class="bg-slate-200">
                 <th class="p-4 font-semibold text-gray-700">Lecture Code</th>
@@ -20,7 +20,6 @@
                 <th class="p-4 font-semibold text-gray-700">Day</th>
                 <th class="p-4 font-semibold text-gray-700">Start Time</th>
                 <th class="p-4 font-semibold text-gray-700">End Time</th>
-                <th class="p-4 font-semibold text-gray-700">Action</th>
             </tr>
         </thead>
         <tbody class="bg-white">
@@ -32,7 +31,7 @@
 <script type="text/javascript">
     $(function() {
 
-        var table = $('.lectures-table').DataTable({
+        var table = $('#lectures-table').DataTable({
             processing: true,
             serverSide: true,
             ajax: "{{ route('teacher.lectures') }}",
@@ -71,15 +70,11 @@
                     name: 'end_time',
                     class: "p-4"
                 },
-                {
-                    data: 'action',
-                    name: 'action',
-                    class: "p-4",
-                    orderable: false,
-                    searchable: false
-                },
+
             ]
         });
+
+
 
     });
 </script>
