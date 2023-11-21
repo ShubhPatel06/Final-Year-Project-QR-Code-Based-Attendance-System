@@ -14,8 +14,8 @@
     <table class="min-w-fug-white shadow-md rounded-lg groups-table" id="groups-table">
         <thead>
             <tr class="bg-slate-200">
-                <th class="p-4 font-semibold text-gray-700">Lecture Name</th>
-                <th class="p-4 font-semibold text-gray-700">Group Name</th>
+                <th class="p-4 font-semibold text-gray-700">Lecture</th>
+                <th class="p-4 font-semibold text-gray-700">Group</th>
                 <th class="p-4 font-semibold text-gray-700">Year</th>
                 <th class="p-4 font-semibold text-gray-700">Semester</th>
                 <th class="p-4 font-semibold text-gray-700">Action</th>

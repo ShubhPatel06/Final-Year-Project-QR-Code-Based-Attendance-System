@@ -25,9 +25,6 @@
                 <th class="p-4 font-semibold text-gray-700">Course</th>
                 <th class="p-4 font-semibold text-gray-700">Lecturer</th>
                 <th class="p-4 font-semibold text-gray-700">Total Hours</th>
-                <th class="p-4 font-semibold text-gray-700">Day</th>
-                <th class="p-4 font-semibold text-gray-700">Start Time</th>
-                <th class="p-4 font-semibold text-gray-700">End Time</th>
                 <th class="p-4 font-semibold text-gray-700">Action</th>
             </tr>
         </thead>
@@ -76,21 +73,6 @@
                 {
                     data: 'total_hours',
                     name: 'total_hours',
-                    class: "p-4"
-                },
-                {
-                    data: 'day',
-                    name: 'day',
-                    class: "p-4"
-                },
-                {
-                    data: 'start_time',
-                    name: 'start_time',
-                    class: "p-4"
-                },
-                {
-                    data: 'end_time',
-                    name: 'end_time',
                     class: "p-4"
                 },
                 {
@@ -154,9 +136,6 @@
                 $('#lecture_code').val(data.lecture_code);
                 $('#lecture_name').val(data.lecture_name);
                 $('#total_hours').val(data.total_hours);
-                $('#day').val(data.day);
-                $('#start_time').val(data.start_time);
-                $('#end_time').val(data.end_time);
                 $('#course_id').val(data.course.course_id);
                 $('#lecturer_id').val(data.lecturer.user.user_id);
             })

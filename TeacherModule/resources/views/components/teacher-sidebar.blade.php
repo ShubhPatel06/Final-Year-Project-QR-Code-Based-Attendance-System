@@ -14,10 +14,9 @@
         </div>
         <div class="{{ $focus=='attendance' ? 'bg-blue-600 text-white px-6' : 'text-black' }} flex flex-row h-12 items-center space-x-4 text-sm mx-4 lg:text-base rounded drop-shadow">
             <i class="fa-solid fa-clipboard-user"></i>
-            <p class=""><a href="">Attendance</a></p>
+            <p class=""><a href="{{route('teacher.attendance')}}">Attendance</a></p>
         </div>
     </div>
-
 </div>
 
 <div id="mobile-nav" class="pt-5 z-40 hidden w-[60%] top-0 left-0 md:hidden fixed h-[100vh] bg-slate-500">
@@ -39,7 +38,7 @@
         </div>
         <div class="{{ $focus=='attendance' ? 'bg-blue-600 text-white px-6' : 'text-black' }} flex flex-row h-12 items-center space-x-4 text-sm mx-4 lg:text-base rounded drop-shadow">
             <i class="fa-solid fa-clipboard-user"></i>
-            <p class=""><a href="">Attendance</a></p>
+            <p class=""><a href="{{route('teacher.attendance')}}">Attendance</a></p>
         </div>
     </div>
 </div>
@@ -54,6 +53,9 @@
     @break
     @case('lecture_group')
     <i class="fa-solid fa-users-line"></i>
+    @break
+    @case('attendance')
+    <i class="fa-solid fa-clipboard-user"></i>
     @break
 
     @default

@@ -19,9 +19,6 @@ return new class extends Migration
             $table->unsignedBigInteger('course_id');
             $table->unsignedBigInteger('lecturer_id');
             $table->integer('total_hours');
-            $table->string("day");
-            $table->timestamp('start_time');
-            $table->timestamp('end_time')->nullable();
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
 

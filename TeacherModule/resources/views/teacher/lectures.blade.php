@@ -17,9 +17,6 @@
                 <th class="p-4 font-semibold text-gray-700">Lecture Name</th>
                 <th class="p-4 font-semibold text-gray-700">Course</th>
                 <th class="p-4 font-semibold text-gray-700">Total Hours</th>
-                <th class="p-4 font-semibold text-gray-700">Day</th>
-                <th class="p-4 font-semibold text-gray-700">Start Time</th>
-                <th class="p-4 font-semibold text-gray-700">End Time</th>
             </tr>
         </thead>
         <tbody class="bg-white">
@@ -55,27 +52,8 @@
                     name: 'total_hours',
                     class: "p-4"
                 },
-                {
-                    data: 'day',
-                    name: 'day',
-                    class: "p-4"
-                },
-                {
-                    data: 'start_time',
-                    name: 'start_time',
-                    class: "p-4"
-                },
-                {
-                    data: 'end_time',
-                    name: 'end_time',
-                    class: "p-4"
-                },
-
             ]
         });
-
-
-
     });
 </script>
 

@@ -27,18 +27,7 @@
                             <label for="total_hours" class="block mb-2 text-sm font-medium text-gray-900">Total Hours</label>
                             <input type="number" name="total_hours" id="total_hours" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
                         </div>
-                        <div>
-                            <label for="day" class="block mb-2 text-sm font-medium text-gray-900">Day</label>
-                            <input type="text" name="day" id="day" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
-                        </div>
-                        <div>
-                            <label for="start_time" class="block mb-2 text-sm font-medium text-gray-900">Start Time</label>
-                            <input type="time" name="start_time" id="start_time" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
-                        </div>
-                        <div>
-                            <label for="end_time" class="block mb-2 text-sm font-medium text-gray-900">End Time</label>
-                            <input type="time" name="end_time" id="end_time" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
-                        </div>
+
                         <div class="col-span-2">
                             <label for="course_id" class="block mb-2 text-sm font-medium text-gray-900">Course</label>
                             <select name="course_id" id="course_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2">
@@ -60,7 +49,6 @@
                     </div>
                     <button type="submit" id="saveBtn" class="w-full text-white bg-emerald-700 hover:bg-emerald-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Save</button>
                 </form>
-
             </div>
         </div>
     </div>

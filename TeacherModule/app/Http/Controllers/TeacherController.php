@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\AttendanceRecord;
 use App\Models\Groups;
 use App\Models\LectureGroups;
 use App\Models\Lectures;
@@ -10,6 +11,7 @@ use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class TeacherController extends Controller
 {
@@ -115,5 +117,64 @@ class TeacherController extends Controller
         $groupDetails = Groups::find($groupID);
         $groupName = $groupDetails ? $groupDetails->group_name : '';
         return view('teacher.groupStudents', compact('groupName'));
+    }
+
+    public function attendanceIndex()
+    {
+        $teacher = Auth::user();
+        if ($teacher) {
+            $lectures = Lectures::with(['course'])
+                ->where('lecturer_id', $teacher->user_id)
+                ->get();
+            return view('teacher.attendance', ['lectures' => $lectures]);
+        }
+    }
+
+    public function getGroups($lectureId)
+    {
+        $groupsData = LectureGroups::with(['group'])
+            ->where('lecture_id', $lectureId)
+            ->get();
+
+        $groups = $groupsData->map(function ($lectureGroup) {
+            return [
+                'group_id' => $lectureGroup->group->group_id,
+                'group_name' => $lectureGroup->group->group_name,
+            ];
+        });
+
+        return response()->json($groups);
+    }
+
+    public function storeAttendanceData(Request $request)
+    {
+        $request->validate([
+            'lecture_id' => 'required',
+            'group_id' => 'required',
+            'date' => 'required|date',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i|after:start_time',
+        ]);
+
+        AttendanceRecord::create([
+            'lecture_id' => $request->input('lecture_id'),
+            'group_id' => $request->input('group_id'),
+            'date' => $request->input('date'),
+            'start_time' => $request->input('start_time'),
+            'end_time' => $request->input('end_time'),
+        ]);
+
+        $qrCodeData = "Lecture: " . $request->input('lecture_id') . "\n"
+            . "Group: " . $request->input('group_id') . "\n"
+            . "Date: " . $request->input('date') . "\n"
+            . "Start Time: " . $request->input('start_time') . "\n"
+            . "End Time: " . $request->input('end_time');
+
+        // Generate QR code and store it
+        $qrCodePath = 'qrcodes/' . uniqid('qrcode_') . '.png';
+        QrCode::size(300)
+            ->generate($qrCodeData, public_path($qrCodePath));
+
+        return response()->json(['success' => 'Record saved successfully.']);
     }
 }

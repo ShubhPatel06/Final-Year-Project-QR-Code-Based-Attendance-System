@@ -13,11 +13,18 @@ class AttendanceRecord extends Model
 
     protected $primaryKey = 'record_id';
 
-    protected $fillable = ['lecture_id', 'date'];
+    public $timestamps = false;
+
+    protected $fillable = ['lecture_id', 'group_id', 'date', 'start_time', 'end_time'];
 
     public function lecture()
     {
         return $this->belongsTo(Lecture::class);
+    }
+
+    public function group()
+    {
+        return $this->belongsTo(Groups::class);
     }
 
     public function studentAttendance()

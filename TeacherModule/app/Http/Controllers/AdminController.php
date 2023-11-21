@@ -348,10 +348,6 @@ class AdminController extends Controller
                 'course_id' => $request->course_id,
                 'lecturer_id' => $request->lecturer_id,
                 'total_hours' => $request->total_hours,
-                'day' => $request->day,
-                'start_time' => $request->start_time,
-                'end_time' => $request->end_time,
-
             ]
         );
         return response()->json(['success' => 'Lecture saved successfully.']);

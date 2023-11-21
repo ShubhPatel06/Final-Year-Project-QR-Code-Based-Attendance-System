@@ -13,7 +13,7 @@ class Lectures extends Model
 
     protected $primaryKey = 'lecture_id';
 
-    protected $fillable = ['lecture_code', 'lecture_name', 'faculty_id', 'course_id', 'lecturer_id', 'total_hours', 'day', 'start_time', 'end_time'];
+    protected $fillable = ['lecture_code', 'lecture_name', 'faculty_id', 'course_id', 'lecturer_id', 'total_hours'];
 
     public function faculty()
     {
