@@ -22,6 +22,6 @@ class StudentAttendance extends Model
 
     public function student()
     {
-        return $this->belongsTo(Student::class, 'student_adm_no');
+        return $this->belongsTo(Student::class, 'student_adm_no', 'adm_no');
     }
 }

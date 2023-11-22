@@ -20,8 +20,6 @@
     <x-time-modal />
     <x-q-r-code-modal />
 
-    <!-- <img src="{{ asset('qrcodes/qrcode_655dd87901ba0.svg') }}" alt="QR Code"> -->
-
     <table class="min-w-fug-white shadow-md rounded-lg attendance-table" id="attendance-table">
         <thead>
             <tr class="bg-slate-200">
@@ -138,14 +136,18 @@
         });
 
         let timerInterval;
+        let record_id;
+        let qr_code_path;
 
         $('body').on('click', '.displayQR', function() {
             $('#time-modal').removeClass('hidden');
             $('#time-modal').addClass('flex');
             $('#TimemodalTitle').html("Time to Display QR Code");
             $('#timeBtn').html("Display QR Code");
+            $('#time').val('');
 
-            var qr_code_path = $(this).data('qr-code');
+            qr_code_path = $(this).data('qr-code');
+            record_id = $(this).data('id');
             var fullUrl = "{{ asset('') }}" + qr_code_path;
 
             $('#timeBtn').click(function(event) {
@@ -155,19 +157,12 @@
                 if (timeInput.trim() !== '' && !isNaN(timeInput) && parseInt(timeInput) > 0) {
                     const timeInMinutes = parseInt(timeInput);
                     const seconds = timeInMinutes * 60;
-
-                    // Close the time modal
                     $('#time-modal').addClass('hidden');
-
-                    // Clear the previous interval if it exists
                     clearInterval(timerInterval);
 
                     displayQRCode(fullUrl, seconds);
 
-                    // Clear the time input value
-                    $('#time').val('');
                 } else {
-                    // Handle invalid input (e.g., show an error message)
                     console.log('Invalid time input. Please enter a valid positive number.');
                 }
             });
@@ -192,7 +187,7 @@
                 if (seconds < 0) {
                     clearInterval(timerInterval);
                     // Execute function to delete QR code
-                    // deleteQRCode(qrCodePath);
+                    deleteQRCode(record_id);
                 }
             }, 1000);
         }
@@ -208,10 +203,28 @@
             return num < 10 ? `0${num}` : num;
         }
 
+        function deleteQRCode(qrCodeId) {
+            // Call the Laravel route to delete the QR code
+            $.ajax({
+                url: `/delete-qrcode/${qrCodeId}`,
+                type: 'DELETE',
+                beforeSend: function(xhr) {
+                    xhr.setRequestHeader('X-CSRF-TOKEN', $('meta[name="csrf-token"]').attr('content'));
+                },
+                success: function(data) {
+                    $('#qrCode-modal').removeClass('flex');
+                    $('#qrCode-modal').addClass('hidden');
+                    table.draw();
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr.responseText);
+                }
+            });
+        }
+
         $('#closeQRModal').click(function() {
             clearInterval(timerInterval);
-
-            $('#qrCode-modal').remove('flex');
+            $('#qrCode-modal').removeClass('flex');
             $('#qrCode-modal').addClass('hidden');
             updateTimer(0, 0);
         });

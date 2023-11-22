@@ -8,8 +8,10 @@ use App\Models\Groups;
 use App\Models\LectureGroups;
 use App\Models\Lectures;
 use App\Models\Student;
+use App\Models\StudentAttendance;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
 use Yajra\DataTables\Facades\DataTables;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
@@ -114,11 +116,11 @@ class TeacherController extends Controller
 
                     $actionBtn = '<div class="flex gap-4 text-white font-semibold">';
 
-                    $actionBtn .= '<a href="javascript:void(0)" data-id="' . $row->record_id . '" class="edit bg-emerald-500 hover:bg-emerald-600 font-medium rounded-lg text-sm px-5 py-2 text-center viewStudentRecords">Student Records</a>';
+                    $actionBtn .= '<a href="' . route('teacher.student_records', ['recordID' => $row->record_id]) . '" data-id="' . $row->record_id . '" class="edit bg-emerald-500 hover:bg-emerald-600 font-medium rounded-lg text-sm px-5 py-2 text-center viewStudentRecords">Student Records</a>';
 
                     // Display QR Code link if qr_code_path is not null
                     if ($row->qr_code_path !== null) {
-                        $actionBtn .= '<button data-qr-code="' . $row->qr_code_path . '" class="bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-sm px-5 py-2 text-center displayQR">Display QR Code</button>';
+                        $actionBtn .= '<button data-qr-code="' . $row->qr_code_path . '" data-id="' . $row->record_id . '" class="bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-sm px-5 py-2 text-center displayQR">Display QR Code</button>';
                     }
 
                     $actionBtn .= '</div>';
@@ -183,6 +185,57 @@ class TeacherController extends Controller
         // Update the attendance record with the QR code path
         $attendanceRecord->update(['qr_code_path' => $qrCodePath]);
 
+        // Get students based on the group_id
+        $students = Student::where('group_id', $request->input('group_id'))->get();
+
+        // Create student attendance records
+        foreach ($students as $student) {
+            StudentAttendance::create([
+                'attendance_record_id' => $attendanceRecord->record_id,
+                'student_adm_no' => $student->adm_no,
+            ]);
+        }
+
         return response()->json(['success' => 'Record saved successfully.']);
+    }
+
+
+    public function deleteQRCode($group_id)
+    {
+        $qrCode = AttendanceRecord::where('group_id', $group_id)->first();
+
+        if (!$qrCode) {
+            return response()->json(['error' => 'QR code not found'], 404);
+        }
+
+        // Get the QR code path from the database
+        $qrCodePath = $qrCode->qr_code_path;
+
+        // Update the QR code path to null and save changes to the database
+        $qrCode->qr_code_path = null;
+        $qrCode->save();
+
+        // Delete the QR code file from the public directory
+        if (File::exists(public_path($qrCodePath))) {
+            File::delete(public_path($qrCodePath));
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    public function getStudentRecords(Request $request, $recordID)
+    {
+        if ($request->ajax()) {
+            $data = StudentAttendance::with(['student'])
+                ->where('attendance_record_id', $recordID)
+                ->get();
+
+            dd($data);
+            return DataTables::of($data)
+                ->addIndexColumn()
+                ->make(true);
+        }
+
+        return view('teacher.student_records');
     }
 }
