@@ -15,16 +15,16 @@ class AttendanceRecord extends Model
 
     public $timestamps = false;
 
-    protected $fillable = ['lecture_id', 'group_id', 'date', 'start_time', 'end_time'];
+    protected $fillable = ['lecture_id', 'group_id', 'date', 'start_time', 'end_time', 'qr_code_path'];
 
     public function lecture()
     {
-        return $this->belongsTo(Lecture::class);
+        return $this->belongsTo(Lectures::class, 'lecture_id', 'lecture_id');
     }
 
     public function group()
     {
-        return $this->belongsTo(Groups::class);
+        return $this->belongsTo(Groups::class, 'group_id', 'group_id');
     }
 
     public function studentAttendance()

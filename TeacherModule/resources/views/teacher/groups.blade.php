@@ -29,64 +29,6 @@
 <script type="text/javascript">
     $(function() {
 
-        // var groupsTable = $('#groups-table').DataTable({
-        //     processing: true,
-        //     serverSide: true,
-        //     ajax: "{{ route('teacher.lecture_groups') }}",
-        //     columns: [{
-        //             data: 'lecture_name',
-        //             name: 'lecture_name',
-        //             class: "p-4"
-        //         },
-        //         {
-        //             data: 'groups.group_name',
-        //             name: 'groups.group_name',
-        //             class: "p-4"
-        //         },
-        //         {
-        //             data: 'year',
-        //             name: 'year',
-        //             class: "p-4"
-        //         },
-        //         {
-        //             data: 'semester',
-        //             name: 'semester',
-        //             class: "p-4"
-        //         },
-        //         {
-        //             data: 'action',
-        //             name: 'action',
-        //             class: "p-4",
-        //             orderable: false,
-        //             searchable: false
-        //         },
-        //     ]
-        // });
-
-        // var groupsTable = $('.groups-table').DataTable({
-        //     processing: true,
-        //     serverSide: true,
-        //     ajax: "{{ route('teacher.lecture_groups') }}",
-        //     columns: [{
-        //             data: 'lecture_name',
-        //             name: 'lecture_name',
-        //             class: "p-4"
-        //         },
-        //         {
-        //             data: 'groups',
-        //             name: 'groups',
-        //             class: "p-4"
-        //         },
-        //         {
-        //             data: 'action',
-        //             name: 'action',
-        //             class: "p-4",
-        //             orderable: false,
-        //             searchable: false
-        //         },
-        //     ]
-        // });
-
         var groupsTable = $('.groups-table').DataTable({
             processing: true,
             serverSide: true,

@@ -19,6 +19,7 @@ return new class extends Migration
             $table->date("date");
             $table->time('start_time');
             $table->time('end_time')->nullable();
+            $table->string('qr_code_path')->nullable();
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
 

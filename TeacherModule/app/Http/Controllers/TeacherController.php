@@ -53,27 +53,6 @@ class TeacherController extends Controller
     {
         $user = Auth::user();
 
-        // if ($request->ajax()) {
-        //     $data = Lectures::with(['groups'])->where('lecturer_id', $user->user_id)->get();
-
-        //     // dd($data);
-        //     return DataTables::of($data)
-        //         ->addIndexColumn()
-        //         ->addColumn('action', function ($row) {
-        //             $actionBtn = '<div class="flex gap-4 text-white font-semibold"><a href="javascript:void(0)" data-id="' . $row->group_id . '" class="edit bg-emerald-500 hover:bg-emerald-600 font-medium rounded-lg text-sm px-5 py-2 text-center viewGroups">View Groups</a></div>';
-        //             return $actionBtn;
-        //         })
-        //         ->addColumn('groups', function ($row) {
-        //             // Access the groups and format them as needed
-        //             $groups = $row->groups->map(function ($group) {
-        //                 return $group->group_name . ' (' . $group->year . ', ' . $group->semester . ')';
-        //             })->implode(', ');
-
-        //             return $groups;
-        //         })
-        //         ->rawColumns(['action'])
-        //         ->make(true);
-        // }
 
         if ($request->ajax()) {
             $lectures = Lectures::with(['groups'])->where('lecturer_id', $user->user_id)->get();
@@ -113,21 +92,46 @@ class TeacherController extends Controller
                 ->addIndexColumn()
                 ->make(true);
         }
-        // Fetch the group details
+
         $groupDetails = Groups::find($groupID);
         $groupName = $groupDetails ? $groupDetails->group_name : '';
         return view('teacher.groupStudents', compact('groupName'));
     }
 
-    public function attendanceIndex()
+    public function attendanceIndex(Request $request)
     {
         $teacher = Auth::user();
-        if ($teacher) {
-            $lectures = Lectures::with(['course'])
-                ->where('lecturer_id', $teacher->user_id)
+
+        if ($request->ajax()) {
+            $data = AttendanceRecord::with(['lecture', 'group'])
                 ->get();
-            return view('teacher.attendance', ['lectures' => $lectures]);
+
+            return DataTables::of($data)
+                ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+                    // $actionBtn = '<div class="flex gap-4 text-white font-semibold"><a href="javascript:void(0)" data-id="' . $row->record_id . '" class="edit bg-emerald-500 hover:bg-emerald-600 font-medium rounded-lg text-sm px-5 py-2 text-center viewStudentRecords">Student Records</a></div>';
+                    // return $actionBtn;
+
+                    $actionBtn = '<div class="flex gap-4 text-white font-semibold">';
+
+                    $actionBtn .= '<a href="javascript:void(0)" data-id="' . $row->record_id . '" class="edit bg-emerald-500 hover:bg-emerald-600 font-medium rounded-lg text-sm px-5 py-2 text-center viewStudentRecords">Student Records</a>';
+
+                    // Display QR Code link if qr_code_path is not null
+                    if ($row->qr_code_path !== null) {
+                        $actionBtn .= '<button data-qr-code="' . $row->qr_code_path . '" class="bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-sm px-5 py-2 text-center displayQR">Display QR Code</button>';
+                    }
+
+                    $actionBtn .= '</div>';
+                    return $actionBtn;
+                })
+                ->rawColumns(['action'])
+                ->make(true);
         }
+
+        $lectures = Lectures::with(['course'])
+            ->where('lecturer_id', $teacher->user_id)
+            ->get();
+        return view('teacher.attendance', ['lectures' => $lectures]);
     }
 
     public function getGroups($lectureId)
@@ -156,7 +160,7 @@ class TeacherController extends Controller
             'end_time' => 'required|date_format:H:i|after:start_time',
         ]);
 
-        AttendanceRecord::create([
+        $attendanceRecord = AttendanceRecord::create([
             'lecture_id' => $request->input('lecture_id'),
             'group_id' => $request->input('group_id'),
             'date' => $request->input('date'),
@@ -171,9 +175,13 @@ class TeacherController extends Controller
             . "End Time: " . $request->input('end_time');
 
         // Generate QR code and store it
-        $qrCodePath = 'qrcodes/' . uniqid('qrcode_') . '.png';
-        QrCode::size(300)
+        $qrCodePath = 'qrcodes/' . uniqid('qrcode_') . '.svg';
+        QrCode::format('svg') // Set the format to PNG
+            ->size(500)
             ->generate($qrCodeData, public_path($qrCodePath));
+
+        // Update the attendance record with the QR code path
+        $attendanceRecord->update(['qr_code_path' => $qrCodePath]);
 
         return response()->json(['success' => 'Record saved successfully.']);
     }
