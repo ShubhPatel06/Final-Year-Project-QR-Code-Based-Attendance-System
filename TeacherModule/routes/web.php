@@ -90,6 +90,8 @@ Route::group(['middleware' => ['auth', 'checkUserRole:2']], function () {
     Route::post('/create-QRCode', [TeacherController::class, 'storeAttendanceData'])->name('teacher.storeData');
     Route::delete('/delete-qrcode/{id}', [TeacherController::class, 'deleteQRCode'])->name('delete.qrcode');
     Route::get('/teacher-studentRecords/{recordID}', [TeacherController::class, 'getStudentRecords'])->name('teacher.student_records');
+    Route::get('/get-attendance/{id}', [TeacherController::class, 'getAttendanceByID'])->name('teacher.getAttedance');
+    Route::post('/edit-attendance', [TeacherController::class, 'editAttendance'])->name('teacher.editAttendance');
 });
 
 Route::group(['middleware' => 'auth'], function () {

@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Yajra\DataTables\Facades\DataTables;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Illuminate\Support\Str;
 
 class TeacherController extends Controller
 {
@@ -162,24 +163,43 @@ class TeacherController extends Controller
             'end_time' => 'required|date_format:H:i|after:start_time',
         ]);
 
+        // Generate a verification token
+        $verificationToken = Str::random(20);
+
         $attendanceRecord = AttendanceRecord::create([
             'lecture_id' => $request->input('lecture_id'),
             'group_id' => $request->input('group_id'),
             'date' => $request->input('date'),
             'start_time' => $request->input('start_time'),
             'end_time' => $request->input('end_time'),
+            'verification_token' => $verificationToken,
         ]);
+
+        // Check if the session type is physical
+        if ($request->input('session_type') === 'physical') {
+            // Get the latitude and longitude from the request
+            $latitude = $request->input('latitude');
+            $longitude = $request->input('longitude');
+
+            // Store the location data in the database
+            $attendanceRecord->update([
+                'latitude' => $latitude,
+                'longitude' => $longitude,
+            ]);
+        }
 
         $qrCodeData = "Lecture: " . $request->input('lecture_id') . "\n"
             . "Group: " . $request->input('group_id') . "\n"
             . "Date: " . $request->input('date') . "\n"
             . "Start Time: " . $request->input('start_time') . "\n"
-            . "End Time: " . $request->input('end_time');
+            . "End Time: " . $request->input('end_time') . "\n"
+            . "Record ID: " . $attendanceRecord->record_id . "\n"
+            . "Verification Token: " . $verificationToken;
 
         // Generate QR code and store it
         $qrCodePath = 'qrcodes/' . uniqid('qrcode_') . '.svg';
         QrCode::format('svg') // Set the format to PNG
-            ->size(500)
+            ->size(420)
             ->generate($qrCodeData, public_path($qrCodePath));
 
         // Update the attendance record with the QR code path
@@ -200,9 +220,9 @@ class TeacherController extends Controller
     }
 
 
-    public function deleteQRCode($group_id)
+    public function deleteQRCode($record_id)
     {
-        $qrCode = AttendanceRecord::where('group_id', $group_id)->first();
+        $qrCode = AttendanceRecord::where('record_id', $record_id)->first();
 
         if (!$qrCode) {
             return response()->json(['error' => 'QR code not found'], 404);
@@ -211,8 +231,14 @@ class TeacherController extends Controller
         // Get the QR code path from the database
         $qrCodePath = $qrCode->qr_code_path;
 
-        // Update the QR code path to null and save changes to the database
         $qrCode->qr_code_path = null;
+        if ($qrCode->latitude !== null) {
+            $qrCode->latitude = null;
+        }
+        if ($qrCode->longitude !== null) {
+            $qrCode->longitude = null;
+        }
+        $qrCode->verification_token = null;
         $qrCode->save();
 
         // Delete the QR code file from the public directory
@@ -226,16 +252,43 @@ class TeacherController extends Controller
     public function getStudentRecords(Request $request, $recordID)
     {
         if ($request->ajax()) {
-            $data = StudentAttendance::with(['student'])
+            $data = StudentAttendance::with(['student.user'])
                 ->where('attendance_record_id', $recordID)
                 ->get();
 
-            dd($data);
             return DataTables::of($data)
                 ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+                    $actionBtn = '<div class="flex gap-4 text-white font-semibold"><a href="javascript:void(0)" data-id="' . $row->attendance_id . '" class="edit bg-emerald-500 hover:bg-emerald-600 font-medium rounded-lg text-sm px-5 py-2 text-center updateAttendance">Update Attendance</a></div>';
+                    return $actionBtn;
+                })
                 ->make(true);
         }
 
         return view('teacher.student_records');
+    }
+
+    public function getAttendanceByID($id)
+    {
+        $data = StudentAttendance::where('attendance_id', $id)
+            ->first();
+
+        if (!$data) {
+            return response()->json(['error' => 'Record not found.']);
+        }
+
+        return response()->json($data);
+    }
+
+    public function editAttendance(Request $request)
+    {
+        $attendance_id = $request->input('attendance_id');
+        $is_present = $request->input('is_present');
+
+        StudentAttendance::where('attendance_id', $attendance_id)->update([
+            'is_present' => $is_present,
+        ]);
+
+        return response()->json(['success' => 'Attendance updated successfully.']);
     }
 }

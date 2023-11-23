@@ -15,7 +15,7 @@ class AttendanceRecord extends Model
 
     public $timestamps = false;
 
-    protected $fillable = ['lecture_id', 'group_id', 'date', 'start_time', 'end_time', 'qr_code_path'];
+    protected $fillable = ['lecture_id', 'group_id', 'date', 'start_time', 'end_time', 'qr_code_path', 'latitude', 'longitude', 'verification_token'];
 
     public function lecture()
     {

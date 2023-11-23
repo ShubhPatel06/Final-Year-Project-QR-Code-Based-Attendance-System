@@ -34,6 +34,26 @@
         <tbody class="bg-white">
         </tbody>
     </table>
+
+    <div id="locationExplanationModal" tabindex="-1" aria-hidden="true" class="fixed hidden backdrop-blur-[2px] items-center justify-center top-0 left-1/2 right-0 z-50 w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full shadow-xl">
+        <div class="relative w-full max-w-md max-h-full">
+            <!-- Modal content -->
+            <div class="relative bg-white rounded-lg shadow ">
+                <button type="button" id="closeExplanationModal" class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center" data-modal-hide="locationExplanationModal">
+                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                    </svg>
+                    <span class="sr-only">Close modal</span>
+                </button>
+                <div class="px-6 py-6 lg:px-8">
+                    <h2 class="text-xl font-bold mb-4">Why do we need your location?</h2>
+                    <p class="text-gray-700">
+                        We use your location to provide you with personalized services, such as attendance tracking based on your current location.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script type="text/javascript">
@@ -92,7 +112,6 @@
 
         document.getElementById('date').min = new Date().toISOString().split("T")[0];
 
-
         $('#lecture_id').change(function() {
             var lectureId = $(this).val();
 
@@ -114,26 +133,140 @@
             });
         });
 
-        $('#saveBtn').click(function(e) {
+        // $('#saveBtn').click(function(e) {
+        //     e.preventDefault();
+        //     $(this).html('Saving..');
+
+        //     $.ajax({
+        //         data: $('#attendanceForm').serialize(),
+        //         url: "{{ route('teacher.storeData') }}",
+        //         type: "POST",
+        //         dataType: 'json',
+        //         success: function(data) {
+        //             $('#attendanceForm').trigger("reset");
+        //             $('#attendance-modal').addClass('hidden');
+        //             table.draw();
+        //         },
+        //         error: function(data) {
+        //             console.log('Error:', data);
+        //             $('#saveBtn').html('Generate QR Code');
+        //         }
+        //     });
+        // });
+        function getLocation() {
+            return new Promise((resolve, reject) => {
+                if (navigator.permissions) {
+                    // Use Permissions API to check and request location permission
+                    navigator.permissions.query({
+                        name: 'geolocation'
+                    }).then(permissionStatus => {
+                        if (permissionStatus.state === 'granted') {
+                            // If permission is already granted, get the current position
+                            navigator.geolocation.getCurrentPosition(
+                                position => resolve(position),
+                                error => reject(error)
+                            );
+                        } else if (permissionStatus.state === 'prompt') {
+                            // If permission is not yet determined, request it
+                            navigator.geolocation.getCurrentPosition(
+                                position => resolve(position),
+                                error => reject(error)
+                            );
+                        } else {
+                            // Permission is denied
+                            reject('Geolocation permission denied');
+                        }
+                    });
+                } else if (navigator.geolocation) {
+                    // For browsers not supporting Permissions API
+                    navigator.geolocation.getCurrentPosition(
+                        position => resolve(position),
+                        error => reject(error)
+                    );
+                } else {
+                    // Geolocation is not supported by this browser
+                    reject('Geolocation is not supported');
+                }
+            });
+        }
+
+        $('#saveBtn').click(async function(e) {
             e.preventDefault();
             $(this).html('Saving..');
 
-            $.ajax({
-                data: $('#attendanceForm').serialize(),
-                url: "{{ route('teacher.storeData') }}",
-                type: "POST",
-                dataType: 'json',
-                success: function(data) {
-                    $('#attendanceForm').trigger("reset");
-                    $('#attendance-modal').addClass('hidden');
-                    table.draw();
-                },
-                error: function(data) {
-                    console.log('Error:', data);
-                    $('#saveBtn').html('Generate QR Code');
+            // Get the selected session type
+            const sessionType = $('#session_type').val();
+
+            // Check if the session type is physical
+            if (sessionType === 'physical') {
+                try {
+                    // Display the location explanation modal
+                    $('#locationExplanationModal').removeClass('hidden');
+                    $('#locationExplanationModal').addClass('flex');
+
+                    // Get the user's location
+                    const position = await getLocation();
+
+                    // Extract latitude and longitude from the position data
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+
+                    // Append location data to the form
+                    const formData = new FormData($('#attendanceForm')[0]);
+                    formData.append('latitude', latitude);
+                    formData.append('longitude', longitude);
+
+                    // Submit the form with location data
+                    $.ajax({
+                        data: formData,
+                        url: "{{ route('teacher.storeData') }}",
+                        type: "POST",
+                        processData: false,
+                        contentType: false,
+                        success: function(data) {
+                            $('#attendanceForm').trigger("reset");
+                            $('#attendance-modal').addClass('hidden');
+                            $('#locationExplanationModal').addClass('hidden'); // Hide the location explanation modal after successful submission
+                            table.draw();
+                        },
+                        error: function(data) {
+                            console.log('Error:', data);
+                            $('#saveBtn').html('Generate QR Code');
+                            $('#locationExplanationModal').addClass('hidden'); // Hide the location explanation modal on error
+                        }
+                    });
+                } catch (error) {
+                    console.error('Error getting location:', error);
+
+                    // Handle error, e.g., display a message to the user
+                    if (error === 'Geolocation permission denied') {
+                        // Prompt the user to enable location
+                        alert('Please enable location permission to use this feature.');
+                    }
+
+                    $('#locationExplanationModal').addClass('hidden');
+                    $('#locationExplanationModal').removeClass('flex');
                 }
-            });
+            } else {
+                // If the session type is not physical, submit the form without location data
+                $.ajax({
+                    data: $('#attendanceForm').serialize(),
+                    url: "{{ route('teacher.storeData') }}",
+                    type: "POST",
+                    dataType: 'json',
+                    success: function(data) {
+                        $('#attendanceForm').trigger("reset");
+                        $('#attendance-modal').addClass('hidden');
+                        table.draw();
+                    },
+                    error: function(data) {
+                        console.log('Error:', data);
+                        $('#saveBtn').html('Generate QR Code');
+                    }
+                });
+            }
         });
+
 
         let timerInterval;
         let record_id;
@@ -232,6 +365,11 @@
         $('#closeTimeModal').click(function() {
             $('#time-modal').removeClass('flex');
             $('#time-modal').addClass('hidden');
+        });
+
+        $('#closeExplanationModal').click(function() {
+            $('#locationExplanationModal').addClass('hidden');
+            $('#locationExplanationModal').removeClass('flex');
         });
     });
 </script>

@@ -40,6 +40,14 @@
                         <label for="end_time" class="block mb-2 text-sm font-medium text-gray-900">End Time</label>
                         <input type="time" name="end_time" id="end_time" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
                     </div>
+                    <div>
+                        <label for="session_type" class="block mb-2 text-sm font-medium text-gray-900">Select Session Type</label>
+                        <select name="session_type" id="session_type" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2">
+                            <option value="" selected disabled>Select session type</option>
+                            <option value="physical">Physical session</option>
+                            <option value="virtual">Virtual session</option>
+                        </select>
+                    </div>
                     <button type="submit" id="saveBtn" class="w-full text-white bg-emerald-700 hover:bg-emerald-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Save</button>
                 </form>
             </div>
