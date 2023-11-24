@@ -19,3 +19,47 @@ TeacherModule/.idea
 TeacherModule/.vscode
 TeacherModule/.github
 
+
+# Miscellaneous
+student_module/*.class
+student_module/*.log
+student_module/*.pyc
+student_module/*.swp
+student_module/.DS_Store
+student_module/.atom/
+student_module/.buildlog/
+student_module/.history
+student_module/.svn/
+student_module/migrate_working_dir/
+
+# IntelliJ related
+student_module/*.iml
+student_module/*.ipr
+student_module/*.iws
+student_module/.idea/
+
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#student_module/.vscode/
+
+# Flutter/Dart/Pub related
+student_module/**/doc/api/
+student_module/**/ios/Flutter/.last_build_id
+student_module/.dart_tool/
+student_module/.flutter-plugins
+student_module/.flutter-plugins-dependencies
+student_module/.pub-cache/
+student_module/.pub/
+student_module/build/
+
+# Symbolication related
+student_module/app.*.symbols
+
+# Obfuscation related
+student_module/app.*.map.json
+
+# Android Studio will place build artifacts here
+student_module/android/app/debug
+student_module/android/app/profile
+student_module/android/app/release
