@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'home_screen.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -8,6 +11,35 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController admissionController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+
+  Future<void> loginUser(String admissionNumber, String password) async {
+    final Uri loginUri = Uri.parse('http://127.0.0.1:8000/api/login');
+
+    final response = await http.post(
+      loginUri,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'admission_number': admissionNumber,
+        'password': password,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      // Login successful, handle the response
+      Map<String, dynamic> responseData = jsonDecode(response.body);
+      print('Login successful');
+      print('Token: ${responseData['token']}');
+      print('User: ${responseData['user']}');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => HomeScreen()),
+      );
+    } else {
+      // Login failed, handle the error
+      Map<String, dynamic> errorData = jsonDecode(response.body);
+      print('Login failed: ${errorData['error']}');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,12 +127,11 @@ class _LoginPageState extends State<LoginPage> {
                 padding: EdgeInsets.symmetric(horizontal: 25.0),
                 child: ElevatedButton(
                   onPressed: () {
-                    // TODO: Add login functionality using the provided data
                     String admissionNumber = admissionController.text;
                     String password = passwordController.text;
 
-                    // Add your authentication logic here
-                    // You can make an API call to your Laravel backend for authentication
+                    // Call the loginUser function here
+                    loginUser(admissionNumber, password);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue[500],
