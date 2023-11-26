@@ -4,42 +4,63 @@ import 'package:provider/provider.dart';
 import 'user_provider.dart';
 import 'login_page.dart';
 import '../components/progress_dialog_component.dart';
+import '../components/qr_code_widget.dart';
 
 class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
-    // Access the UserProvider using Provider.of
     var userProvider = Provider.of<UserProvider>(context);
     var progressDialog = ProgressDialogComponent(context, 'Logging out...');
 
+    Future<void> logoutUser(String token) async {
+      final Uri logoutUri = Uri.parse('http://10.0.2.2:8000/api/logout');
+
+      try {
+        final response = await http.post(
+          logoutUri,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+        );
+
+        if (response.statusCode == 200) {
+          print('Logout successful');
+          // Clear user details in the provider
+          userProvider.logout();
+
+          progressDialog.hide();
+
+          // Navigate back to the login page
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => LoginPage(),
+            ),
+          );
+        } else {
+          print('Logout failed');
+          progressDialog.hide();
+        }
+      } catch (error) {
+        print('Error during logout: $error');
+        progressDialog.hide();
+      }
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Home'),
+        title: const Text('Home'),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
               // Show the progress dialog
               progressDialog.show();
-              // Access the UserProvider using Provider.of
-              var userProvider =
-                  Provider.of<UserProvider>(context, listen: false);
 
               // Call the logout API endpoint
               await logoutUser(userProvider.token);
-
-              // Navigate back to the login page
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(
-                  builder: (context) => LoginPage(),
-                ),
-              );
-
-              // Clear user details in the provider
-              userProvider.logout();
-
-              // Hide the progress dialog
-              progressDialog.hide();
             },
           ),
         ],
@@ -50,28 +71,31 @@ class HomeScreen extends StatelessWidget {
           children: [
             const Text('Welcome to the Home Screen!'),
             Text('Admission Number: ${userProvider.admissionNumber}'),
+            const SizedBox(height: 50),
+            ElevatedButton(
+              onPressed: () {
+                // Show QR code scanner
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) => AlertDialog(
+                    title: Text('QR Code Scanner'),
+                    content: QRCodeScannerWidget(),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context); // Close the dialog
+                        },
+                        child: Text('Close'),
+                      ),
+                    ],
+                  ),
+                );
+              },
+              child: Text('Scan QR Code'),
+            )
           ],
         ),
       ),
     );
-  }
-
-  Future<void> logoutUser(String token) async {
-    final Uri logoutUri = Uri.parse(
-        'http://10.0.2.2:8000/api/logout'); // Replace with your network ip when u need to run on physical device
-
-    final response = await http.post(
-      logoutUri,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      print('Logout successful');
-    } else {
-      print('Logout failed');
-    }
   }
 }
