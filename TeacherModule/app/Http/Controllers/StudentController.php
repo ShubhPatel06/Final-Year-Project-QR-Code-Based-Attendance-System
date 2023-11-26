@@ -21,7 +21,7 @@ class StudentController extends Controller
         $student = Student::where('adm_no', $request->input('admission_number'))->first();
 
         if (!$student) {
-            return response()->json(['error' => 'Invalid credentials'], 401);
+            return response()->json(['error' => 'Student Not Registered'], 401);
         }
 
         // Get the corresponding user from the users table
@@ -33,6 +33,12 @@ class StudentController extends Controller
 
         $token = $user->createToken('token-name')->plainTextToken;
 
-        return response()->json(['token' => $token, 'user' => $user], 200);
+        return response()->json(['token' => $token, 'user' => $user, 'admission_number' => $student->adm_no], 200);
+    }
+
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+        return response()->json(['message' => 'Logged out successfully']);
     }
 }

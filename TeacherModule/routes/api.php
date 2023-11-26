@@ -22,6 +22,9 @@ use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 // });
 
 Route::post('/login', [StudentController::class, 'login']);
-Route::middleware(['auth:sanctum', EnsureFrontendRequestsAreStateful::class])->group(function () {
-    // Your protected routes here
+
+// Sanctum routes for token management
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::post('/logout', [StudentController::class, 'logout']);
+    // Other authenticated routes...
 });

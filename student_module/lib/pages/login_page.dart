@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'home_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'user_provider.dart'; // Import the UserProvider class
+import '../components/progress_dialog_component.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -12,8 +15,18 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController admissionController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  Future<void> loginUser(String admissionNumber, String password) async {
-    final Uri loginUri = Uri.parse('http://127.0.0.1:8000/api/login');
+  late ProgressDialogComponent progressDialog;
+
+  @override
+  void initState() {
+    super.initState();
+    progressDialog = ProgressDialogComponent(context, 'Logging in...');
+  }
+
+  Future<void> loginUser(
+      int admissionNumber, String password, UserProvider userProvider) async {
+    progressDialog.show(); // Show the progress dialog
+    final Uri loginUri = Uri.parse('http://10.0.2.2:8000/api/login');
 
     final response = await http.post(
       loginUri,
@@ -30,6 +43,15 @@ class _LoginPageState extends State<LoginPage> {
       print('Login successful');
       print('Token: ${responseData['token']}');
       print('User: ${responseData['user']}');
+
+      // Set user details in the provider
+      userProvider.setUserDetails(
+        responseData['admission_number'],
+        responseData['token'],
+        responseData['user'],
+      );
+      progressDialog.hide(); // Hide the progress dialog
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => HomeScreen()),
@@ -37,6 +59,8 @@ class _LoginPageState extends State<LoginPage> {
     } else {
       // Login failed, handle the error
       Map<String, dynamic> errorData = jsonDecode(response.body);
+      progressDialog.hide(); // Hide the progress dialog
+
       print('Login failed: ${errorData['error']}');
     }
   }
@@ -49,7 +73,7 @@ class _LoginPageState extends State<LoginPage> {
         child: Center(
           child: Column(
             children: [
-              SizedBox(height: 50),
+              const SizedBox(height: 50),
 
               // Logo
               Icon(
@@ -58,7 +82,7 @@ class _LoginPageState extends State<LoginPage> {
                 color: Colors.blue[500],
               ),
 
-              SizedBox(height: 50),
+              const SizedBox(height: 50),
 
               // Text
               Text(
@@ -66,7 +90,7 @@ class _LoginPageState extends State<LoginPage> {
                 style: TextStyle(color: Colors.grey.shade700, fontSize: 40),
               ),
 
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
 
               // Text
               Text(
@@ -74,13 +98,15 @@ class _LoginPageState extends State<LoginPage> {
                 style: TextStyle(color: Colors.grey.shade700, fontSize: 30),
               ),
 
-              SizedBox(height: 25),
+              const SizedBox(height: 25),
 
               // Text field
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 25.0),
+                padding: const EdgeInsets.symmetric(horizontal: 25.0),
                 child: TextField(
                   controller: admissionController,
+                  keyboardType:
+                      TextInputType.number, // Set input type to number
                   decoration: InputDecoration(
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(25),
@@ -97,11 +123,11 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
 
-              SizedBox(height: 25),
+              const SizedBox(height: 25),
 
               // Password Field
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 25.0),
+                padding: const EdgeInsets.symmetric(horizontal: 25.0),
                 child: TextField(
                   controller: passwordController,
                   obscureText: true,
@@ -121,24 +147,28 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
 
-              SizedBox(height: 25),
+              const SizedBox(height: 25),
 
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 25.0),
+                padding: const EdgeInsets.symmetric(horizontal: 25.0),
                 child: ElevatedButton(
                   onPressed: () {
-                    String admissionNumber = admissionController.text;
+                    int admissionNumber = int.parse(admissionController.text);
                     String password = passwordController.text;
 
+                    // Access the UserProvider using Provider.of
+                    var userProvider =
+                        Provider.of<UserProvider>(context, listen: false);
+
                     // Call the loginUser function here
-                    loginUser(admissionNumber, password);
+                    loginUser(admissionNumber, password, userProvider);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue[500],
                     minimumSize:
-                        Size(double.infinity, 50), // Set width and height
+                        const Size(double.infinity, 50), // Set width and height
                   ),
-                  child: Text(
+                  child: const Text(
                     'Login',
                     style: TextStyle(
                       color: Colors.white,
