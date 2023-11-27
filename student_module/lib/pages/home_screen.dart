@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'user_provider.dart';
 import 'login_page.dart';
 import '../components/progress_dialog_component.dart';
-import '../components/qr_code_widget.dart';
+import 'qr_code_scanner.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -15,7 +15,9 @@ class HomeScreen extends StatelessWidget {
     var progressDialog = ProgressDialogComponent(context, 'Logging out...');
 
     Future<void> logoutUser(String token) async {
-      final Uri logoutUri = Uri.parse('http://10.0.2.2:8000/api/logout');
+      // final Uri logoutUri = Uri.parse('http://10.0.2.2:8000/api/logout');
+      final Uri logoutUri =
+          Uri.parse('https://268e-41-90-186-173.ngrok-free.app/api/logout');
 
       try {
         final response = await http.post(
@@ -54,6 +56,18 @@ class HomeScreen extends StatelessWidget {
         title: const Text('Home'),
         actions: [
           IconButton(
+            icon: const Icon(Icons.qr_code),
+            onPressed: () async {
+              // Show QR code scanner
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => QRCodeScannerPage(),
+                ),
+              );
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
               // Show the progress dialog
@@ -71,28 +85,6 @@ class HomeScreen extends StatelessWidget {
           children: [
             const Text('Welcome to the Home Screen!'),
             Text('Admission Number: ${userProvider.admissionNumber}'),
-            const SizedBox(height: 50),
-            ElevatedButton(
-              onPressed: () {
-                // Show QR code scanner
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) => AlertDialog(
-                    title: Text('QR Code Scanner'),
-                    content: QRCodeScannerWidget(),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context); // Close the dialog
-                        },
-                        child: Text('Close'),
-                      ),
-                    ],
-                  ),
-                );
-              },
-              child: Text('Scan QR Code'),
-            )
           ],
         ),
       ),

@@ -26,7 +26,9 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> loginUser(
       int admissionNumber, String password, UserProvider userProvider) async {
     progressDialog.show(); // Show the progress dialog
-    final Uri loginUri = Uri.parse('http://10.0.2.2:8000/api/login');
+    // final Uri loginUri = Uri.parse('http://10.0.2.2:8000/api/login');
+    final Uri loginUri =
+        Uri.parse('https://268e-41-90-186-173.ngrok-free.app/api/login');
 
     final response = await http.post(
       loginUri,

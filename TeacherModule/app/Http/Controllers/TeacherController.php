@@ -188,13 +188,28 @@ class TeacherController extends Controller
             ]);
         }
 
-        $qrCodeData = "Lecture: " . $request->input('lecture_id') . "\n"
-            . "Group: " . $request->input('group_id') . "\n"
-            . "Date: " . $request->input('date') . "\n"
-            . "Start Time: " . $request->input('start_time') . "\n"
-            . "End Time: " . $request->input('end_time') . "\n"
-            . "Record ID: " . $attendanceRecord->record_id . "\n"
-            . "Verification Token: " . $verificationToken;
+        $lectureName = Lectures::where('lecture_id', $request->input('lecture_id'))->value('lecture_name');
+        $groupName = Groups::where('group_id', $request->input('group_id'))->value('group_name');
+
+        // $qrCodeData = "Lecture: " . $lectureName . "\n"
+        //     . "Group: " . $groupName . "\n"
+        //     . "Date: " . $request->input('date') . "\n"
+        //     . "Start Time: " . $request->input('start_time') . "\n"
+        //     . "End Time: " . $request->input('end_time') . "\n"
+        //     . "Record ID: " . $attendanceRecord->record_id . "\n"
+        //     . "Verification Token: " . $verificationToken;
+
+        $dataArray = [
+            'Lecture' => $lectureName,
+            'Group' => $groupName,
+            'Date' => $request->input('date'),
+            'Start Time' => $request->input('start_time'),
+            'End Time' => $request->input('end_time'),
+            'Record ID' => $attendanceRecord->record_id,
+            'Verification Token' => $verificationToken,
+        ];
+
+        $qrCodeData = json_encode($dataArray);
 
         // Generate QR code and store it
         $qrCodePath = 'qrcodes/' . uniqid('qrcode_') . '.svg';
