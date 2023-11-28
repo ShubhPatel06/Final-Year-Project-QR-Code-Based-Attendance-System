@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'user_provider.dart';
 import '../components/progress_dialog_component.dart';
+import 'home_screen.dart';
 
 class ScannedDataFormPage extends StatelessWidget {
   final String scannedData;
@@ -86,13 +87,12 @@ class ScannedDataFormPage extends StatelessWidget {
     String verificationToken,
   ) async {
     const apiUrl =
-        'https://5c13-41-90-186-173.ngrok-free.app/api/update-attendance';
+        'https://73f8-41-90-186-173.ngrok-free.app/api/update-attendance';
 
     try {
       ProgressDialogComponent progressDialog =
           ProgressDialogComponent(context, 'Submitting Attendance');
 
-      // Show the progress dialog
       progressDialog.show();
 
       // Send request to update attendance
@@ -105,11 +105,9 @@ class ScannedDataFormPage extends StatelessWidget {
         },
       );
 
-      // Hide the progress dialog
       progressDialog.hide();
 
       if (response.statusCode == 200) {
-        // Handle successful response
         print('Attendance updated successfully');
 
         // Show success dialog
@@ -125,8 +123,11 @@ class ScannedDataFormPage extends StatelessWidget {
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).pop(); // Close the success dialog
-                    Navigator.of(context)
-                        .pop(); // Navigate back to the home screen
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const HomeScreen()),
+                    );
                   },
                   child: const Text('OK'),
                 ),
@@ -135,7 +136,6 @@ class ScannedDataFormPage extends StatelessWidget {
           },
         );
       } else {
-        // Handle error response
         print('Failed to update attendance: ${response.body}');
 
         // Show error dialog
@@ -159,7 +159,6 @@ class ScannedDataFormPage extends StatelessWidget {
         );
       }
     } catch (error) {
-      // Handle unexpected error
       print('Error submitting attendance: $error');
 
       // Show error dialog

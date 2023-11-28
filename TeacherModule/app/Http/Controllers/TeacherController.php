@@ -191,14 +191,6 @@ class TeacherController extends Controller
         $lectureName = Lectures::where('lecture_id', $request->input('lecture_id'))->value('lecture_name');
         $groupName = Groups::where('group_id', $request->input('group_id'))->value('group_name');
 
-        // $qrCodeData = "Lecture: " . $lectureName . "\n"
-        //     . "Group: " . $groupName . "\n"
-        //     . "Date: " . $request->input('date') . "\n"
-        //     . "Start Time: " . $request->input('start_time') . "\n"
-        //     . "End Time: " . $request->input('end_time') . "\n"
-        //     . "Record ID: " . $attendanceRecord->record_id . "\n"
-        //     . "Verification Token: " . $verificationToken;
-
         $dataArray = [
             'Lecture' => $lectureName,
             'Group' => $groupName,
@@ -208,6 +200,12 @@ class TeacherController extends Controller
             'Record ID' => $attendanceRecord->record_id,
             'Verification Token' => $verificationToken,
         ];
+
+        // Conditionally add latitude and longitude
+        if ($request->input('session_type') === 'physical') {
+            $dataArray['Latitude'] = $request->input('latitude');
+            $dataArray['Longitude'] = $request->input('longitude');
+        }
 
         $qrCodeData = json_encode($dataArray);
 
@@ -233,7 +231,6 @@ class TeacherController extends Controller
 
         return response()->json(['success' => 'Record saved successfully.']);
     }
-
 
     public function deleteQRCode($record_id)
     {

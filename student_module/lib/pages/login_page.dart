@@ -19,20 +19,20 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController admissionController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  late ProgressDialogComponent progressDialog;
-
   @override
   void initState() {
     super.initState();
-    progressDialog = ProgressDialogComponent(context, 'Logging in...');
   }
 
   Future<void> loginUser(
       int admissionNumber, String password, UserProvider userProvider) async {
+    ProgressDialogComponent progressDialog =
+        ProgressDialogComponent(context, 'Logging in...');
     progressDialog.show(); // Show the progress dialog
+
     // final Uri loginUri = Uri.parse('http://10.0.2.2:8000/api/login');
     final Uri loginUri =
-        Uri.parse('https://5c13-41-90-186-173.ngrok-free.app/api/login');
+        Uri.parse('https://73f8-41-90-186-173.ngrok-free.app/api/login');
 
     final response = await http.post(
       loginUri,
