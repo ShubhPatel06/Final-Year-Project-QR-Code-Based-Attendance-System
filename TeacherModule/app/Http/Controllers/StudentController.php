@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\AttendanceRecord;
 use App\Models\Student;
+use App\Models\StudentAttendance;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -40,5 +42,32 @@ class StudentController extends Controller
     {
         $request->user()->currentAccessToken()->delete();
         return response()->json(['message' => 'Logged out successfully']);
+    }
+
+    public function updateAttendance(Request $request)
+    {
+        $this->validate($request, [
+            'admission_number' => 'required|integer',
+            'record_id' => 'required|integer',
+            'verification_token' => 'required|string',
+        ]);
+
+        // Validate verification token
+        $record = AttendanceRecord::findOrFail($request->input('record_id'));
+
+        if ($record->verification_token !== $request->input('verification_token')) {
+            return response()->json(['error' => 'Invalid verification token'], 401);
+        }
+
+        // Update student attendance
+        StudentAttendance::updateOrCreate(
+            [
+                'attendance_record_id' => $request->input('record_id'),
+                'student_adm_no' => $request->input('admission_number'),
+            ],
+            ['is_present' => 1]
+        );
+
+        return response()->json(['message' => 'Attendance updated successfully']);
     }
 }

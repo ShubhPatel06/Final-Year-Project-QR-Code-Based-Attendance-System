@@ -8,7 +8,7 @@ class ProgressDialogComponent {
     _progressDialog = ProgressDialog(context);
     _progressDialog.style(
       message: message,
-      progressWidget: CircularProgressIndicator(),
+      progressWidget: const CircularProgressIndicator(),
     );
   }
 

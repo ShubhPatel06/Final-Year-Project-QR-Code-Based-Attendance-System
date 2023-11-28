@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'home_screen.dart';
@@ -7,6 +9,8 @@ import 'user_provider.dart'; // Import the UserProvider class
 import '../components/progress_dialog_component.dart';
 
 class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
   @override
   _LoginPageState createState() => _LoginPageState();
 }
@@ -28,7 +32,7 @@ class _LoginPageState extends State<LoginPage> {
     progressDialog.show(); // Show the progress dialog
     // final Uri loginUri = Uri.parse('http://10.0.2.2:8000/api/login');
     final Uri loginUri =
-        Uri.parse('https://268e-41-90-186-173.ngrok-free.app/api/login');
+        Uri.parse('https://5c13-41-90-186-173.ngrok-free.app/api/login');
 
     final response = await http.post(
       loginUri,
@@ -56,7 +60,7 @@ class _LoginPageState extends State<LoginPage> {
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => HomeScreen()),
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
       );
     } else {
       // Login failed, handle the error

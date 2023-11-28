@@ -9,12 +9,14 @@ void main() {
       providers: [
         ChangeNotifierProvider(create: (context) => UserProvider()),
       ],
-      child: MyApp(),
+      child: const MyApp(),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -22,7 +24,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
           // Your theme settings
           ),
-      home: LoginPage(),
+      home: const LoginPage(),
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import '../pages/scanned_data.dart';
@@ -59,7 +60,7 @@ class _QRCodeScannerWidgetState extends State<QRCodeScannerWidget> {
     return Positioned(
       bottom: 16.0,
       child: Container(
-        padding: EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(8.0),
@@ -69,17 +70,17 @@ class _QRCodeScannerWidgetState extends State<QRCodeScannerWidget> {
           children: [
             Text(
               'Barcode Type: ${result!.format.name}',
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             Text(
               'Data: ${result!.code ?? 'No Data'}',
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             ElevatedButton(
               onPressed: () {
                 widget.onScanned();
               },
-              child: Text('Submit'),
+              child: const Text('Submit'),
             ),
           ],
         ),
@@ -96,7 +97,9 @@ class _QRCodeScannerWidgetState extends State<QRCodeScannerWidget> {
       });
 
       // Print the scanned data to the console
-      print("Scanned Data: ${result!.code}");
+      if (kDebugMode) {
+        print("Scanned Data: ${result!.code}");
+      }
 
       // Close the scanner after scanning
       controller.pauseCamera();

@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
@@ -17,7 +19,7 @@ class HomeScreen extends StatelessWidget {
     Future<void> logoutUser(String token) async {
       // final Uri logoutUri = Uri.parse('http://10.0.2.2:8000/api/logout');
       final Uri logoutUri =
-          Uri.parse('https://268e-41-90-186-173.ngrok-free.app/api/logout');
+          Uri.parse('https://5c13-41-90-186-173.ngrok-free.app/api/logout');
 
       try {
         final response = await http.post(
@@ -38,7 +40,7 @@ class HomeScreen extends StatelessWidget {
           // Navigate back to the login page
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
-              builder: (context) => LoginPage(),
+              builder: (context) => const LoginPage(),
             ),
           );
         } else {
@@ -62,7 +64,7 @@ class HomeScreen extends StatelessWidget {
               await Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => QRCodeScannerPage(),
+                  builder: (context) => const QRCodeScannerPage(),
                 ),
               );
             },

@@ -22,9 +22,9 @@ use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 // });
 
 Route::post('/login', [StudentController::class, 'login']);
+Route::post('/update-attendance', [StudentController::class, 'updateAttendance']);
 
 // Sanctum routes for token management
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/logout', [StudentController::class, 'logout']);
-    // Other authenticated routes...
 });
