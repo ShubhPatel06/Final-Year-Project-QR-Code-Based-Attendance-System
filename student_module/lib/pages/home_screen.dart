@@ -19,7 +19,7 @@ class HomeScreen extends StatelessWidget {
     Future<void> logoutUser(String token) async {
       // final Uri logoutUri = Uri.parse('http://10.0.2.2:8000/api/logout');
       final Uri logoutUri =
-          Uri.parse('https://73f8-41-90-186-173.ngrok-free.app/api/logout');
+          Uri.parse('https://af21-41-90-177-116.ngrok-free.app/api/logout');
 
       try {
         final response = await http.post(

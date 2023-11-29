@@ -7,11 +7,13 @@ import 'package:http/http.dart' as http;
 import 'user_provider.dart';
 import '../components/progress_dialog_component.dart';
 import 'home_screen.dart';
+import 'package:geolocator/geolocator.dart';
 
 class ScannedDataFormPage extends StatelessWidget {
   final String scannedData;
 
-  const ScannedDataFormPage({super.key, required this.scannedData});
+  const ScannedDataFormPage({Key? key, required this.scannedData})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +36,9 @@ class ScannedDataFormPage extends StatelessWidget {
             ...decodedData.entries
                 .where((entry) =>
                     entry.key != 'Record ID' &&
-                    entry.key != 'Verification Token')
+                    entry.key != 'Verification Token' &&
+                    entry.key != 'Latitude' &&
+                    entry.key != 'Longitude')
                 .map((entry) {
               return _buildInfoTile(
                   entry.key, entry.value.toString(), Colors.grey.shade400);
@@ -44,19 +48,52 @@ class ScannedDataFormPage extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          // Check for null or unexpected values
-          if (decodedData.containsKey('Record ID') &&
-              decodedData.containsKey('Verification Token')) {
-            // Call the API to update attendance
-            await _submitAttendance(
-              context,
-              userProvider.admissionNumber,
-              decodedData['Record ID']!,
-              decodedData['Verification Token']!,
-            );
+          // Check if location services are enabled
+          bool isLocationServiceEnabled = await _checkLocationService();
+
+          if (!isLocationServiceEnabled) {
+            // Location services are not enabled, show the dialog
+            await _showLocationServiceDialog(context);
           } else {
-            // Handle unexpected data
-            print('Invalid QR code data');
+            LocationPermission permission;
+            permission = await Geolocator.checkPermission();
+
+            if (permission == LocationPermission.denied) {
+              permission = await Geolocator.requestPermission();
+              if (permission == LocationPermission.denied) {
+                // Permissions are denied, next time you could try
+                // requesting permissions again (this is also where
+                // Android's shouldShowRequestPermissionRationale
+                // returned true. According to Android guidelines
+                // your App should show an explanatory UI now.
+                await _showLocationPermissionDialog(
+                    context,
+                    'Location Permissions Denied',
+                    'Please enable location permissions to use this feature.');
+              }
+            } else if (permission == LocationPermission.deniedForever) {
+              // Permissions are denied forever, handle appropriately.
+              await _showLocationPermissionDialog(
+                  context,
+                  'Location Permissions Denied Forever',
+                  'Location permissions are permanently denied. You cannot use this feature.');
+            } else {
+              // Location services are enabled, proceed with your logic
+              Position currentPosition = await _determinePosition();
+              double latitude = currentPosition.latitude;
+              double longitude = currentPosition.longitude;
+
+              // Now you can use the 'latitude' and 'longitude' variables as needed
+              print('Latitude: $latitude, Longitude: $longitude');
+
+              // Call the API to update attendance
+              await _submitAttendance(
+                context,
+                userProvider.admissionNumber,
+                decodedData['Record ID']!,
+                decodedData['Verification Token']!,
+              );
+            }
           }
         },
         backgroundColor: Colors.blue,
@@ -80,6 +117,54 @@ class ScannedDataFormPage extends StatelessWidget {
     );
   }
 
+  Future<bool> _checkLocationService() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    return serviceEnabled;
+  }
+
+  Future<void> _showLocationServiceDialog(BuildContext context) async {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Location Services Disabled'),
+          content: Text('Please enable location services to use this feature.'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () async {
+                // Open device settings
+                await Geolocator.openLocationSettings();
+                Navigator.of(context).pop(); // Dialog is dismissed
+              },
+              child: Text('Enable'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _showLocationPermissionDialog(
+      BuildContext context, String title, String content) async {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(content),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Dismiss the dialog
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<void> _submitAttendance(
     BuildContext context,
     int admissionNumber,
@@ -87,7 +172,7 @@ class ScannedDataFormPage extends StatelessWidget {
     String verificationToken,
   ) async {
     const apiUrl =
-        'https://73f8-41-90-186-173.ngrok-free.app/api/update-attendance';
+        'https://af21-41-90-177-116.ngrok-free.app/api/update-attendance';
 
     try {
       ProgressDialogComponent progressDialog =
@@ -181,5 +266,9 @@ class ScannedDataFormPage extends StatelessWidget {
         },
       );
     }
+  }
+
+  Future<Position> _determinePosition() async {
+    return await Geolocator.getCurrentPosition();
   }
 }
