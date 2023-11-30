@@ -133,26 +133,7 @@
             });
         });
 
-        // $('#saveBtn').click(function(e) {
-        //     e.preventDefault();
-        //     $(this).html('Saving..');
 
-        //     $.ajax({
-        //         data: $('#attendanceForm').serialize(),
-        //         url: "{{ route('teacher.storeData') }}",
-        //         type: "POST",
-        //         dataType: 'json',
-        //         success: function(data) {
-        //             $('#attendanceForm').trigger("reset");
-        //             $('#attendance-modal').addClass('hidden');
-        //             table.draw();
-        //         },
-        //         error: function(data) {
-        //             console.log('Error:', data);
-        //             $('#saveBtn').html('Generate QR Code');
-        //         }
-        //     });
-        // });
         function getLocation() {
             return new Promise((resolve, reject) => {
                 if (navigator.permissions) {
@@ -164,13 +145,17 @@
                             // If permission is already granted, get the current position
                             navigator.geolocation.getCurrentPosition(
                                 position => resolve(position),
-                                error => reject(error)
+                                error => reject(error), {
+                                    enableHighAccuracy: true
+                                }
                             );
                         } else if (permissionStatus.state === 'prompt') {
                             // If permission is not yet determined, request it
                             navigator.geolocation.getCurrentPosition(
                                 position => resolve(position),
-                                error => reject(error)
+                                error => reject(error), {
+                                    enableHighAccuracy: true
+                                }
                             );
                         } else {
                             // Permission is denied

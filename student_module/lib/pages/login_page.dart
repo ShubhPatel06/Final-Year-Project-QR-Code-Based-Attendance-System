@@ -32,7 +32,7 @@ class _LoginPageState extends State<LoginPage> {
 
     // final Uri loginUri = Uri.parse('http://10.0.2.2:8000/api/login');
     final Uri loginUri =
-        Uri.parse('https://af21-41-90-177-116.ngrok-free.app/api/login');
+        Uri.parse('https://014d-41-90-177-116.ngrok-free.app/api/login');
 
     final response = await http.post(
       loginUri,
