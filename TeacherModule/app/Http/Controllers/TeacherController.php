@@ -12,6 +12,7 @@ use App\Models\StudentAttendance;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Http;
 use Yajra\DataTables\Facades\DataTables;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Str;
@@ -175,19 +176,6 @@ class TeacherController extends Controller
             'verification_token' => $verificationToken,
         ]);
 
-        // Check if the session type is physical
-        if ($request->input('session_type') === 'physical') {
-            // Get the latitude and longitude from the request
-            $latitude = $request->input('latitude');
-            $longitude = $request->input('longitude');
-
-            // Store the location data in the database
-            $attendanceRecord->update([
-                'latitude' => $latitude,
-                'longitude' => $longitude,
-            ]);
-        }
-
         $lectureName = Lectures::where('lecture_id', $request->input('lecture_id'))->value('lecture_name');
         $groupName = Groups::where('group_id', $request->input('group_id'))->value('group_name');
 
@@ -201,10 +189,10 @@ class TeacherController extends Controller
             'Verification Token' => $verificationToken,
         ];
 
-        // Conditionally add latitude and longitude
+        // Get Public IP address
         if ($request->input('session_type') === 'physical') {
-            $dataArray['Latitude'] = $request->input('latitude');
-            $dataArray['Longitude'] = $request->input('longitude');
+            $publicIpAddress = Http::get('https://api64.ipify.org?format=json')->json()['ip'];
+            $dataArray['IP Address'] = $publicIpAddress;
         }
 
         $qrCodeData = json_encode($dataArray);
@@ -244,12 +232,7 @@ class TeacherController extends Controller
         $qrCodePath = $qrCode->qr_code_path;
 
         $qrCode->qr_code_path = null;
-        if ($qrCode->latitude !== null) {
-            $qrCode->latitude = null;
-        }
-        if ($qrCode->longitude !== null) {
-            $qrCode->longitude = null;
-        }
+
         $qrCode->verification_token = null;
         $qrCode->save();
 

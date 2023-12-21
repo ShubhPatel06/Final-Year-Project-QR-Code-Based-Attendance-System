@@ -39,7 +39,7 @@ dependencies:
   provider: ^6.1.1
   progress_dialog_null_safe: ^1.0.7
   qr_code_scanner: ^1.0.1
-  geolocator: ^10.1.0
+  dart_ipify: ^1.1.1
 
 dev_dependencies:
   flutter_test:
