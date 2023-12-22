@@ -47,44 +47,11 @@ class ScannedDataFormPage extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          if (decodedData.containsKey('IP Address')) {
-            String ipAddress = decodedData['IP Address'].toString();
+          if (decodedData['Session Type'] == 'physical') {
             final ipv4 = await Ipify.ipv4();
-
-            print('IP: $ipAddress');
-            print('WiFi IP: $ipv4');
-
-            // Call the API to update attendance only if both ipAddress and ipv4 match
-            if (ipAddress == ipv4) {
-              await _submitAttendance(
-                context,
-                userProvider.admissionNumber,
-                decodedData['Record ID']!,
-                decodedData['Verification Token']!,
-              );
-            } else {
-              // Handle the case where ipAddress and ipv4 do not match
-              showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: const Text('Attendance Not Submitted'),
-                    content: const Text(
-                        'You are not on the same network. Cannot update attendance.'),
-                    actions: <Widget>[
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context)
-                              .pop(); // Close the success dialog
-                        },
-                        child: const Text('OK'),
-                      ),
-                    ],
-                  );
-                },
-              );
-            }
+            await _submitAttendance(context, userProvider.admissionNumber,
+                decodedData['Record ID']!, decodedData['Verification Token']!,
+                ipv4: ipv4);
           } else {
             await _submitAttendance(
               context,
@@ -119,10 +86,11 @@ class ScannedDataFormPage extends StatelessWidget {
     BuildContext context,
     int admissionNumber,
     int recordId,
-    String verificationToken,
-  ) async {
+    String verificationToken, {
+    String? ipv4,
+  }) async {
     const apiUrl =
-        'https://7d9f-41-90-185-200.ngrok-free.app/api/update-attendance';
+        'https://7bd0-41-90-185-200.ngrok-free.app/api/update-attendance';
 
     try {
       ProgressDialogComponent progressDialog =
@@ -130,21 +98,22 @@ class ScannedDataFormPage extends StatelessWidget {
 
       progressDialog.show();
 
+      final requestBody = {
+        'admission_number': admissionNumber.toString(),
+        'record_id': recordId.toString(),
+        'verification_token': verificationToken,
+      };
+
+      if (ipv4 != null) {
+        requestBody['ipv4'] = ipv4;
+      }
+
       // Send request to update attendance
-      final response = await http.post(
-        Uri.parse(apiUrl),
-        body: {
-          'admission_number': admissionNumber.toString(),
-          'record_id': recordId.toString(),
-          'verification_token': verificationToken,
-        },
-      );
+      final response = await http.post(Uri.parse(apiUrl), body: requestBody);
 
       progressDialog.hide();
 
       if (response.statusCode == 200) {
-        print('Attendance updated successfully');
-
         // Show success dialog
         showDialog(
           context: context,
@@ -157,11 +126,12 @@ class ScannedDataFormPage extends StatelessWidget {
               actions: <Widget>[
                 TextButton(
                   onPressed: () {
-                    Navigator.of(context).pop(); // Close the success dialog
+                    Navigator.pop(context); // Close the success dialog
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => const HomeScreen()),
+                        builder: (context) => const HomeScreen(),
+                      ),
                     );
                   },
                   child: const Text('OK'),
@@ -171,20 +141,20 @@ class ScannedDataFormPage extends StatelessWidget {
           },
         );
       } else {
-        print('Failed to update attendance: ${response.body}');
+        Map<String, dynamic> errorData = jsonDecode(response.body);
 
-        // Show error dialog
+        // Show error dialog with backend response message
         showDialog(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
               title: const Text('Error'),
               content:
-                  const Text('Failed to submit attendance. Please try again.'),
+                  Text('Failed to submit attendance. ${errorData['error']}'),
               actions: [
                 TextButton(
                   onPressed: () {
-                    Navigator.of(context).pop(); // Close the error dialog
+                    Navigator.pop(context); // Close the error dialog
                   },
                   child: const Text('OK'),
                 ),
@@ -194,9 +164,7 @@ class ScannedDataFormPage extends StatelessWidget {
         );
       }
     } catch (error) {
-      print('Error submitting attendance: $error');
-
-      // Show error dialog
+      // Show generic error dialog for exceptions
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -207,7 +175,7 @@ class ScannedDataFormPage extends StatelessWidget {
             actions: [
               TextButton(
                 onPressed: () {
-                  Navigator.of(context).pop(); // Close the error dialog
+                  Navigator.pop(context); // Close the error dialog
                 },
                 child: const Text('OK'),
               ),

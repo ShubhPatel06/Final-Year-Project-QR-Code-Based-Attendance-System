@@ -9,6 +9,7 @@ use App\Models\StudentAttendance;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 
 class StudentController extends Controller
 {
@@ -57,6 +58,13 @@ class StudentController extends Controller
 
         if ($record->verification_token !== $request->input('verification_token')) {
             return response()->json(['error' => 'Invalid verification token'], 401);
+        }
+
+        $publicIpAddress = Http::get('https://api64.ipify.org?format=json')->json()['ip'];
+        $studentIP = $request->input('ipv4');
+
+        if ($studentIP && $studentIP !== $publicIpAddress) {
+            return response()->json(['error' => 'Cannot Update Attendance!You are not on the same network.'], 401);
         }
 
         // Update student attendance

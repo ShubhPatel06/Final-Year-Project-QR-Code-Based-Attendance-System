@@ -32,42 +32,80 @@ class _LoginPageState extends State<LoginPage> {
 
     // final Uri loginUri = Uri.parse('http://10.0.2.2:8000/api/login');
     final Uri loginUri =
-        Uri.parse('https://7d9f-41-90-185-200.ngrok-free.app/api/login');
+        Uri.parse('https://7bd0-41-90-185-200.ngrok-free.app/api/login');
 
-    final response = await http.post(
-      loginUri,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'admission_number': admissionNumber,
-        'password': password,
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      // Login successful, handle the response
-      Map<String, dynamic> responseData = jsonDecode(response.body);
-      print('Login successful');
-      print('Token: ${responseData['token']}');
-      print('User: ${responseData['user']}');
-
-      // Set user details in the provider
-      userProvider.setUserDetails(
-        responseData['admission_number'],
-        responseData['token'],
-        responseData['user'],
+    try {
+      final response = await http.post(
+        loginUri,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'admission_number': admissionNumber,
+          'password': password,
+        }),
       );
+
+      if (response.statusCode == 200) {
+        // Login successful, handle the response
+        Map<String, dynamic> responseData = jsonDecode(response.body);
+
+        // Set user details in the provider
+        userProvider.setUserDetails(
+          responseData['admission_number'],
+          responseData['token'],
+          responseData['user'],
+        );
+        progressDialog.hide(); // Hide the progress dialog
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+        );
+      } else {
+        // Login failed, handle the error
+        Map<String, dynamic> errorData = jsonDecode(response.body);
+        progressDialog.hide(); // Hide the progress dialog
+
+        // Show error dialog
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Error'),
+              content: Text('Login failed: ${errorData['error']}'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the error dialog
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } catch (error) {
       progressDialog.hide(); // Hide the progress dialog
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
+      // Show error dialog for unexpected errors
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Error'),
+            content:
+                const Text('An unexpected error occurred. Please try again.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the error dialog
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
       );
-    } else {
-      // Login failed, handle the error
-      Map<String, dynamic> errorData = jsonDecode(response.body);
-      progressDialog.hide(); // Hide the progress dialog
-
-      print('Login failed: ${errorData['error']}');
     }
   }
 

@@ -17,9 +17,8 @@ class HomeScreen extends StatelessWidget {
     var progressDialog = ProgressDialogComponent(context, 'Logging out...');
 
     Future<void> logoutUser(String token) async {
-      // final Uri logoutUri = Uri.parse('http://10.0.2.2:8000/api/logout');
       final Uri logoutUri =
-          Uri.parse('https://7d9f-41-90-185-200.ngrok-free.app/api/logout');
+          Uri.parse('https://7bd0-41-90-185-200.ngrok-free.app/api/logout');
 
       try {
         final response = await http.post(
@@ -31,25 +30,62 @@ class HomeScreen extends StatelessWidget {
         );
 
         if (response.statusCode == 200) {
-          print('Logout successful');
           // Clear user details in the provider
           userProvider.logout();
 
           progressDialog.hide();
 
-          // Navigate back to the login page
-          Navigator.of(context).pushReplacement(
+          Navigator.pushAndRemoveUntil(
+            context,
             MaterialPageRoute(
               builder: (context) => const LoginPage(),
             ),
+            (route) => false, // This removes all existing routes from the stack
           );
         } else {
-          print('Logout failed');
           progressDialog.hide();
+
+          // Show error dialog
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Error'),
+                content: Text('Logout failed: ${response.body}'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(); // Close the error dialog
+                    },
+                    child: const Text('OK'),
+                  ),
+                ],
+              );
+            },
+          );
         }
       } catch (error) {
-        print('Error during logout: $error');
         progressDialog.hide();
+
+        // Show error dialog for unexpected errors
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Error'),
+              content:
+                  const Text('An unexpected error occurred. Please try again.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the error dialog
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
       }
     }
 

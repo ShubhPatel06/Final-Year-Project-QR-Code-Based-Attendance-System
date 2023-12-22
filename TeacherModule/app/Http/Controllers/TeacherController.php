@@ -162,6 +162,7 @@ class TeacherController extends Controller
             'date' => 'required|date',
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
+            'session_type' => 'required',
         ]);
 
         // Generate a verification token
@@ -185,15 +186,16 @@ class TeacherController extends Controller
             'Date' => $request->input('date'),
             'Start Time' => $request->input('start_time'),
             'End Time' => $request->input('end_time'),
+            'Session Type' => $request->input('session_type'),
             'Record ID' => $attendanceRecord->record_id,
             'Verification Token' => $verificationToken,
         ];
 
-        // Get Public IP address
-        if ($request->input('session_type') === 'physical') {
-            $publicIpAddress = Http::get('https://api64.ipify.org?format=json')->json()['ip'];
-            $dataArray['IP Address'] = $publicIpAddress;
-        }
+        // // Get Public IP address
+        // if ($request->input('session_type') === 'physical') {
+        //     $publicIpAddress = Http::get('https://api64.ipify.org?format=json')->json()['ip'];
+        //     $dataArray['IP Address'] = $publicIpAddress;
+        // }
 
         $qrCodeData = json_encode($dataArray);
 
