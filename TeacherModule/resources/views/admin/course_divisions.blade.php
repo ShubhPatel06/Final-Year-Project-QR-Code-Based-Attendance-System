@@ -1,29 +1,27 @@
 @extends("layouts.adminLayout")
 @section('sidebar')
-<x-admin-sidebar focus='lecture' />
+<x-admin-sidebar focus='course_division' />
 @endsection
 @section('content')
 
 <div id="contentContainer" class="p-5 md:px-20 gap-y-20 mt-8 shadow-md">
-    <x-lecture-modal :courses='$courses' />
+    <x-course-division-modal :courses='$courses' />
 
     <div class="flex items-center justify-between mb-6">
-        <h1 class="text-4xl ">Lecture Details</h1>
+        <h1 class="text-4xl ">Course Division Details</h1>
 
         <!-- Modal toggle -->
-        <button data-modal-target="lecture-modal" data-modal-toggle="lecture-modal" class="block text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center addLecture" type="button">
-            Add Lecture
+        <button data-modal-target="course-division-modal" data-modal-toggle="course-division-modal" class="block text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center addCourseDivision" type="button">
+            Add Course Division
         </button>
 
     </div>
-    <table class="min-w-fug-white shadow-md rounded-lg lectures-table">
+    <table class="min-w-fug-white shadow-md rounded-lg course-division-table">
         <thead>
             <tr class="bg-slate-200">
-                <th class="p-4 font-semibold text-gray-700">Lecture ID</th>
-                <th class="p-4 font-semibold text-gray-700">Lecture Code</th>
-                <th class="p-4 font-semibold text-gray-700">Lecture Name</th>
+                <th class="p-4 font-semibold text-gray-700">Division ID</th>
+                <th class="p-4 font-semibold text-gray-700">Division Name</th>
                 <th class="p-4 font-semibold text-gray-700">Course</th>
-                <th class="p-4 font-semibold text-gray-700">Total Hours</th>
                 <th class="p-4 font-semibold text-gray-700">Action</th>
             </tr>
         </thead>
@@ -36,33 +34,23 @@
 <script type="text/javascript">
     $(function() {
 
-        var table = $('.lectures-table').DataTable({
+        var table = $('.course-division-table').DataTable({
             processing: true,
             serverSide: true,
-            ajax: "{{ route('admin.lectures') }}",
+            ajax: "{{ route('admin.course_division') }}",
             columns: [{
-                    data: 'lecture_id',
-                    name: 'lecture_id',
+                    data: 'division_id',
+                    name: 'division_id',
                     class: "p-4"
                 },
                 {
-                    data: 'lecture_code',
-                    name: 'lecture_code',
-                    class: "p-4"
-                },
-                {
-                    data: 'lecture_name',
-                    name: 'lecture_name',
+                    data: 'division_name',
+                    name: 'division_name',
                     class: "p-4"
                 },
                 {
                     data: 'course.course_code',
                     name: 'course.course_code',
-                    class: "p-4"
-                },
-                {
-                    data: 'total_hours',
-                    name: 'total_hours',
                     class: "p-4"
                 },
                 {
@@ -75,20 +63,20 @@
             ]
         });
 
-        $('body').on('click', '.addLecture', function() {
-            $('#lecture-modal').removeClass('hidden');
-            $('#lecture-modal').addClass('flex');
-            $('#saveBtn').html("Add Lecture");
-            $('#lecture_id').val('');
-            $('#lectureForm').trigger("reset");
-            $('#modalTitle').html("Create New Lecture");
+        $('body').on('click', '.addCourseDivision', function() {
+            $('#course-division-modal').removeClass('hidden');
+            $('#course-division-modal').addClass('flex');
+            $('#saveBtn').html("Add Course Division");
+            $('#division_id').val('');
+            $('#course-divisionForm').trigger("reset");
+            $('#modalTitle').html("Create New Course Division");
         });
 
         $('#closeModal').click(function() {
-            $('#lectureForm .error-message').remove();
+            $('#course-divisionForm .error-message').remove();
 
-            $('#lecture-modal').remove('flex');
-            $('#lecture-modal').addClass('hidden');
+            $('#course-division-modal').remove('flex');
+            $('#course-division-modal').addClass('hidden');
         });
 
         $('#saveBtn').click(function(e) {
@@ -96,8 +84,8 @@
             $(this).html('Saving..');
 
             $.ajax({
-                data: $('#lectureForm').serialize(),
-                url: "{{ route('lecture.store') }}",
+                data: $('#course-divisionForm').serialize(),
+                url: "{{ route('course_division.store') }}",
                 type: "POST",
                 dataType: 'json',
                 success: function(data) {
@@ -106,10 +94,10 @@
                         displayErrors(data.errors);
                     } else {
                         // Reset the form and close the modal on success
-                        $('#lectureForm .error-message').remove();
+                        $('#course-divisionForm .error-message').remove();
 
-                        $('#lectureForm').trigger("reset");
-                        $('#lecture-modal').addClass('hidden');
+                        $('#course-divisionForm').trigger("reset");
+                        $('#course-division-modal').addClass('hidden');
                         table.draw();
                     }
                 },
@@ -125,32 +113,29 @@
                         alert(errorMessage);
                     }
 
-                    $('#saveBtn').html('Add Lecture');
+                    $('#saveBtn').html('Save Changes');
                 }
             });
         });
 
-        $('body').on('click', '.editLecture', function() {
-
-            var lecture_id = $(this).data('id');
-            var url = "{{ url('edit-lecture') }}/" + lecture_id;
-
+        $('body').on('click', '.editCourseDivision', function() {
+            var division_id = $(this).data('id');
+            var url = "{{ url('edit-course_division') }}/" + division_id;
             $.get(url, function(data) {
-                $('#modalTitle').html("Edit Lecture");
+                $('#modalTitle').html("Edit Course Division");
                 $('#saveBtn').html("Save changes");
-                $('#lecture-modal').removeClass('hidden');
-                $('#lecture-modal').addClass('flex');
-                $('#lecture_id').val(data.lecture_id);
-                $('#lecture_code').val(data.lecture_code);
-                $('#lecture_name').val(data.lecture_name);
-                $('#total_hours').val(data.total_hours);
-                $('#course_id').val(data.course.course_id);
+                $('#course-division-modal').removeClass('hidden');
+                $('#course-division-modal').addClass('flex');
+                $('#division_id').val(data.division_id);
+                $('#division_name').val(data.division_name);
+                $('#course_id').val(data.course_id);
+
             })
         });
 
         function displayErrors(errors) {
             // Remove any existing error messages
-            $('#lectureForm .error-message').remove();
+            $('#course-divisionForm .error-message').remove();
 
             // Display validation errors in the modal
             $.each(errors, function(field, messages) {
@@ -164,6 +149,7 @@
                 $('#' + firstErrorField).focus();
             }
         }
+
     });
 </script>
 

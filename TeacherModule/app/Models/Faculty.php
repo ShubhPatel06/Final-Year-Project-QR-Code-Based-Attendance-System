@@ -16,16 +16,11 @@ class Faculty extends Model
 
     public function courses()
     {
-        return $this->hasMany(Course::class);
+        return $this->hasMany(Courses::class);
     }
 
     public function lecturers()
     {
-        return $this->hasMany(Lecturer::class);
-    }
-
-    public function lectures()
-    {
-        return $this->hasMany(Lecture::class);
+        return $this->hasMany(Lecturers::class);
     }
 }

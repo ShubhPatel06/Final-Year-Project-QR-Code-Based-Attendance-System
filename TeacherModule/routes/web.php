@@ -47,6 +47,11 @@ Route::group(['middleware' => ['auth', 'checkUserRole:1']], function () {
     Route::get('/edit-course/{id}', [AdminController::class, 'editCourse'])->name('course.edit');
     // Route::delete('/delete-course/{id}', [AdminController::class, 'deleteCourse'])->name('course.delete');
 
+    // Course Divisions
+    Route::get('/admin-course-divisions', [AdminController::class, 'getCourseDivisions'])->name('admin.course_division');
+    Route::post('/create-course-division', [AdminController::class, 'storeCourseDivision'])->name('course_division.store');
+    Route::get('/edit-course_division/{id}', [AdminController::class, 'editCourseDivision'])->name('course_division.edit');
+
     // Lecturer
     Route::get('/admin-lecturers', [AdminController::class, 'getLecturers'])->name('admin.lecturers');
     Route::post('/create-lecturer', [AdminController::class, 'storeLecturer'])->name('lecturer.store');

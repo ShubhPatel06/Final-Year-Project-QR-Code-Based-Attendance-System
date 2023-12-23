@@ -13,7 +13,7 @@ class Lectures extends Model
 
     protected $primaryKey = 'lecture_id';
 
-    protected $fillable = ['lecture_code', 'lecture_name', 'faculty_id', 'course_id', 'lecturer_id', 'total_hours'];
+    protected $fillable = ['lecture_code', 'lecture_name', 'faculty_id', 'course_id', 'total_hours'];
 
     public function faculty()
     {
@@ -25,9 +25,14 @@ class Lectures extends Model
         return $this->belongsTo(Courses::class, 'course_id', 'course_id');
     }
 
-    public function lecturer()
+    public function lecturerAllocation()
     {
-        return $this->belongsTo(Lecturers::class, 'lecturer_id', 'user_id');
+        return $this->hasMany(LecturerAllocations::class, 'lecture_id', 'lecture_id');
+    }
+
+    public function lectureGroups()
+    {
+        return $this->hasMany(StudentLectureGroups::class, 'lecture_id', 'lecture_id');
     }
 
     // public function groups()
@@ -35,16 +40,15 @@ class Lectures extends Model
     //     return $this->belongsToMany(Groups::class, 'lecture_groups', 'lecture_id', 'group_id');
     // }
 
+    // public function lectureGroups()
+    // {
+    //     return $this->hasMany(LectureGroups::class, 'lecture_id', 'lecture_id');
+    // }
 
-    public function lectureGroups()
-    {
-        return $this->hasMany(LectureGroups::class, 'lecture_id', 'lecture_id');
-    }
-
-    public function groups()
-    {
-        return $this->hasManyThrough(Groups::class, LectureGroups::class, 'lecture_id', 'group_id', 'lecture_id', 'group_id');
-    }
+    // public function groups()
+    // {
+    //     return $this->hasManyThrough(Groups::class, LectureGroups::class, 'lecture_id', 'group_id', 'lecture_id', 'group_id');
+    // }
 
     public function attendanceRecords()
     {

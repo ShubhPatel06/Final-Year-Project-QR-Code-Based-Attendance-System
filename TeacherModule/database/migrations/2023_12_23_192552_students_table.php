@@ -12,18 +12,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('lectures', function (Blueprint $table) {
-            $table->id("lecture_id");
-            $table->string("lecture_code");
-            $table->string("lecture_name");
+        Schema::create('students', function (Blueprint $table) {
+            $table->unsignedBigInteger('user_id');
+            $table->id('adm_no', 255)->unique();
             $table->unsignedBigInteger('course_id');
-            $table->unsignedBigInteger('lecturer_id');
-            $table->integer('total_hours');
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
 
+            $table->foreign('user_id')->references('user_id')->on('users');
             $table->foreign('course_id')->references('course_id')->on('courses');
-            $table->foreign('lecturer_id')->references('user_id')->on('lecturers');
         });
     }
 
@@ -32,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('lectures');
+        Schema::dropIfExists('students');
     }
 };

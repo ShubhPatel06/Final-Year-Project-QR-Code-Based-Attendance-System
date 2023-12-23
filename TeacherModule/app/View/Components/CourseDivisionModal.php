@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\View\Component;
 use Illuminate\Contracts\View\View;
 
-class LectureModal extends Component
+class CourseDivisionModal extends Component
 {
     /**
      * Create a new component instance.
@@ -23,6 +23,6 @@ class LectureModal extends Component
      */
     public function render(): View|Closure|string
     {
-        return view('components.lecture-modal');
+        return view('components.course-division-modal');
     }
 }

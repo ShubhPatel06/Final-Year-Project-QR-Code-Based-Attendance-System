@@ -12,19 +12,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
-            $table->id('user_id');
-            $table->string('first_name');
-            $table->string('last_name');
-            $table->string('username');
-            $table->string('email')->unique();
-            $table->string('phoneNo')->unique();
-            $table->string('password');
-            $table->unsignedBigInteger('role_id');
+        Schema::create('lectures', function (Blueprint $table) {
+            $table->id("lecture_id");
+            $table->string("lecture_code");
+            $table->string("lecture_name");
+            $table->unsignedBigInteger('course_id');
+            $table->integer('total_hours');
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
 
-            $table->foreign('role_id')->references('role_id')->on('roles');
+            $table->foreign('course_id')->references('course_id')->on('courses');
         });
     }
 
@@ -33,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('lectures');
     }
 };

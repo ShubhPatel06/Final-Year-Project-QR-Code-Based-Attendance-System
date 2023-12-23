@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\CourseDivisions;
 use App\Models\Courses;
 use App\Models\Faculty;
 use App\Models\Groups;
@@ -286,6 +287,64 @@ class AdminController extends Controller
         return response()->json($course);
     }
 
+    // COURSE DIVISION
+    public function getCourseDivisions(Request $request)
+    {
+        $courses = Courses::all();
+
+        if ($request->ajax()) {
+            // $data = Courses::all();
+            $data = CourseDivisions::with('course')
+                ->get();
+            return DataTables::of($data)
+                ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+                    $actionBtn = '<div class="flex gap-4 text-white font-semibold"><a href="javascript:void(0)" data-id="' . $row->division_id . '" class="edit bg-emerald-500 hover:bg-emerald-600 font-medium rounded-lg text-sm px-5 py-2 text-center editCourseDivision">Edit</a></div>';
+                    return $actionBtn;
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+
+        return view('admin.course_divisions', ['courses' => $courses]);
+    }
+
+    public function storeCourseDivision(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'division_name' => 'required|string|max:255',
+                'course_id' => 'required|integer',
+            ]);
+
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            CourseDivisions::updateOrCreate(
+                [
+                    'division_id' => $request->division_id
+                ],
+                [
+                    'division_name' => $request->division_name,
+                    'course_id' => $request->course_id,
+                ]
+            );
+
+            return response()->json(['data' => [], 'message' => 'Course Division saved successfully.']);
+        } catch (ValidationException $e) {
+            return response()->json(['errors' => $e->validator->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'An error occurred while saving the course division. Please try again.'], 500);
+        }
+    }
+
+    public function editCourseDivision($id)
+    {
+        $division = CourseDivisions::find($id);
+        return response()->json($division);
+    }
+
     // LECTURERS 
 
     public function getLecturers(Request $request)
@@ -406,10 +465,9 @@ class AdminController extends Controller
     public function getLectures(Request $request)
     {
         $courses = Courses::all();
-        $lecturers = Lecturers::with('user')->get();
 
         if ($request->ajax()) {
-            $data = Lectures::with(['course', 'lecturer.user'])
+            $data = Lectures::with(['course'])
                 ->get();
             return DataTables::of($data)
                 ->addIndexColumn()
@@ -421,7 +479,7 @@ class AdminController extends Controller
                 ->make(true);
         }
 
-        return view('admin.lectures', ['courses' => $courses, 'lecturers' => $lecturers]);
+        return view('admin.lectures', ['courses' => $courses]);
     }
 
     public function storeLecture(Request $request)
@@ -431,7 +489,6 @@ class AdminController extends Controller
                 'lecture_code' => 'required|string|max:255',
                 'lecture_name' => 'required|string|max:255',
                 'course_id' => 'required|integer',
-                'lecturer_id' => 'required|integer',
                 'total_hours' => 'required|integer',
             ]);
 
@@ -447,7 +504,6 @@ class AdminController extends Controller
                     'lecture_code' => $request->lecture_code,
                     'lecture_name' => $request->lecture_name,
                     'course_id' => $request->course_id,
-                    'lecturer_id' => $request->lecturer_id,
                     'total_hours' => $request->total_hours,
                 ]
             );
@@ -462,7 +518,7 @@ class AdminController extends Controller
 
     public function editLecture($id)
     {
-        $lecture = Lectures::with(['course', 'lecturer.user'])
+        $lecture = Lectures::with(['course'])
             ->find($id);
         return response()->json($lecture);
     }

@@ -17,7 +17,7 @@ class StudentAttendance extends Model
 
     public function attendanceRecord()
     {
-        return $this->belongsTo(AttendanceRecord::class, 'attendance_record_id');
+        return $this->belongsTo(AttendanceRecord::class, 'attendance_record_id', 'record_id');
     }
 
     public function student()

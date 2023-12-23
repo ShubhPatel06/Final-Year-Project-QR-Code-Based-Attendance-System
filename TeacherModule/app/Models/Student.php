@@ -13,7 +13,7 @@ class Student extends Model
 
     protected $primaryKey = 'adm_no';
 
-    protected $fillable = ['user_id', 'adm_no',  'course_id', 'year_of_study', 'semester'];
+    protected $fillable = ['user_id', 'adm_no',  'course_id'];
 
     public function user()
     {
@@ -25,13 +25,13 @@ class Student extends Model
         return $this->belongsTo(Courses::class, 'course_id', 'course_id');
     }
 
-    public function group()
+    public function studentGroups()
     {
-        return $this->belongsTo(Groups::class, 'group_id', 'group_id');
+        return $this->hasMany(StudentLectureGroups::class, 'adm_no', 'adm_no');
     }
 
     public function studentAttendance()
     {
-        return $this->hasMany(StudentAttendance::class, 'student_adm_no');
+        return $this->hasMany(StudentAttendance::class, 'student_adm_no', 'adm_no');
     }
 }

@@ -5,17 +5,22 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class AttendanceRecord extends Model
+class LecturerAllocations extends Model
 {
     use HasFactory;
 
-    protected $table = 'attendance_records';
+    protected $table = 'lecturer_allocations';
 
-    protected $primaryKey = 'record_id';
+    protected $primaryKey = 'lecturer_id';
+
+    protected $fillable = ['lecturer_id', 'lecture_id', 'group_id'];
 
     public $timestamps = false;
 
-    protected $fillable = ['lecture_id', 'group_id', 'date', 'start_time', 'end_time', 'qr_code_path', 'verification_token'];
+    public function lecturer()
+    {
+        return $this->belongsTo(Lecturers::class, 'lecturer_id', 'lecturer_id');
+    }
 
     public function lecture()
     {
@@ -25,10 +30,5 @@ class AttendanceRecord extends Model
     public function group()
     {
         return $this->belongsTo(Groups::class, 'group_id', 'group_id');
-    }
-
-    public function studentAttendance()
-    {
-        return $this->hasMany(StudentAttendance::class, 'attendance_record_id', 'record_id');
     }
 }

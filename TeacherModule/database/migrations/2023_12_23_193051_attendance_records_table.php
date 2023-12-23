@@ -24,7 +24,7 @@ return new class extends Migration
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
 
-            $table->foreign('group_id')->references('group_id')->on('groups');
+            $table->foreign('group_id')->references('group_id')->on('semester_groups');
             $table->foreign('lecture_id')->references('lecture_id')->on('lectures');
         });
     }

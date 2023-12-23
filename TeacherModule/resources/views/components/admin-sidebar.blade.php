@@ -20,6 +20,10 @@
             <i class="fa-solid fa-graduation-cap"></i>
             <p class=""><a href="{{route('admin.courses')}}">Courses</a></p>
         </div>
+        <div class="{{ $focus=='course_division' ? 'bg-blue-500 text-white px-6' : 'text-black' }} flex flex-row h-12 items-center gap-4 text-sm mx-4 lg:text-base rounded drop-shadow">
+            <i class="fa-solid fa-object-group"></i>
+            <p class=""><a href="{{route('admin.course_division')}}">Course Divisions</a></p>
+        </div>
         <div class="{{ $focus=='lecturer' ? 'bg-blue-500 text-white px-6' : 'text-black' }} flex flex-row h-12 items-center gap-4 text-sm mx-4 lg:text-base rounded drop-shadow">
             <i class="fa-solid fa-person-chalkboard"></i>
             <p class=""><a href="{{route('admin.lecturers')}}">Lecturers</a></p>
@@ -72,6 +76,10 @@
             <i class="fa-solid fa-graduation-cap"></i>
             <p class=""><a href="{{route('admin.courses')}}">Courses</a></p>
         </div>
+        <div class="{{ $focus=='course_division' ? 'bg-blue-500 text-white px-6' : 'text-black' }} flex flex-row h-12 items-center gap-4 text-sm mx-4 lg:text-base rounded drop-shadow">
+            <i class="fa-solid fa-object-group"></i>
+            <p class=""><a href="{{route('admin.course_division')}}">Course Divisions</a></p>
+        </div>
         <div class="{{ $focus=='lecturer' ? 'bg-blue-500 text-white px-6' : 'text-black' }} flex flex-row h-12 items-center gap-4 text-sm mx-4 lg:text-base rounded drop-shadow">
             <i class="fa-solid fa-person-chalkboard"></i>
             <p class=""><a href="{{route('admin.lecturers')}}">Lecturers</a></p>
@@ -115,6 +123,9 @@
     @break
     @case('course')
     <i class="fa-solid fa-graduation-cap"></i>
+    @break
+    @case('course_division')
+    <i class="fa-solid fa-object-group"></i>
     @break
     @case('lecturer')
     <i class="fa-solid fa-person-chalkboard"></i>

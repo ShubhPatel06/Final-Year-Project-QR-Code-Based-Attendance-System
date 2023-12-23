@@ -28,8 +28,13 @@ class Lecturers extends Model
         return $this->belongsTo(Faculty::class, 'faculty_id', 'faculty_id');
     }
 
-    public function lectures()
+    // public function lectures()
+    // {
+    //     return $this->hasMany(Lectures::class);
+    // }
+
+    public function lecturerAllocation()
     {
-        return $this->hasMany(Lecture::class);
+        return $this->hasMany(LecturerAllocations::class, 'lecturer_id', 'lecturer_id');
     }
 }

@@ -12,17 +12,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('students', function (Blueprint $table) {
-            $table->unsignedBigInteger('user_id');
-            $table->id('adm_no', 255)->unique();
-            $table->unsignedBigInteger('course_id');
-            $table->integer('year_of_study');
-            $table->integer('semester');
+        Schema::create('lecturer_allocations', function (Blueprint $table) {
+            $table->id("allocation_id");
+            $table->unsignedBigInteger('lecturer_id');
+            $table->unsignedBigInteger('lecture_id');
+            $table->unsignedBigInteger('group_id');
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
 
-            $table->foreign('user_id')->references('user_id')->on('users');
-            $table->foreign('course_id')->references('course_id')->on('courses');
+            $table->foreign('lecturer_id')->references('user_id')->on('lecturers');
+            $table->foreign('lecture_id')->references('lecture_id')->on('lectures');
+            $table->foreign('group_id')->references('group_id')->on('semester_groups');
         });
     }
 
@@ -31,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('students');
+        Schema::dropIfExists('lecturer_allocations');
     }
 };
