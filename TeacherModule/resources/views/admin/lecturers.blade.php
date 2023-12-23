@@ -101,6 +101,8 @@
         });
 
         $('#closeModal').click(function() {
+            $('#lecturerForm .error-message').remove();
+
             $('#lecturer-modal').remove('flex');
             $('#lecturer-modal').addClass('hidden');
         });
@@ -115,14 +117,31 @@
                 type: "POST",
                 dataType: 'json',
                 success: function(data) {
+                    if (data.errors) {
+                        // Display validation errors in the modal
+                        displayErrors(data.errors);
+                    } else {
+                        // Reset the form and close the modal on success
+                        $('#lecturerForm .error-message').remove();
 
-                    $('#lecturerForm').trigger("reset");
-                    $('#lecturer-modal').addClass('hidden');
-                    table.draw();
+                        $('#lecturerForm').trigger("reset");
+                        $('#lecturer-modal').addClass('hidden');
+                        table.draw();
 
+                    }
                 },
-                error: function(data) {
-                    console.log('Error:', data);
+                error: function(xhr, status, error) {
+                    console.log('Error:', xhr);
+
+                    if (xhr.responseJSON && xhr.responseJSON.errors) {
+                        // Display validation errors in the modal
+                        displayErrors(xhr.responseJSON.errors);
+                    } else {
+                        var errorMessage = "An error occurred while saving the lecturer. Please try again.";
+
+                        alert(errorMessage);
+                    }
+
                     $('#saveBtn').html('Add Lecturer');
                 }
             });
@@ -163,21 +182,54 @@
                 type: "POST",
                 dataType: 'json',
                 success: function(data) {
+                    if (data.errors) {
+                        // Display validation errors in the modal
+                        displayErrors(data.errors);
+                    } else {
+                        // Reset the form and close the modal on success
+                        $('#lecturerForm .error-message').remove();
 
-                    $('#lecturerForm').trigger("reset");
-                    $('#lecturer-modal').addClass('hidden');
-                    $('#updateBtn').html('Save Changes');
+                        $('#lecturerForm').trigger("reset");
+                        $('#lecturer-modal').addClass('hidden');
+                        $('#updateBtn').html('Save Changes');
 
-                    table.draw();
+                        table.draw();
 
+                    }
                 },
-                error: function(data) {
-                    console.log('Error:', data);
+                error: function(xhr, status, error) {
+                    console.log('Error:', xhr);
+
+                    if (xhr.responseJSON && xhr.responseJSON.errors) {
+                        // Display validation errors in the modal
+                        displayErrors(xhr.responseJSON.errors);
+                    } else {
+                        var errorMessage = "An error occurred while saving the lecturer. Please try again.";
+
+                        alert(errorMessage);
+                    }
+
                     $('#updateBtn').html('Save Changes');
                 }
             });
         });
 
+        function displayErrors(errors) {
+            // Remove any existing error messages
+            $('#lecturerForm .error-message').remove();
+
+            // Display validation errors in the modal
+            $.each(errors, function(field, messages) {
+                var fieldInput = $('#' + field);
+                var errorMessage = '<div class="error-message text-red-500 text-sm mt-1">' + messages.join('<br>') + '</div>';
+                fieldInput.after(errorMessage);
+            });
+
+            var firstErrorField = Object.keys(errors)[0];
+            if (firstErrorField) {
+                $('#' + firstErrorField).focus();
+            }
+        }
     });
 </script>
 

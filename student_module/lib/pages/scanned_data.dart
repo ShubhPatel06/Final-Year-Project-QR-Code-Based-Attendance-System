@@ -90,7 +90,7 @@ class ScannedDataFormPage extends StatelessWidget {
     String? ipv4,
   }) async {
     const apiUrl =
-        'https://7bd0-41-90-185-200.ngrok-free.app/api/update-attendance';
+        'https://d376-41-90-179-238.ngrok-free.app/api/update-attendance';
 
     try {
       ProgressDialogComponent progressDialog =

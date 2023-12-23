@@ -30,7 +30,7 @@
                         <div class="mb-5">
                             <label for="course_id" class="block mb-2 text-sm font-medium text-gray-900 ">Select Course</label>
                             <select name="course_id" id="course_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2">
-                                <option value="" selected disabled>Select Faculty</option>
+                                <option value="" selected disabled>Select Course</option>
                                 @foreach ($courses as $course)
                                 {
                                 <option value="{{ $course->course_id }}">{{ $course->course_name }}</option>
@@ -40,22 +40,11 @@
                         </div>
                         <div class="mb-5">
                             <label for="year_of_study" class="block mb-2 text-sm font-medium text-gray-900 ">Year of Study</label>
-                            <input type="text" name="year_of_study" id="year_of_study" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  " required>
+                            <input type="number" min=1 max=4 name="year_of_study" id="year_of_study" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  " required>
                         </div>
                         <div class="mb-5">
                             <label for="semester" class="block mb-2 text-sm font-medium text-gray-900 ">Semester</label>
-                            <input type="text" name="semester" id="semester" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  " required>
-                        </div>
-                        <div class="mb-5">
-                            <label for="group_id" class="block mb-2 text-sm font-medium text-gray-900 ">Group</label>
-                            <select name="group_id" id="group_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2">
-                                <option value="" selected disabled>Select Group</option>
-                                @foreach ($groups as $group)
-                                {
-                                <option value="{{ $group->group_id }}">{{ $group->group_name }}</option>
-                                }
-                                @endforeach
-                            </select>
+                            <input type="number" min=1 max=3 name="semester" id="semester" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  " required>
                         </div>
                         <button type="submit" id="saveBtn" class="w-full text-white bg-emerald-700 hover:bg-emerald-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center "></button>
                     </div>
@@ -93,23 +82,13 @@
                         </div>
                         <div>
                             <label for="edit_year_of_study" class="block mb-2 text-sm font-medium text-gray-900 ">Year of Study</label>
-                            <input type="text" name="edit_year_of_study" id="edit_year_of_study" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  " required>
+                            <input type="number" min=1 max=4 name="edit_year_of_study" id="edit_year_of_study" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  " required>
                         </div>
                         <div>
                             <label for="edit_semester" class="block mb-2 text-sm font-medium text-gray-900 ">Semester</label>
-                            <input type="text" name="edit_semester" id="edit_semester" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  " required>
+                            <input type="number" min=1 max=3 name="edit_semester" id="edit_semester" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  " required>
                         </div>
-                        <div class=" col-span-2">
-                            <label for="edit_group_id" class="block mb-2 text-sm font-medium text-gray-900 ">Group</label>
-                            <select name="edit_group_id" id="edit_group_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2">
-                                <option value="" selected disabled>Select Group</option>
-                                @foreach ($groups as $group)
-                                {
-                                <option value="{{ $group->group_id }}">{{ $group->group_name }}</option>
-                                }
-                                @endforeach
-                            </select>
-                        </div>
+
                         <button type="submit" id="updateBtn" class="w-full col-span-2 text-white bg-emerald-700 hover:bg-emerald-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center "></button>
                     </div>
                 </form>

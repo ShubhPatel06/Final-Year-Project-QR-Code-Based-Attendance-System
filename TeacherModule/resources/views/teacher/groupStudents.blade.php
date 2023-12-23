@@ -21,7 +21,6 @@
                 <th class="p-4 font-semibold text-gray-700">Course</th>
                 <th class="p-4 font-semibold text-gray-700">Year of Study</th>
                 <th class="p-4 font-semibold text-gray-700">Semester</th>
-                <th class="p-4 font-semibold text-gray-700">Group</th>
             </tr>
         </thead>
         <tbody class="bg-white">
@@ -31,7 +30,6 @@
 
 <script type="text/javascript">
     function getGroupIdFromUrl() {
-        // Example URL: http://127.0.0.1:8000/teacher-group-students/1
         var url = window.location.href;
         var parts = url.split('/');
         return parts[parts.length - 1];
@@ -50,45 +48,41 @@
                     class: "p-4"
                 },
                 {
-                    data: 'user.first_name',
-                    name: 'user.first_name',
+                    data: 'student.user.first_name',
+                    name: 'student.user.first_name',
                     class: "p-4"
                 },
                 {
-                    data: 'user.last_name',
-                    name: 'user.last_name',
+                    data: 'student.user.last_name',
+                    name: 'student.user.last_name',
                     class: "p-4"
                 },
                 {
-                    data: 'user.email',
-                    name: 'user.email',
+                    data: 'student.user.email',
+                    name: 'student.user.email',
                     class: "p-4"
                 },
                 {
-                    data: 'user.phoneNo',
-                    name: 'user.phoneNo',
+                    data: 'student.user.phoneNo',
+                    name: 'student.user.phoneNo',
                     class: "p-4"
                 },
                 {
-                    data: 'course.course_code',
-                    name: 'course.course_code',
+                    data: 'student.course.course_code',
+                    name: 'student.course.course_code',
                     class: "p-4"
                 },
                 {
-                    data: 'year_of_study',
-                    name: 'year_of_study',
+                    data: 'student.year_of_study',
+                    name: 'student.year_of_study',
                     class: "p-4"
                 },
                 {
-                    data: 'semester',
-                    name: 'semester',
+                    data: 'student.semester',
+                    name: 'student.semester',
                     class: "p-4"
                 },
-                {
-                    data: 'group.group_name',
-                    name: 'group.group_name',
-                    class: "p-4"
-                },
+
             ]
         });
 

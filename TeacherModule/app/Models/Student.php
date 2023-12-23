@@ -13,7 +13,7 @@ class Student extends Model
 
     protected $primaryKey = 'adm_no';
 
-    protected $fillable = ['user_id', 'adm_no',  'course_id', 'year_of_study', 'semester', 'group_id'];
+    protected $fillable = ['user_id', 'adm_no',  'course_id', 'year_of_study', 'semester'];
 
     public function user()
     {

@@ -5,7 +5,7 @@
 @section('content')
 
 <div id="contentContainer" class="p-5 md:px-20 gap-y-20 mt-8 shadow-md">
-    <x-student-modal :users='$users' :groups='$groups' :courses='$courses' />
+    <x-student-modal :users='$users' :courses='$courses' />
 
     <div class="flex items-center justify-between mb-6">
         <h1 class="text-4xl ">Student Details</h1>
@@ -28,7 +28,6 @@
                 <th class="p-4 font-semibold text-gray-700">Course</th>
                 <th class="p-4 font-semibold text-gray-700">Year of Study</th>
                 <th class="p-4 font-semibold text-gray-700">Semester</th>
-                <th class="p-4 font-semibold text-gray-700">Group</th>
                 <th class="p-4 font-semibold text-gray-700">Action</th>
             </tr>
         </thead>
@@ -91,11 +90,6 @@
                     class: "p-4"
                 },
                 {
-                    data: 'group.group_name',
-                    name: 'group.group_name',
-                    class: "p-4"
-                },
-                {
                     data: 'action',
                     name: 'action',
                     class: "p-4",
@@ -133,14 +127,31 @@
                 type: "POST",
                 dataType: 'json',
                 success: function(data) {
+                    if (data.errors) {
+                        // Display validation errors in the modal
+                        displayErrors(data.errors);
+                    } else {
+                        // Reset the form and close the modal on success
+                        $('#studentForm .error-message').remove();
 
-                    $('#studentForm').trigger("reset");
-                    $('#student-modal').addClass('hidden');
-                    table.draw();
+                        $('#studentForm').trigger("reset");
+                        $('#student-modal').addClass('hidden');
+                        table.draw();
 
+                    }
                 },
-                error: function(data) {
-                    console.log('Error:', data);
+                error: function(xhr, status, error) {
+                    console.log('Error:', xhr);
+
+                    if (xhr.responseJSON && xhr.responseJSON.errors) {
+                        // Display validation errors in the modal
+                        displayErrors(xhr.responseJSON.errors);
+                    } else {
+                        var errorMessage = "An error occurred while saving the lecturer. Please try again.";
+
+                        alert(errorMessage);
+                    }
+
                     $('#saveBtn').html('Add Student');
                 }
             });
@@ -167,7 +178,6 @@
                 $('#edit_course_id').val(data.course.course_id);
                 $('#edit_year_of_study').val(data.year_of_study);
                 $('#edit_semester').val(data.semester);
-                $('#edit_group_id').val(data.group.group_id);
 
             })
         });
@@ -182,19 +192,54 @@
                 type: "POST",
                 dataType: 'json',
                 success: function(data) {
+                    if (data.errors) {
+                        // Display validation errors in the modal
+                        displayErrors(data.errors);
+                    } else {
+                        // Reset the form and close the modal on success
+                        $('#studentForm .error-message').remove();
 
-                    $('#studentForm').trigger("reset");
-                    $('#student-modal').addClass('hidden');
-                    $('#updateBtn').html('Save Changes');
-                    table.draw();
+                        $('#studentForm').trigger("reset");
+                        $('#student-modal').addClass('hidden');
+                        $('#updateBtn').html('Save Changes');
+                        table.draw();
 
+                    }
                 },
-                error: function(data) {
-                    console.log('Error:', data);
+                error: function(xhr, status, error) {
+                    console.log('Error:', xhr);
+
+                    if (xhr.responseJSON && xhr.responseJSON.errors) {
+                        // Display validation errors in the modal
+                        displayErrors(xhr.responseJSON.errors);
+                    } else {
+                        var errorMessage = "An error occurred while saving the lecturer. Please try again.";
+
+                        alert(errorMessage);
+                    }
+
                     $('#updateBtn').html('Save Changes');
+
                 }
             });
         });
+
+        function displayErrors(errors) {
+            // Remove any existing error messages
+            $('#studentForm .error-message').remove();
+
+            // Display validation errors in the modal
+            $.each(errors, function(field, messages) {
+                var fieldInput = $('#' + field);
+                var errorMessage = '<div class="error-message text-red-500 text-sm mt-1">' + messages.join('<br>') + '</div>';
+                fieldInput.after(errorMessage);
+            });
+
+            var firstErrorField = Object.keys(errors)[0];
+            if (firstErrorField) {
+                $('#' + firstErrorField).focus();
+            }
+        }
 
     });
 </script>

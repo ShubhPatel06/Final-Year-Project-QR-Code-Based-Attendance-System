@@ -1,25 +1,27 @@
 @extends("layouts.adminLayout")
 @section('sidebar')
-<x-admin-sidebar focus='lecture_group' />
+<x-admin-sidebar focus='student_group' />
 @endsection
 @section('content')
 
 <div id="contentContainer" class="p-5 md:px-20 gap-y-20 mt-8 shadow-md">
-    <x-lecture-group-modal :lectures='$lectures' :groups='$groups' />
+    <x-student-group-modal :students='$students' :groups='$groups' />
 
     <div class="flex items-center justify-between mb-6">
-        <h1 class="text-4xl ">Lecture Groups Details</h1>
+        <h1 class="text-4xl ">Student Groups Details</h1>
 
         <!-- Modal toggle -->
-        <button data-modal-target="lecture_group-modal" data-modal-toggle="lecture_group-modal" class="block text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center addLectureGroup" type="button">
-            Add Lecture Group
+        <button data-modal-target="student_group-modal" data-modal-toggle="student_group-modal" class="block text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center addStudentGroup" type="button">
+            Add Student to Group
         </button>
 
     </div>
-    <table class="min-w-fug-white shadow-md rounded-lg lecture_groups-table">
+    <table class="min-w-fug-white shadow-md rounded-lg student_groups-table">
         <thead>
             <tr class="bg-slate-200">
-                <th class="p-4 font-semibold text-gray-700">Lecture</th>
+                <th class="p-4 font-semibold text-gray-700">Adm No</th>
+                <th class="p-4 font-semibold text-gray-700">First Name</th>
+                <th class="p-4 font-semibold text-gray-700">Last Name</th>
                 <th class="p-4 font-semibold text-gray-700">Group</th>
                 <th class="p-4 font-semibold text-gray-700">Action</th>
             </tr>
@@ -33,13 +35,23 @@
 <script type="text/javascript">
     $(function() {
 
-        var table = $('.lecture_groups-table').DataTable({
+        var table = $('.student_groups-table').DataTable({
             processing: true,
             serverSide: true,
-            ajax: "{{ route('admin.lecture_groups') }}",
+            ajax: "{{ route('admin.student_groups') }}",
             columns: [{
-                    data: 'lecture.lecture_name',
-                    name: 'lecture.lecture_name',
+                    data: 'adm_no',
+                    name: 'adm_no',
+                    class: "p-4"
+                },
+                {
+                    data: 'student.user.first_name',
+                    name: 'student.user.first_name',
+                    class: "p-4"
+                },
+                {
+                    data: 'student.user.last_name',
+                    name: 'student.user.last_name',
                     class: "p-4"
                 },
                 {
@@ -57,23 +69,22 @@
             ]
         });
 
-        $('body').on('click', '.addLectureGroup', function() {
-            $('#lecture_group-modal').removeClass('hidden');
-            $('#lecture_group-modal').addClass('flex');
-            $('#saveBtn').html("Add Lecture Group");
+        $('body').on('click', '.addStudentGroup', function() {
+            $('#student_group-modal').removeClass('hidden');
+            $('#student_group-modal').addClass('flex');
+            $('#saveBtn').html("Add Student to Group");
             $('#saveBtn').show();
-            $('#updateBtn').hide();
-            $('#lecture_id').val('');
+            $('#adm_no').val('');
             $('#group_id').val('');
-            $('#lecture_groupForm').trigger("reset");
-            $('#modalTitle').html("Create New Lecture Group");
+            $('#student_groupForm').trigger("reset");
+            $('#modalTitle').html("Add Student to Group");
         });
 
         $('#closeModal').click(function() {
-            $('#lecture_groupForm .error-message').remove();
+            $('#student_groupForm .error-message').remove();
 
-            $('#lecture_group-modal').remove('flex');
-            $('#lecture_group-modal').addClass('hidden');
+            $('#student_group-modal').remove('flex');
+            $('#student_group-modal').addClass('hidden');
         });
 
         $('#saveBtn').click(function(e) {
@@ -81,8 +92,8 @@
             $(this).html('Saving..');
 
             $.ajax({
-                data: $('#lecture_groupForm').serialize(),
-                url: "{{ route('lecture_group.store') }}",
+                data: $('#student_groupForm').serialize(),
+                url: "{{ route('student_group.store') }}",
                 type: "POST",
                 dataType: 'json',
                 success: function(data) {
@@ -91,10 +102,10 @@
                         displayErrors(data.errors);
                     } else {
                         // Reset the form and close the modal on success
-                        $('#lecture_groupForm .error-message').remove();
+                        $('#student_groupForm .error-message').remove();
 
-                        $('#lecture_groupForm').trigger("reset");
-                        $('#lecture_group-modal').addClass('hidden');
+                        $('#student_groupForm').trigger("reset");
+                        $('#student_group-modal').addClass('hidden');
 
                         table.draw();
                     }
@@ -111,25 +122,25 @@
                         alert(errorMessage);
                     }
 
-                    $('#saveBtn').html('Add Lecture Group');
+                    $('#saveBtn').html('Add Student to Group');
 
                 }
             });
         });
 
-        $('body').on('click', '.deleteLectureGroup', function() {
+        $('body').on('click', '.deleteStudentGroup', function() {
             var group_id = $(this).data("id");
-            var lecture_id = $(this).data("del");
-            var url = "{{ url('delete-lecture_group') }}/" + lecture_id;
+            var adm_no = $(this).data("del");
+            var url = "{{ url('delete-student_group') }}/" + adm_no;
             if (confirm("Are you sure you want to delete?")) {
                 var csrfToken = "{{ csrf_token() }}";
                 $.ajax({
                     type: "DELETE",
-                    url: "{{ route('lecture_group.delete') }}",
+                    url: "{{ route('student_group.delete') }}",
                     data: {
                         "_token": csrfToken,
                         'group_id': group_id,
-                        'lecture_id': lecture_id,
+                        'adm_no': adm_no,
                     },
                     success: function(data) {
                         table.draw();
@@ -143,7 +154,7 @@
 
         function displayErrors(errors) {
             // Remove any existing error messages
-            $('#userForm .error-message').remove();
+            $('#student_groupForm .error-message').remove();
 
             // Display validation errors in the modal
             $.each(errors, function(field, messages) {

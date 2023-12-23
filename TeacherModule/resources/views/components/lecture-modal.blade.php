@@ -23,7 +23,7 @@
                             <label for="lecture_name" class="block mb-2 text-sm font-medium text-gray-900">Lecture Name</label>
                             <input type="text" name="lecture_name" id="lecture_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
                         </div>
-                        <div>
+                        <div class="col-span-2">
                             <label for="total_hours" class="block mb-2 text-sm font-medium text-gray-900">Total Hours</label>
                             <input type="number" name="total_hours" id="total_hours" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
                         </div>

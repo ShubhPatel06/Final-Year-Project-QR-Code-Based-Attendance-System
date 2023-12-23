@@ -40,6 +40,10 @@
             <i class="fa-solid fa-user-pen"></i>
             <p class=""><a href="{{route('admin.students')}}">Students</a></p>
         </div>
+        <div class="{{ $focus=='student_group' ? 'bg-blue-500 text-white px-6' : 'text-black' }} flex flex-row h-12 items-center gap-4 text-sm mx-4 lg:text-base rounded drop-shadow">
+            <i class="fa-solid fa-users-line"></i>
+            <p class=""><a href="{{route('admin.student_groups')}}">Student Groups</a></p>
+        </div>
     </div>
 </div>
 
@@ -88,6 +92,10 @@
             <i class="fa-solid fa-user-pen"></i>
             <p class=""><a href="{{route('admin.students')}}">Students</a></p>
         </div>
+        <div class="{{ $focus=='student_group' ? 'bg-blue-500 text-white px-6' : 'text-black' }} flex flex-row h-12 items-center gap-4 text-sm mx-4 lg:text-base rounded drop-shadow">
+            <i class="fa-solid fa-users-line"></i>
+            <p class=""><a href="{{route('admin.student_groups')}}">Student Groups</a></p>
+        </div>
     </div>
 </div>
 
@@ -122,6 +130,9 @@
     @break
     @case('student')
     <i class="fa-solid fa-user-pen"></i>
+    @break
+    @case('student_group')
+    <i class="fa-solid fa-users-line"></i>
     @break
 
     @default

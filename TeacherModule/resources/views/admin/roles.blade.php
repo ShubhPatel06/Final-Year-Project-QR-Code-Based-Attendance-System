@@ -67,6 +67,7 @@
         });
 
         $('#closeModal').click(function() {
+            $('#roleForm .error-message').remove();
             $('#role-modal').remove('flex');
             $('#role-modal').addClass('hidden');
         });
@@ -81,18 +82,51 @@
                 type: "POST",
                 dataType: 'json',
                 success: function(data) {
+                    if (data.errors) {
+                        // Display validation errors in the modal
+                        displayErrors(data.errors);
+                    } else {
+                        // Reset the form and close the modal on success
+                        $('#roleForm .error-message').remove();
 
-                    $('#roleForm').trigger("reset");
-                    $('#role-modal').addClass('hidden');
-                    table.draw();
-
+                        $('#roleForm').trigger("reset");
+                        $('#role-modal').addClass('hidden');
+                        table.draw();
+                    }
                 },
-                error: function(data) {
-                    console.log('Error:', data);
+                error: function(xhr, status, error) {
+                    console.log('Error:', xhr);
+
+                    if (xhr.responseJSON && xhr.responseJSON.errors) {
+                        // Display validation errors in the modal
+                        displayErrors(xhr.responseJSON.errors);
+                    } else {
+                        // Display a generic error message to the user
+                        var errorMessage = "An error occurred while saving the role. Please try again.";
+                        alert(errorMessage);
+                    }
+
                     $('#saveBtn').html('Add Role');
                 }
             });
         });
+
+        function displayErrors(errors) {
+            // Remove any existing error messages
+            $('#roleForm .error-message').remove();
+
+            // Display validation errors in the modal
+            $.each(errors, function(field, messages) {
+                var fieldInput = $('#' + field);
+                var errorMessage = '<div class="error-message text-red-500 text-sm mt-1">' + messages.join('<br>') + '</div>';
+                fieldInput.after(errorMessage);
+            });
+
+            var firstErrorField = Object.keys(errors)[0];
+            if (firstErrorField) {
+                $('#' + firstErrorField).focus();
+            }
+        }
 
         $('body').on('click', '.editRole', function() {
             var role_id = $(this).data('id');
@@ -106,7 +140,6 @@
                 $('#role_type').val(data.role_type);
             })
         });
-
 
         $('body').on('click', '.deleteRole', function() {
             var role_id = $(this).data("id");

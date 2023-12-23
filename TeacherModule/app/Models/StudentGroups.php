@@ -5,15 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class LectureGroups extends Model
+class StudentGroups extends Model
 {
     use HasFactory;
-
-    protected $table = 'lecture_groups';
+    protected $table = 'student_groups';
 
     protected $primaryKey = 'group_id';
 
-    protected $fillable = ['lecture_id', 'group_id'];
+    protected $fillable = ['adm_no', 'group_id'];
 
     public $timestamps = false;
 
@@ -22,19 +21,14 @@ class LectureGroups extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function faculty()
+    public function students()
     {
-        return $this->belongsTo(Faculty::class);
+        return $this->hasMany(Student::class);
     }
 
-    public function lectures()
+    public function student()
     {
-        return $this->hasMany(Lectures::class);
-    }
-
-    public function lecture()
-    {
-        return $this->belongsTo(Lectures::class, 'lecture_id', 'lecture_id');
+        return $this->belongsTo(Student::class, 'adm_no', 'adm_no');
     }
 
     public function group()

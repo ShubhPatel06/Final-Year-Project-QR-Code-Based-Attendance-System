@@ -9,13 +9,16 @@ use App\Models\LectureGroups;
 use App\Models\Lectures;
 use App\Models\Student;
 use App\Models\StudentAttendance;
+use App\Models\StudentGroups;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Http;
 use Yajra\DataTables\Facades\DataTables;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Database\QueryException;
 
 class TeacherController extends Controller
 {
@@ -86,7 +89,7 @@ class TeacherController extends Controller
     public function getGroupStudents(Request $request, $groupID)
     {
         if ($request->ajax()) {
-            $data = Student::with(['user', 'course', 'group'])
+            $data = StudentGroups::with(['student', 'student.user', 'student.course', 'group'])
                 ->where('group_id', $groupID)
                 ->get();
 
@@ -154,72 +157,80 @@ class TeacherController extends Controller
         return response()->json($groups);
     }
 
+
     public function storeAttendanceData(Request $request)
     {
-        $request->validate([
-            'lecture_id' => 'required',
-            'group_id' => 'required',
-            'date' => 'required|date',
-            'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_time',
-            'session_type' => 'required',
-        ]);
-
-        // Generate a verification token
-        $verificationToken = Str::random(20);
-
-        $attendanceRecord = AttendanceRecord::create([
-            'lecture_id' => $request->input('lecture_id'),
-            'group_id' => $request->input('group_id'),
-            'date' => $request->input('date'),
-            'start_time' => $request->input('start_time'),
-            'end_time' => $request->input('end_time'),
-            'verification_token' => $verificationToken,
-        ]);
-
-        $lectureName = Lectures::where('lecture_id', $request->input('lecture_id'))->value('lecture_name');
-        $groupName = Groups::where('group_id', $request->input('group_id'))->value('group_name');
-
-        $dataArray = [
-            'Lecture' => $lectureName,
-            'Group' => $groupName,
-            'Date' => $request->input('date'),
-            'Start Time' => $request->input('start_time'),
-            'End Time' => $request->input('end_time'),
-            'Session Type' => $request->input('session_type'),
-            'Record ID' => $attendanceRecord->record_id,
-            'Verification Token' => $verificationToken,
-        ];
-
-        // // Get Public IP address
-        // if ($request->input('session_type') === 'physical') {
-        //     $publicIpAddress = Http::get('https://api64.ipify.org?format=json')->json()['ip'];
-        //     $dataArray['IP Address'] = $publicIpAddress;
-        // }
-
-        $qrCodeData = json_encode($dataArray);
-
-        // Generate QR code and store it
-        $qrCodePath = 'qrcodes/' . uniqid('qrcode_') . '.svg';
-        QrCode::format('svg') // Set the format to PNG
-            ->size(420)
-            ->generate($qrCodeData, public_path($qrCodePath));
-
-        // Update the attendance record with the QR code path
-        $attendanceRecord->update(['qr_code_path' => $qrCodePath]);
-
-        // Get students based on the group_id
-        $students = Student::where('group_id', $request->input('group_id'))->get();
-
-        // Create student attendance records
-        foreach ($students as $student) {
-            StudentAttendance::create([
-                'attendance_record_id' => $attendanceRecord->record_id,
-                'student_adm_no' => $student->adm_no,
+        try {
+            $validator = Validator::make($request->all(), [
+                'lecture_id' => 'required',
+                'group_id' => 'required',
+                'date' => 'required|date',
+                'start_time' => 'required|date_format:H:i',
+                'end_time' => 'required|date_format:H:i|after:start_time',
+                'session_type' => 'required',
             ]);
-        }
 
-        return response()->json(['success' => 'Record saved successfully.']);
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            // Generate a verification token
+            $verificationToken = Str::random(20);
+
+            $attendanceRecord = AttendanceRecord::create([
+                'lecture_id' => $request->input('lecture_id'),
+                'group_id' => $request->input('group_id'),
+                'date' => $request->input('date'),
+                'start_time' => $request->input('start_time'),
+                'end_time' => $request->input('end_time'),
+                'verification_token' => $verificationToken,
+            ]);
+
+            $lectureName = Lectures::where('lecture_id', $request->input('lecture_id'))->value('lecture_name');
+            $groupName = Groups::where('group_id', $request->input('group_id'))->value('group_name');
+
+            $dataArray = [
+                'Lecture' => $lectureName,
+                'Group' => $groupName,
+                'Date' => $request->input('date'),
+                'Start Time' => $request->input('start_time'),
+                'End Time' => $request->input('end_time'),
+                'Session Type' => $request->input('session_type'),
+                'Record ID' => $attendanceRecord->record_id,
+                'Verification Token' => $verificationToken,
+            ];
+
+            $qrCodeData = json_encode($dataArray);
+
+            // Generate QR code and store it
+            $qrCodePath = 'qrcodes/' . uniqid('qrcode_') . '.svg';
+            QrCode::format('svg') // Set the format to PNG
+                ->size(420)
+                ->generate($qrCodeData, public_path($qrCodePath));
+
+            // Update the attendance record with the QR code path
+            $attendanceRecord->update(['qr_code_path' => $qrCodePath]);
+
+            // Get students based on the group_id
+            $students = StudentGroups::with(['student'])->where('group_id', $request->input('group_id'))->get();
+
+            // Create student attendance records
+            foreach ($students as $studentGroup) {
+                $student = $studentGroup->student;
+                StudentAttendance::create([
+                    'attendance_record_id' => $attendanceRecord->record_id,
+                    'student_adm_no' => $student->adm_no,
+                ]);
+            }
+
+            return response()->json(['success' => 'Record saved successfully.']);
+        } catch (ValidationException $e) {
+            return response()->json(['errors' => $e->validator->errors()], 422);
+        } catch (QueryException $e) {
+            return response()->json(['error' => 'An error occurred while saving the record.'], 500);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'An unexpected error occurred.'], 500);
+        }
     }
 
     public function deleteQRCode($record_id)

@@ -87,6 +87,8 @@
         });
 
         $('#closeModal').click(function() {
+            $('#attendanceForm .error-message').remove();
+
             $('#attendance-modal').remove('flex');
             $('#attendance-modal').addClass('hidden');
         });
@@ -124,18 +126,37 @@
                 type: "POST",
                 dataType: 'json',
                 success: function(data) {
-                    $('#attendanceForm').trigger("reset");
-                    $('#attendance-modal').addClass('hidden');
-                    table.draw();
+                    if (data.errors) {
+                        // Display validation errors in the modal
+                        displayErrors(data.errors);
+                    } else {
+                        // Reset the form and close the modal on success
+                        $('#attendanceForm .error-message').remove();
+
+                        $('#attendanceForm').trigger("reset");
+                        $('#attendance-modal').addClass('hidden');
+                        table.draw();
+                    }
                 },
-                error: function(data) {
-                    console.log('Error:', data);
+                error: function(xhr, status, error) {
+                    console.log('Error:', xhr);
+
+                    if (xhr.responseJSON && xhr.responseJSON.errors) {
+                        // Display validation errors in the modal
+                        displayErrors(xhr.responseJSON.errors);
+                    } else {
+
+                        var errorMessage = "An error occurred while saving the record. Please try again.";
+
+                        alert(errorMessage);
+                    }
+
                     $('#saveBtn').html('Generate QR Code');
+
                 }
             });
 
         });
-
 
         let timerInterval;
         let record_id;
@@ -206,7 +227,6 @@
         }
 
         function deleteQRCode(qrCodeId) {
-            // Call the Laravel route to delete the QR code
             $.ajax({
                 url: `/delete-qrcode/${qrCodeId}`,
                 type: 'DELETE',
@@ -226,6 +246,7 @@
 
         $('#closeQRModal').click(function() {
             clearInterval(timerInterval);
+
             $('#qrCode-modal').removeClass('flex');
             $('#qrCode-modal').addClass('hidden');
             updateTimer(0, 0);
@@ -235,6 +256,23 @@
             $('#time-modal').removeClass('flex');
             $('#time-modal').addClass('hidden');
         });
+
+        function displayErrors(errors) {
+            // Remove any existing error messages
+            $('#userForm .error-message').remove();
+
+            // Display validation errors in the modal
+            $.each(errors, function(field, messages) {
+                var fieldInput = $('#' + field);
+                var errorMessage = '<div class="error-message text-red-500 text-sm mt-1">' + messages.join('<br>') + '</div>';
+                fieldInput.after(errorMessage);
+            });
+
+            var firstErrorField = Object.keys(errors)[0];
+            if (firstErrorField) {
+                $('#' + firstErrorField).focus();
+            }
+        }
 
     });
 </script>

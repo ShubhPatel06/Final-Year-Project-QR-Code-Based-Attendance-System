@@ -11,14 +11,15 @@ use App\Models\Lecturers;
 use App\Models\Lectures;
 use App\Models\Roles;
 use App\Models\Student;
+use App\Models\StudentGroups;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules\Password;
 use Yajra\DataTables\Facades\DataTables;
-
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class AdminController extends Controller
 {
@@ -50,17 +51,31 @@ class AdminController extends Controller
 
     public function storeRole(Request $request)
     {
-        Roles::updateOrCreate(
-            [
-                'role_id' => $request->role_id
-            ],
-            [
-                'role_type' => $request->role_type,
+        try {
+            $validator = Validator::make($request->all(), [
+                'role_type' => 'required|string|max:255',
+            ]);
 
-            ]
-        );
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
 
-        return response()->json(['success' => 'Role saved successfully.']);
+            Roles::updateOrCreate(
+                [
+                    'role_id' => $request->role_id
+                ],
+                [
+                    'role_type' => $request->role_type,
+                ]
+            );
+
+            return response()->json(['success' => 'Role saved successfully.']);
+        } catch (ValidationException $e) {
+            return response()->json(['errors' => $e->validator->errors()], 422);
+        } catch (\Exception $e) {
+            // Handle other exceptions as needed
+            return response()->json(['error' => 'An error occurred while saving the role. Please try again.'], 500);
+        }
     }
 
     public function editRole($id)
@@ -98,38 +113,50 @@ class AdminController extends Controller
         return view('admin.users', ['roles' => $roles]);
     }
 
+
     public function storeUser(Request $request)
     {
-        $request->validate([
-            'first_name' => ['required', 'string', 'max:255'],
-            'last_name' => ['required', 'string', 'max:255'],
-            'username' => ['required', 'string', 'max:255', 'unique:users,username,' . $request->user_id . ',user_id'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $request->user_id . ',user_id'],
-            'phoneNo' => ['required', 'string', 'max:255'],
-            'role_id' => ['required', 'integer', 'in:1,2,3'],
-        ]);
+        try {
+            $validator = Validator::make($request->all(), [
+                'first_name' => ['required', 'string', 'max:255'],
+                'last_name' => ['required', 'string', 'max:255'],
+                'username' => ['required', 'string', 'max:255', 'unique:users,username,' . $request->user_id . ',user_id'],
+                'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $request->user_id . ',user_id'],
+                'phoneNo' => ['required', 'string', 'max:255'],
+                'role_id' => ['required', 'integer', 'in:1,2,3'],
+                'password' => ['required', 'string', 'min:6'],
+            ]);
 
-        $userData = [
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'username' => $request->username,
-            'email' => $request->email,
-            'phoneNo' => $request->phoneNo,
-            'role_id' => $request->role_id,
-        ];
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
 
-        if (!empty($request->password)) {
-            $userData['password'] = Hash::make($request->password);
+            $userData = [
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'username' => $request->username,
+                'email' => $request->email,
+                'phoneNo' => $request->phoneNo,
+                'role_id' => $request->role_id,
+            ];
+
+            if (!empty($request->password)) {
+                $userData['password'] = Hash::make($request->password);
+            }
+
+            User::updateOrCreate(
+                ['user_id' => $request->user_id],
+                $userData
+            );
+
+            return response()->json(['data' => [], 'message' => 'User saved successfully.']);
+        } catch (ValidationException $e) {
+            return response()->json(['errors' => $e->validator->errors()], 422);
+        } catch (\Exception $e) {
+            // Handle other exceptions as needed
+            return response()->json(['error' => 'An error occurred while saving the user. Please try again.'], 500);
         }
-
-        User::updateOrCreate(
-            ['user_id' => $request->user_id],
-            $userData
-        );
-
-        return response()->json(['success' => 'User saved successfully.']);
     }
-
 
     public function editUser($id)
     {
@@ -159,16 +186,30 @@ class AdminController extends Controller
 
     public function storeFaculty(Request $request)
     {
-        Faculty::updateOrCreate(
-            [
-                'faculty_id' => $request->faculty_id
-            ],
-            [
-                'faculty_name' => $request->faculty_name,
+        try {
+            $validator = Validator::make($request->all(), [
+                'faculty_name' => ['required', 'string', 'max:255'],
+            ]);
 
-            ]
-        );
-        return response()->json(['success' => 'Faculty saved successfully.']);
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            Faculty::updateOrCreate(
+                [
+                    'faculty_id' => $request->faculty_id
+                ],
+                [
+                    'faculty_name' => $request->faculty_name,
+                ]
+            );
+
+            return response()->json(['data' => [], 'message' => 'Faculty saved successfully.']);
+        } catch (ValidationException $e) {
+            return response()->json(['errors' => $e->validator->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'An error occurred while saving the faculty. Please try again.'], 500);
+        }
     }
 
     public function editFaculty($id)
@@ -209,18 +250,34 @@ class AdminController extends Controller
 
     public function storeCourse(Request $request)
     {
-        Courses::updateOrCreate(
-            [
-                'course_id' => $request->course_id
-            ],
-            [
-                'course_code' => $request->course_code,
-                'course_name' => $request->course_name,
-                'faculty_id' => $request->faculty_id,
+        try {
+            $validator = Validator::make($request->all(), [
+                'course_code' => 'required|string|max:255',
+                'course_name' => 'required|string|max:255',
+                'faculty_id' => 'required|integer',
+            ]);
 
-            ]
-        );
-        return response()->json(['success' => 'Course saved successfully.']);
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            Courses::updateOrCreate(
+                [
+                    'course_id' => $request->course_id
+                ],
+                [
+                    'course_code' => $request->course_code,
+                    'course_name' => $request->course_name,
+                    'faculty_id' => $request->faculty_id,
+                ]
+            );
+
+            return response()->json(['data' => [], 'message' => 'Course saved successfully.']);
+        } catch (ValidationException $e) {
+            return response()->json(['errors' => $e->validator->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'An error occurred while saving the course. Please try again.'], 500);
+        }
     }
 
     public function editCourse($id)
@@ -256,17 +313,32 @@ class AdminController extends Controller
 
     public function storeLecturer(Request $request)
     {
-        Lecturers::updateOrCreate(
-            [
-                'user_id' => $request->user_id
-            ],
-            [
-                'user_id' => $request->user_id,
-                'faculty_id' => $request->faculty_id,
+        try {
+            $validator = Validator::make($request->all(), [
+                'user_id' => 'required|integer',
+                'faculty_id' => 'required|integer',
+            ]);
 
-            ]
-        );
-        return response()->json(['success' => 'Lecturer saved successfully.']);
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            Lecturers::updateOrCreate(
+                [
+                    'user_id' => $request->user_id
+                ],
+                [
+                    'user_id' => $request->user_id,
+                    'faculty_id' => $request->faculty_id,
+                ]
+            );
+
+            return response()->json(['success' => 'Lecturer saved successfully.']);
+        } catch (ValidationException $e) {
+            return response()->json(['errors' => $e->validator->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'An error occurred while saving the lecturer.'], 500);
+        }
     }
 
     public function getLecturerByID($id)
@@ -278,18 +350,32 @@ class AdminController extends Controller
 
     public function editLecturer(Request $request)
     {
-        $user_id = $request->input('user_id');
-        $first_name = $request->input('first_name');
-        $last_name = $request->input('last_name');
-        $username = $request->input('username');
-        $email = $request->input('email');
-        $phoneNo = $request->input('phoneNo');
-        $faculty_id = $request->input('editfaculty_id');
-
-        // Start a database transaction
-        DB::beginTransaction();
-
         try {
+            $validator = Validator::make($request->all(), [
+                'user_id' => 'required|integer',
+                'first_name' => 'required|string|max:255',
+                'last_name' => 'required|string|max:255',
+                'username' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255',
+                'phoneNo' => 'required|string|max:20',
+                'editfaculty_id' => 'required|integer',
+            ]);
+
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            $user_id = $request->input('user_id');
+            $first_name = $request->input('first_name');
+            $last_name = $request->input('last_name');
+            $username = $request->input('username');
+            $email = $request->input('email');
+            $phoneNo = $request->input('phoneNo');
+            $faculty_id = $request->input('editfaculty_id');
+
+            // Start a database transaction
+            DB::beginTransaction();
+
             // Update the users table
             User::where('user_id', $user_id)->update([
                 'first_name' => $first_name,
@@ -306,11 +392,13 @@ class AdminController extends Controller
             DB::commit();
 
             return response()->json(['success' => 'Lecturer saved successfully.']);
+        } catch (ValidationException $e) {
+            return response()->json(['errors' => $e->validator->errors()], 422);
         } catch (\Exception $e) {
             // If an error occurs, roll back the transaction
             DB::rollBack();
 
-            return response()->json(['error' => 'An error occurred while saving the lecturer.']);
+            return response()->json(['error' => 'An error occurred while saving the lecturer.'], 500);
         }
     }
 
@@ -338,19 +426,38 @@ class AdminController extends Controller
 
     public function storeLecture(Request $request)
     {
-        Lectures::updateOrCreate(
-            [
-                'lecture_id' => $request->lecture_id
-            ],
-            [
-                'lecture_code' => $request->lecture_code,
-                'lecture_name' => $request->lecture_name,
-                'course_id' => $request->course_id,
-                'lecturer_id' => $request->lecturer_id,
-                'total_hours' => $request->total_hours,
-            ]
-        );
-        return response()->json(['success' => 'Lecture saved successfully.']);
+        try {
+            $validator = Validator::make($request->all(), [
+                'lecture_code' => 'required|string|max:255',
+                'lecture_name' => 'required|string|max:255',
+                'course_id' => 'required|integer',
+                'lecturer_id' => 'required|integer',
+                'total_hours' => 'required|integer',
+            ]);
+
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            Lectures::updateOrCreate(
+                [
+                    'lecture_id' => $request->lecture_id
+                ],
+                [
+                    'lecture_code' => $request->lecture_code,
+                    'lecture_name' => $request->lecture_name,
+                    'course_id' => $request->course_id,
+                    'lecturer_id' => $request->lecturer_id,
+                    'total_hours' => $request->total_hours,
+                ]
+            );
+
+            return response()->json(['success' => 'Lecture saved successfully.']);
+        } catch (ValidationException $e) {
+            return response()->json(['errors' => $e->validator->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'An error occurred while saving the lecture.'], 500);
+        }
     }
 
     public function editLecture($id)
@@ -381,19 +488,34 @@ class AdminController extends Controller
 
     public function storeGroup(Request $request)
     {
-        Groups::updateOrCreate(
-            [
-                'group_id' => $request->group_id
-            ],
-            [
-                'group_name' => $request->group_name,
-                'year' => $request->year,
-                'semester' => $request->semester,
+        try {
+            $validator = Validator::make($request->all(), [
+                'group_name' => 'required|string|max:255',
+                'year' => 'required|integer',
+                'semester' => 'required|integer',
+            ]);
 
-            ]
-        );
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
 
-        return response()->json(['success' => 'Group saved successfully.']);
+            Groups::updateOrCreate(
+                [
+                    'group_id' => $request->group_id
+                ],
+                [
+                    'group_name' => $request->group_name,
+                    'year' => $request->year,
+                    'semester' => $request->semester,
+                ]
+            );
+
+            return response()->json(['success' => 'Group saved successfully.']);
+        } catch (ValidationException $e) {
+            return response()->json(['errors' => $e->validator->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'An error occurred while saving the group.'], 500);
+        }
     }
 
     public function editGroup($id)
@@ -425,12 +547,27 @@ class AdminController extends Controller
 
     public function storeLectureGroup(Request $request)
     {
-        LectureGroups::create([
-            'lecture_id' => $request->lecture_id,
-            'group_id' => $request->group_id,
-        ]);
+        try {
+            $validator = Validator::make($request->all(), [
+                'lecture_id' => 'required|exists:lectures,lecture_id',
+                'group_id' => 'required|exists:groups,group_id',
+            ]);
 
-        return response()->json(['success' => 'Lecture Group saved successfully.']);
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            LectureGroups::create([
+                'lecture_id' => $request->lecture_id,
+                'group_id' => $request->group_id,
+            ]);
+
+            return response()->json(['success' => 'Lecture Group saved successfully.']);
+        } catch (ValidationException $e) {
+            return response()->json(['errors' => $e->validator->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'An error occurred while saving the lecture group.'], 500);
+        }
     }
 
     public function deleteLectureGroup(Request $request)
@@ -443,7 +580,7 @@ class AdminController extends Controller
         return response()->json(['success' => 'Lecture Group deleted successfully.']);
     }
 
-    // LECTURERS 
+    // STUDENTS
 
     public function getStudents(Request $request)
     {
@@ -453,7 +590,7 @@ class AdminController extends Controller
 
 
         if ($request->ajax()) {
-            $data = Student::with(['user', 'course', 'group'])
+            $data = Student::with(['user', 'course'])
                 ->get();
 
             return DataTables::of($data)
@@ -466,27 +603,41 @@ class AdminController extends Controller
                 ->make(true);
         }
 
-        return view('admin.students', ['courses' => $courses, 'users' => $users, 'groups' => $groups]);
+        return view('admin.students', ['courses' => $courses, 'users' => $users]);
     }
 
     public function storeStudent(Request $request)
     {
-        Student::create(
-            [
+        try {
+            $validator = Validator::make($request->all(), [
+                'user_id' => 'required|exists:users,user_id',
+                'course_id' => 'required|exists:courses,course_id',
+                'year_of_study' => 'required|integer|min:1',
+                'semester' => 'required|integer|min:1',
+            ]);
+
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            Student::create([
                 'user_id' => $request->user_id,
                 'course_id' => $request->course_id,
                 'year_of_study' => $request->year_of_study,
                 'semester' => $request->semester,
-                'group_id' => $request->group_id,
+            ]);
 
-            ]
-        );
-        return response()->json(['success' => 'Lecturer saved successfully.']);
+            return response()->json(['success' => 'Student saved successfully.']);
+        } catch (ValidationException $e) {
+            return response()->json(['errors' => $e->validator->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'An error occurred while saving the student.'], 500);
+        }
     }
 
     public function getStudentByID($id)
     {
-        $data = Student::with(['user', 'course', 'group'])
+        $data = Student::with(['user', 'course'])
             ->where('user_id', $id)
             ->first();
 
@@ -499,42 +650,111 @@ class AdminController extends Controller
 
     public function editStudent(Request $request)
     {
-        $user_id = $request->input('user_id');
-        $first_name = $request->input('first_name');
-        $last_name = $request->input('last_name');
-        $username = $request->input('username');
-        $email = $request->input('email');
-        $phoneNo = $request->input('phoneNo');
-        $course_id = $request->input('edit_course_id');
-        $year_of_study = $request->input('edit_year_of_study');
-        $semester = $request->input('edit_semester');
-        $group_id = $request->input('edit_group_id');
-
-        // Start a database transaction
-        DB::beginTransaction();
-
         try {
-            // Update the users table
-            User::where('user_id', $user_id)->update([
-                'first_name' => $first_name,
-                'last_name' => $last_name,
-                'username' => $username,
-                'email' => $email,
-                'phoneNo' => $phoneNo,
+            $validator = Validator::make($request->all(), [
+                'user_id' => 'required|exists:users,user_id',
+                'first_name' => 'required|string|max:255',
+                'last_name' => 'required|string|max:255',
+                'username' => 'required|string|max:255',
+                'email' => 'required|email|max:255',
+                'phoneNo' => 'required|string|max:20',
+                'edit_course_id' => 'required|exists:courses,course_id',
+                'edit_year_of_study' => 'required|integer|min:1',
+                'edit_semester' => 'required|integer|min:1',
             ]);
 
-            // Update the lecturers table
-            Student::where('user_id', $user_id)->update(['course_id' => $course_id, 'year_of_study' => $year_of_study, 'semester' => $semester, 'group_id' => $group_id]);
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            // Start a database transaction
+            DB::beginTransaction();
+
+            // Update the users table
+            User::where('user_id', $request->user_id)->update([
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'username' => $request->username,
+                'email' => $request->email,
+                'phoneNo' => $request->phoneNo,
+            ]);
+
+            // Update the students table
+            Student::where('user_id', $request->user_id)->update([
+                'course_id' => $request->edit_course_id,
+                'year_of_study' => $request->edit_year_of_study,
+                'semester' => $request->edit_semester,
+            ]);
 
             // Commit the transaction if all updates were successful
             DB::commit();
 
             return response()->json(['success' => 'Student saved successfully.']);
+        } catch (ValidationException $e) {
+            return response()->json(['errors' => $e->validator->errors()], 422);
         } catch (\Exception $e) {
             // If an error occurs, roll back the transaction
             DB::rollBack();
 
-            return response()->json(['error' => 'An error occurred while saving the student.']);
+            return response()->json(['error' => 'An error occurred while saving the student.'], 500);
         }
+    }
+
+    // STUDENT GROUPS
+
+    public function getStudentGroups(Request $request)
+    {
+        $students = Student::with(['user'])->get();
+        $groups = Groups::all();
+
+        if ($request->ajax()) {
+            $studentGroups = StudentGroups::with(['student', 'student.user', 'group'])->get();
+
+            return DataTables::of($studentGroups)
+                ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+                    $actionBtn = '<div class="flex gap-4 text-white font-semibold"><a href="javascript:void(0)" data-id="' . $row->group_id . '" data-del="' . $row->adm_no . '" class="delete bg-red-500 hover:bg-red-600 font-medium rounded-lg text-sm px-5 py-2 text-center deleteStudentGroup">Delete</a> ';
+                    return $actionBtn;
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+
+        return view('admin.student_groups', ['students' => $students, 'groups' => $groups]);
+    }
+
+    public function storeStudentGroup(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'adm_no' => 'required|exists:students,adm_no',
+                'group_id' => 'required|exists:groups,group_id',
+            ]);
+
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            StudentGroups::create([
+                'adm_no' => $request->adm_no,
+                'group_id' => $request->group_id,
+            ]);
+
+            return response()->json(['success' => 'Student Group saved successfully.']);
+        } catch (ValidationException $e) {
+            return response()->json(['errors' => $e->validator->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'An error occurred while saving the student group.'], 500);
+        }
+    }
+
+    public function deleteStudentGroup(Request $request)
+    {
+        StudentGroups::where([
+            'adm_no' => $request->adm_no,
+            'group_id' => $request->group_id,
+        ])->delete();
+
+        return response()->json(['success' => 'Student Group deleted successfully.']);
     }
 }
