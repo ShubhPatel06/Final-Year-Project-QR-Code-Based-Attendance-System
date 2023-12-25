@@ -11,9 +11,11 @@ class GroupModal extends Component
     /**
      * Create a new component instance.
      */
-    public function __construct()
+    public $divisions;
+
+    public function __construct($divisions)
     {
-        //
+        $this->divisions = $divisions;
     }
 
     /**

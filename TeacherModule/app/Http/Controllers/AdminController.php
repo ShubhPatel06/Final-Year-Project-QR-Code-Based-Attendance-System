@@ -526,9 +526,10 @@ class AdminController extends Controller
     // GROUPS
     public function getGroups(Request $request)
     {
+        $divisions = CourseDivisions::all();
 
         if ($request->ajax()) {
-            $data = Groups::all();
+            $data = Groups::with('division')->get();
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
@@ -539,7 +540,7 @@ class AdminController extends Controller
                 ->make(true);
         }
 
-        return view('admin.groups');
+        return view('admin.groups', ['divisions' => $divisions]);
     }
 
     public function storeGroup(Request $request)
@@ -547,6 +548,7 @@ class AdminController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'group_name' => 'required|string|max:255',
+                'division_id' => 'required|integer',
                 'year' => 'required|integer',
                 'semester' => 'required|integer',
             ]);
@@ -561,6 +563,7 @@ class AdminController extends Controller
                 ],
                 [
                     'group_name' => $request->group_name,
+                    'division_id' => $request->division_id,
                     'year' => $request->year,
                     'semester' => $request->semester,
                 ]
@@ -606,7 +609,7 @@ class AdminController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'lecture_id' => 'required|exists:lectures,lecture_id',
-                'group_id' => 'required|exists:groups,group_id',
+                'group_id' => 'required|exists:semester_groups,group_id',
             ]);
 
             if ($validator->fails()) {
@@ -668,8 +671,6 @@ class AdminController extends Controller
             $validator = Validator::make($request->all(), [
                 'user_id' => 'required|exists:users,user_id',
                 'course_id' => 'required|exists:courses,course_id',
-                'year_of_study' => 'required|integer|min:1',
-                'semester' => 'required|integer|min:1',
             ]);
 
             if ($validator->fails()) {
@@ -679,8 +680,7 @@ class AdminController extends Controller
             Student::create([
                 'user_id' => $request->user_id,
                 'course_id' => $request->course_id,
-                'year_of_study' => $request->year_of_study,
-                'semester' => $request->semester,
+
             ]);
 
             return response()->json(['success' => 'Student saved successfully.']);
@@ -715,8 +715,6 @@ class AdminController extends Controller
                 'email' => 'required|email|max:255',
                 'phoneNo' => 'required|string|max:20',
                 'edit_course_id' => 'required|exists:courses,course_id',
-                'edit_year_of_study' => 'required|integer|min:1',
-                'edit_semester' => 'required|integer|min:1',
             ]);
 
             if ($validator->fails()) {
@@ -738,8 +736,6 @@ class AdminController extends Controller
             // Update the students table
             Student::where('user_id', $request->user_id)->update([
                 'course_id' => $request->edit_course_id,
-                'year_of_study' => $request->edit_year_of_study,
-                'semester' => $request->edit_semester,
             ]);
 
             // Commit the transaction if all updates were successful
@@ -777,6 +773,23 @@ class AdminController extends Controller
         }
 
         return view('admin.student_groups', ['students' => $students, 'groups' => $groups]);
+    }
+
+    public function getLecturesByCourse($id)
+    {
+        $courseID = Student::where('adm_no', $id)->get('course_id');
+        $lectures = Lectures::with(['group'])
+            ->where('lecture_id', $id)
+            ->get();
+
+        $groups = $groupsData->map(function ($lectureGroup) {
+            return [
+                'group_id' => $lectureGroup->group->group_id,
+                'group_name' => $lectureGroup->group->group_name,
+            ];
+        });
+
+        return response()->json($groups);
     }
 
     public function storeStudentGroup(Request $request)

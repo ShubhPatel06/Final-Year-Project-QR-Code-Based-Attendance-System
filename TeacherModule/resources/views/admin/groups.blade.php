@@ -5,7 +5,7 @@
 @section('content')
 
 <div id="contentContainer" class="p-5 md:px-20 gap-y-20 mt-8 shadow-md">
-    <x-group-modal />
+    <x-group-modal :divisions='$divisions' />
 
     <div class="flex items-center justify-between mb-6">
         <h1 class="text-4xl ">Group Details</h1>
@@ -21,6 +21,7 @@
             <tr class="bg-slate-200">
                 <th class="p-4 font-semibold text-gray-700">Group ID</th>
                 <th class="p-4 font-semibold text-gray-700">Group Name</th>
+                <th class="p-4 font-semibold text-gray-700">Course Division</th>
                 <th class="p-4 font-semibold text-gray-700">Year</th>
                 <th class="p-4 font-semibold text-gray-700">Semester</th>
                 <th class="p-4 font-semibold text-gray-700">Action</th>
@@ -47,6 +48,11 @@
                 {
                     data: 'group_name',
                     name: 'group_name',
+                    class: "p-4"
+                },
+                {
+                    data: 'division.division_name',
+                    name: 'division.division_name',
                     class: "p-4"
                 },
                 {
@@ -134,6 +140,7 @@
                 $('#group-modal').addClass('flex');
                 $('#group_id').val(data.group_id);
                 $('#group_name').val(data.group_name);
+                $('#division_id').val(data.division_id);
                 $('#year').val(data.year);
                 $('#semester').val(data.semester);
             })

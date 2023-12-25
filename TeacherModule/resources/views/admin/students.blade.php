@@ -26,8 +26,6 @@
                 <th class="p-4 font-semibold text-gray-700">Email</th>
                 <th class="p-4 font-semibold text-gray-700">Phone Number</th>
                 <th class="p-4 font-semibold text-gray-700">Course</th>
-                <th class="p-4 font-semibold text-gray-700">Year of Study</th>
-                <th class="p-4 font-semibold text-gray-700">Semester</th>
                 <th class="p-4 font-semibold text-gray-700">Action</th>
             </tr>
         </thead>
@@ -77,16 +75,6 @@
                 {
                     data: 'course.course_code',
                     name: 'course.course_code',
-                    class: "p-4"
-                },
-                {
-                    data: 'year_of_study',
-                    name: 'year_of_study',
-                    class: "p-4"
-                },
-                {
-                    data: 'semester',
-                    name: 'semester',
                     class: "p-4"
                 },
                 {
@@ -176,8 +164,6 @@
                 $('#email').val(data.user.email);
                 $('#phoneNo').val(data.user.phoneNo);
                 $('#edit_course_id').val(data.course.course_id);
-                $('#edit_year_of_study').val(data.year_of_study);
-                $('#edit_semester').val(data.semester);
 
             })
         });

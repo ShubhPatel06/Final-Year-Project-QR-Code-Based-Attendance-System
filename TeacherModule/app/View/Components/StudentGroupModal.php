@@ -12,10 +12,12 @@ class StudentGroupModal extends Component
      * Create a new component instance.
      */
     public $groups;
+    public $lectures;
     public $students;
 
-    public function __construct($groups, $students)
+    public function __construct($lectures, $groups, $students)
     {
+        $this->lectures = $lectures;
         $this->groups = $groups;
         $this->students = $students;
     }

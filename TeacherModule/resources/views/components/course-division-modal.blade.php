@@ -15,7 +15,7 @@
                     @csrf
                     <input type="hidden" name="division_id" id="division_id">
                     <div>
-                        <label for="division_name" class="block mb-2 text-sm font-medium text-gray-900 ">Group Name</label>
+                        <label for="division_name" class="block mb-2 text-sm font-medium text-gray-900 ">Division Name</label>
                         <input type="text" name="division_name" id="division_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  " required>
                     </div>
                     <div class="col-span-2">

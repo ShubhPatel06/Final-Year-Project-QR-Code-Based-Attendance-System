@@ -5,7 +5,7 @@
 @section('content')
 
 <div id="contentContainer" class="p-5 md:px-20 gap-y-20 mt-8 shadow-md">
-    <x-student-group-modal :students='$students' :groups='$groups' />
+    <x-student-group-modal :students='$students' :lectures='$lectures' :groups='$groups' />
 
     <div class="flex items-center justify-between mb-6">
         <h1 class="text-4xl ">Student Groups Details</h1>
@@ -85,6 +85,27 @@
 
             $('#student_group-modal').remove('flex');
             $('#student_group-modal').addClass('hidden');
+        });
+
+        $('#adm_no').change(function() {
+            var adm_no = $(this).val();
+
+            $.ajax({
+                url: '/get-lectures/' + id,
+                type: 'GET',
+                success: function(data) {
+                    $('#lecture_id').empty();
+
+                    $('#lecture_id').append('<option value="" selected disabled>Select Lecture</option>');
+
+                    $.each(data, function(index, lecture) {
+                        $('#lecture_id').append('<option value="' + lecture.lecture_id + '"> ' + lecture.lecture_name + '</option>');
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr.responseText);
+                }
+            });
         });
 
         $('#saveBtn').click(function(e) {
