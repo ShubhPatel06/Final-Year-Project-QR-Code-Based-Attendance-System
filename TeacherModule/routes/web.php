@@ -104,12 +104,13 @@ Route::group(['middleware' => ['auth', 'checkUserRole:2']], function () {
     Route::get('/teacher-lecture-groups', [TeacherController::class, 'getLectureGroups'])->name('teacher.lecture_groups');
     Route::get('/teacher-groupStudents/{groupID}/{lectureID}', [TeacherController::class, 'getGroupStudents'])->name('teacher.group_students');
     Route::get('/attendance', [TeacherController::class, 'attendanceIndex'])->name('teacher.attendance');
-    Route::get('/get-groups/{lectureId}', [TeacherController::class, 'getGroups']);
+    Route::get('/get-group/{lectureId}', [TeacherController::class, 'getGroups']);
     Route::post('/create-QRCode', [TeacherController::class, 'storeAttendanceData'])->name('teacher.storeData');
     Route::delete('/delete-qrcode/{id}', [TeacherController::class, 'deleteQRCode'])->name('delete.qrcode');
     Route::get('/teacher-studentRecords/{recordID}', [TeacherController::class, 'getStudentRecords'])->name('teacher.student_records');
     Route::get('/get-attendance/{id}', [TeacherController::class, 'getAttendanceByID'])->name('teacher.getAttedance');
     Route::post('/edit-attendance', [TeacherController::class, 'editAttendance'])->name('teacher.editAttendance');
+    Route::post('/edit-all-attendance', [TeacherController::class, 'editAllAttendance'])->name('teacher.editAllAttendance');
 });
 
 Route::group(['middleware' => 'auth'], function () {

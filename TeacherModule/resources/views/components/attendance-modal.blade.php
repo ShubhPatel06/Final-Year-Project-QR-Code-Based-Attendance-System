@@ -18,7 +18,7 @@
                         <select name="lecture_id" id="lecture_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2">
                             <option value="" selected disabled>Select Lecture</option>
                             @foreach ($lectures as $lecture)
-                            <option value="{{ $lecture->lecture_id }}">{{ $lecture->lecture_name}}</option>
+                            <option value="{{ $lecture->lecture->lecture_id }}">{{ $lecture->lecture->lecture_name}}</option>
                             @endforeach
                         </select>
                     </div>

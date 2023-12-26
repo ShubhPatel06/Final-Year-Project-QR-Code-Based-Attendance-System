@@ -127,8 +127,6 @@ class TeacherController extends Controller
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
-                    // $actionBtn = '<div class="flex gap-4 text-white font-semibold"><a href="javascript:void(0)" data-id="' . $row->record_id . '" class="edit bg-emerald-500 hover:bg-emerald-600 font-medium rounded-lg text-sm px-5 py-2 text-center viewStudentRecords">Student Records</a></div>';
-                    // return $actionBtn;
 
                     $actionBtn = '<div class="flex gap-4 text-white font-semibold">';
 
@@ -146,7 +144,7 @@ class TeacherController extends Controller
                 ->make(true);
         }
 
-        $lectures = Lectures::with(['course'])
+        $lectures = LecturerAllocations::with('lecture')
             ->where('lecturer_id', $teacher->user_id)
             ->get();
         return view('teacher.attendance', ['lectures' => $lectures]);
@@ -154,7 +152,7 @@ class TeacherController extends Controller
 
     public function getGroups($lectureId)
     {
-        $groupsData = LectureGroups::with(['group'])
+        $groupsData = LectureGroups::with('group')
             ->where('lecture_id', $lectureId)
             ->get();
 
@@ -223,14 +221,15 @@ class TeacherController extends Controller
             $attendanceRecord->update(['qr_code_path' => $qrCodePath]);
 
             // Get students based on the group_id
-            $students = StudentGroups::with(['student'])->where('group_id', $request->input('group_id'))->get();
+            $students = StudentLectureGroups::with(['student'])->where('group_id', $request->input('group_id'))->get();
 
             // Create student attendance records
-            foreach ($students as $studentGroup) {
-                $student = $studentGroup->student;
+            foreach ($students as $student) {
+
+                // dd($attendanceRecord->record_id);
                 StudentAttendance::create([
                     'attendance_record_id' => $attendanceRecord->record_id,
-                    'student_adm_no' => $student->adm_no,
+                    'student_adm_no' => $student->student->adm_no,
                 ]);
             }
 
@@ -305,6 +304,18 @@ class TeacherController extends Controller
         $is_present = $request->input('is_present');
 
         StudentAttendance::where('attendance_id', $attendance_id)->update([
+            'is_present' => $is_present,
+        ]);
+
+        return response()->json(['success' => 'Attendance updated successfully.']);
+    }
+
+    public function editAllAttendance(Request $request)
+    {
+        $attendance_record_id = $request->input('attendance_record_id');
+        $is_present = $request->input('is_present');
+
+        StudentAttendance::where('attendance_record_id', $attendance_record_id)->update([
             'is_present' => $is_present,
         ]);
 

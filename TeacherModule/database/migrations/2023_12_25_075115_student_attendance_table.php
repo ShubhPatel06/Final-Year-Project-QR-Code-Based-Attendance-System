@@ -16,7 +16,7 @@ return new class extends Migration
             $table->id('attendance_id');
             $table->unsignedBigInteger('attendance_record_id');
             $table->unsignedBigInteger('student_adm_no');
-            $table->boolean('is_present');
+            $table->boolean('is_present')->default(null);
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
 

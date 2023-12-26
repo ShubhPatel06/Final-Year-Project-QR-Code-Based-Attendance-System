@@ -9,6 +9,9 @@
 
     <div class="flex items-center justify-between mb-6">
         <h1 class="text-4xl ">Student Attendance Details</h1>
+        <button id="markAllPresent" class="text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center markAllPresent" type="button">
+            Mark All Present
+        </button>
     </div>
 
     <table class="min-w-fug-white shadow-md rounded-lg students-table" id="students-table">
@@ -34,7 +37,6 @@
             var parts = url.split('/');
             return parts[parts.length - 1];
         }
-
 
         var recordID = getRecordIdFromUrl();
 
@@ -63,7 +65,7 @@
                     class: "p-4",
                     render: function(data) {
                         if (data === null) {
-                            return '';
+                            return 'Not Marked';
                         } else if (data === 1) {
                             return 'Present';
                         } else if (data === 2) {
@@ -119,6 +121,32 @@
         $('#closeModal').click(function() {
             $('#updateAttendance-modal').remove('flex');
             $('#updateAttendance-modal').addClass('hidden');
+        });
+
+        $('#markAllPresent').click(function() {
+            // Confirm action
+            if (confirm('Are you sure you want to mark all students present?')) {
+                var csrfToken = "{{ csrf_token() }}";
+                var rowData = {
+                    "_token": csrfToken,
+                    'attendance_record_id': recordID,
+                    'is_present': 1, // 1 represents "Present"
+                };
+
+                // Update the database via AJAX
+                $.ajax({
+                    data: rowData,
+                    url: "{{ route('teacher.editAllAttendance') }}",
+                    type: "POST",
+                    dataType: 'json',
+                    success: function(data) {
+                        table.draw();
+                    },
+                    error: function(data) {
+                        alert('Error:', data);
+                    }
+                });
+            }
         });
     });
 </script>

@@ -99,7 +99,7 @@
             var lectureId = $(this).val();
 
             $.ajax({
-                url: '/get-groups/' + lectureId,
+                url: '/get-group/' + lectureId,
                 type: 'GET',
                 success: function(data) {
                     $('#group_id').empty();
