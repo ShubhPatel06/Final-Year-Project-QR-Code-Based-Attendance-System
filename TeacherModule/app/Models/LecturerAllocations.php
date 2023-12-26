@@ -19,7 +19,7 @@ class LecturerAllocations extends Model
 
     public function lecturer()
     {
-        return $this->belongsTo(Lecturers::class, 'lecturer_id', 'lecturer_id');
+        return $this->belongsTo(Lecturers::class, 'lecturer_id', 'user_id');
     }
 
     public function lecture()

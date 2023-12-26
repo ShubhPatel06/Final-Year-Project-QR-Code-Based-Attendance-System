@@ -33,23 +33,23 @@
             serverSide: true,
             ajax: "{{ route('teacher.lectures') }}",
             columns: [{
-                    data: 'lecture_code',
-                    name: 'lecture_code',
+                    data: 'lecture.lecture_code',
+                    name: 'lecture.lecture_code',
                     class: "p-4"
                 },
                 {
-                    data: 'lecture_name',
-                    name: 'lecture_name',
+                    data: 'lecture.lecture_name',
+                    name: 'lecture.lecture_name',
                     class: "p-4"
                 },
                 {
-                    data: 'course.course_code',
-                    name: 'course.course_code',
+                    data: 'lecture.course.course_code',
+                    name: 'lecture.course.course_code',
                     class: "p-4"
                 },
                 {
-                    data: 'total_hours',
-                    name: 'total_hours',
+                    data: 'lecture.total_hours',
+                    name: 'lecture.total_hours',
                     class: "p-4"
                 },
             ]

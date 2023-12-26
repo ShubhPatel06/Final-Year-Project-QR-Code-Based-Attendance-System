@@ -6,10 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\AttendanceRecord;
 use App\Models\Groups;
 use App\Models\LectureGroups;
+use App\Models\LecturerAllocations;
 use App\Models\Lectures;
 use App\Models\Student;
 use App\Models\StudentAttendance;
 use App\Models\StudentGroups;
+use App\Models\StudentLectureGroups;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
@@ -38,7 +40,7 @@ class TeacherController extends Controller
     {
         $user = Auth::user();
         if ($request->ajax()) {
-            $data = Lectures::with(['course'])
+            $data = LecturerAllocations::with(['lecture', 'lecture.course'])
                 ->where('lecturer_id', $user->user_id)
                 ->get();
 
@@ -60,40 +62,45 @@ class TeacherController extends Controller
     {
         $user = Auth::user();
 
-
         if ($request->ajax()) {
-            $lectures = Lectures::with(['groups'])->where('lecturer_id', $user->user_id)->get();
-            $data = [];
+            $groups = LecturerAllocations::with(['lecture', 'group'])
+                ->where('lecturer_id', $user->user_id)
+                ->get();
 
-            foreach ($lectures as $lecture) {
-                foreach ($lecture->groups as $group) {
-                    $data[] = [
-                        'lecture_name' => $lecture->lecture_name,
-                        'group_id' => $group->group_id,
-                        'group_name' => $group->group_name,
-                        'year' => $group->year,
-                        'semester' => $group->semester,
-                        'action' => '<div class="flex gap-4 text-white font-semibold"><a href="' . route('teacher.group_students', ['groupID' => $group->group_id]) . '" data-id="' . $group->group_id . '" class="edit bg-emerald-500 hover:bg-emerald-600 font-medium rounded-lg text-sm px-5 py-2 text-center viewStudents">View Students</a></div>',
-                    ];
-                }
-            }
+            // foreach ($lectures as $lecture) {
+            //     foreach ($lecture->groups as $group) {
+            //         $data[] = [
+            //             'lecture_name' => $lecture->lecture_name,
+            //             'group_id' => $group->group_id,
+            //             'group_name' => $group->group_name,
+            //             'year' => $group->year,
+            //             'semester' => $group->semester,
+            //             'action' => '<div class="flex gap-4 text-white font-semibold"><a href="' . route('teacher.group_students', ['groupID' => $group->group_id]) . '" data-id="' . $group->group_id . '" class="edit bg-emerald-500 hover:bg-emerald-600 font-medium rounded-lg text-sm px-5 py-2 text-center viewStudents">View Students</a></div>',
+            //         ];
+            //     }
+            // }
 
-            return DataTables::of($data)
+            return DataTables::of($groups)
                 ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+                    $actionBtn = '<div class="flex gap-4 text-white font-semibold"><a href="' . route('teacher.group_students', ['groupID' => $row->group_id, 'lectureID' => $row->lecture_id]) . '"  data-id="' . $row->lecture_id . '" class="edit bg-emerald-500 hover:bg-emerald-600 font-medium rounded-lg text-sm px-5 py-2 text-center viewStudents">View Students</a></div>';
+                    return $actionBtn;
+                })
+                ->rawColumns(['action'])
                 ->make(true);
         }
 
         return view('teacher.groups');
     }
 
-    public function getGroupStudents(Request $request, $groupID)
+    public function getGroupStudents(Request $request, $groupID, $lectureID)
     {
         if ($request->ajax()) {
-            $data = StudentGroups::with(['student', 'student.user', 'student.course', 'group'])
+            $data = StudentLectureGroups::with(['student', 'student.user', 'student.course', 'group'])
                 ->where('group_id', $groupID)
+                ->where('lecture_id', $lectureID)
                 ->get();
 
-            $groupName = $data->isNotEmpty() ? $data[0]->group->group_name : '';
 
             return DataTables::of($data)
                 ->addIndexColumn()
@@ -102,7 +109,11 @@ class TeacherController extends Controller
 
         $groupDetails = Groups::find($groupID);
         $groupName = $groupDetails ? $groupDetails->group_name : '';
-        return view('teacher.groupStudents', compact('groupName'));
+
+        $lectureDetails = Lectures::find($lectureID);
+        $lectureName = $lectureDetails ? $lectureDetails->lecture_name : '';
+
+        return view('teacher.groupStudents', compact('groupName', 'lectureName'));
     }
 
     public function attendanceIndex(Request $request)
@@ -204,7 +215,7 @@ class TeacherController extends Controller
 
             // Generate QR code and store it
             $qrCodePath = 'qrcodes/' . uniqid('qrcode_') . '.svg';
-            QrCode::format('svg') // Set the format to PNG
+            QrCode::format('svg') // Set the format to SVG
                 ->size(420)
                 ->generate($qrCodeData, public_path($qrCodePath));
 

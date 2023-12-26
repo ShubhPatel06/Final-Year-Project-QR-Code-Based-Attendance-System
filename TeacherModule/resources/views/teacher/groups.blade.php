@@ -34,23 +34,23 @@
             serverSide: true,
             ajax: "{{ route('teacher.lecture_groups') }}",
             columns: [{
-                    data: 'lecture_name',
-                    name: 'lecture_name',
+                    data: 'lecture.lecture_name',
+                    name: 'lecture.lecture_name',
                     class: "p-4"
                 },
                 {
-                    data: 'group_name',
-                    name: 'group_name',
+                    data: 'group.group_name',
+                    name: 'group.group_name',
                     class: "p-4"
                 },
                 {
-                    data: 'year',
-                    name: 'year',
+                    data: 'group.year',
+                    name: 'group.year',
                     class: "p-4"
                 },
                 {
-                    data: 'semester',
-                    name: 'semester',
+                    data: 'group.semester',
+                    name: 'group.semester',
                     class: "p-4"
                 },
                 {

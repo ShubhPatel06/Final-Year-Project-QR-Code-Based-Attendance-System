@@ -76,6 +76,11 @@ Route::group(['middleware' => ['auth', 'checkUserRole:1']], function () {
     Route::post('/create-lecture_group', [AdminController::class, 'storeLectureGroup'])->name('lecture_group.store');
     Route::delete('/delete-lecture_group', [AdminController::class, 'deleteLectureGroup'])->name('lecture_group.delete');
 
+    // Lecturer Allocations
+    Route::get('/admin-lecturer_allocations', [AdminController::class, 'getLecturerAllocations'])->name('admin.lecturer_allocations');
+    Route::post('/create-lecturer_allocation', [AdminController::class, 'storeLecturerAllocation'])->name('lecturer_allocation.store');
+    Route::delete('/delete-lecturer_allocation', [AdminController::class, 'deleteLecturerAllocation'])->name('lecturer_allocation.delete');
+
     // Students
     Route::get('/admin-students', [AdminController::class, 'getStudents'])->name('admin.students');
     Route::post('/create-student', [AdminController::class, 'storeStudent'])->name('student.store');
@@ -89,6 +94,7 @@ Route::group(['middleware' => ['auth', 'checkUserRole:1']], function () {
     Route::delete('/delete-student_group', [AdminController::class, 'deleteStudentGroup'])->name('student_group.delete');
 
     Route::get('/get-lectures/{id}', [AdminController::class, 'getLecturesByCourse']);
+    Route::get('/get-groups/{id}', [AdminController::class, 'getGroupsByLecture']);
 });
 
 // Teacher routes
@@ -96,7 +102,7 @@ Route::group(['middleware' => ['auth', 'checkUserRole:2']], function () {
     Route::get('/teacher-dashboard', [TeacherController::class, 'index'])->name('teacher.dashboard');
     Route::get('/teacher-lectures', [TeacherController::class, 'getLectures'])->name('teacher.lectures');
     Route::get('/teacher-lecture-groups', [TeacherController::class, 'getLectureGroups'])->name('teacher.lecture_groups');
-    Route::get('/teacher-groupStudents/{groupID}', [TeacherController::class, 'getGroupStudents'])->name('teacher.group_students');
+    Route::get('/teacher-groupStudents/{groupID}/{lectureID}', [TeacherController::class, 'getGroupStudents'])->name('teacher.group_students');
     Route::get('/attendance', [TeacherController::class, 'attendanceIndex'])->name('teacher.attendance');
     Route::get('/get-groups/{lectureId}', [TeacherController::class, 'getGroups']);
     Route::post('/create-QRCode', [TeacherController::class, 'storeAttendanceData'])->name('teacher.storeData');

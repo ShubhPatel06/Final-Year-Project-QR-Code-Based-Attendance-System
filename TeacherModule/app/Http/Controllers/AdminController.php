@@ -8,11 +8,13 @@ use App\Models\Courses;
 use App\Models\Faculty;
 use App\Models\Groups;
 use App\Models\LectureGroups;
+use App\Models\LecturerAllocations;
 use App\Models\Lecturers;
 use App\Models\Lectures;
 use App\Models\Roles;
 use App\Models\Student;
 use App\Models\StudentGroups;
+use App\Models\StudentLectureGroups;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -639,6 +641,64 @@ class AdminController extends Controller
         return response()->json(['success' => 'Lecture Group deleted successfully.']);
     }
 
+    // LECTURER ALLOCATION
+    public function getLecturerAllocations(Request $request)
+    {
+        $lecturers = Lecturers::all();
+        $lectures = Lectures::all();
+
+        if ($request->ajax()) {
+            $lecturerAllocations = LecturerAllocations::with(['lecturer', 'lecturer.user', 'lecture', 'group'])->get();
+            return DataTables::of($lecturerAllocations)
+                ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+                    $actionBtn = '<div class="flex gap-4 text-white font-semibold"><a href="javascript:void(0)" data-id="' . $row->allocation_id . '"  class="delete bg-red-500 hover:bg-red-600 font-medium rounded-lg text-sm px-5 py-2 text-center deleteLecturerAllocation">Delete</a> ';
+                    return $actionBtn;
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+
+        return view('admin.lecturer_allocations', ['lecturers' => $lecturers, 'lectures' => $lectures]);
+    }
+
+    public function storeLecturerAllocation(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'lecturer_id' => 'required|exists:lecturers,user_id',
+                'lecture_id' => 'required|exists:lectures,lecture_id',
+                'group_id' => 'required|exists:semester_groups,group_id',
+            ]);
+
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            LecturerAllocations::create([
+                'lecturer_id' => $request->lecturer_id,
+                'lecture_id' => $request->lecture_id,
+                'group_id' => $request->group_id,
+            ]);
+
+            return response()->json(['success' => 'Lecturer Allocation saved successfully.']);
+        } catch (ValidationException $e) {
+            return response()->json(['errors' => $e->validator->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'An error occurred while saving the lecturer allocation.'], 500);
+        }
+    }
+
+
+    public function deleteLecturerAllocation(Request $request)
+    {
+        LecturerAllocations::where([
+            'allocation_id' => $request->allocation_id,
+        ])->delete();
+
+        return response()->json(['success' => 'Lecturer Allocation deleted successfully.']);
+    }
+
     // STUDENTS
 
     public function getStudents(Request $request)
@@ -757,37 +817,34 @@ class AdminController extends Controller
     public function getStudentGroups(Request $request)
     {
         $students = Student::with(['user'])->get();
-        $groups = Groups::all();
 
         if ($request->ajax()) {
-            $studentGroups = StudentGroups::with(['student', 'student.user', 'group'])->get();
+            $studentGroups = StudentLectureGroups::with(['student', 'student.user', 'lecture', 'group'])->get();
 
             return DataTables::of($studentGroups)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
-                    $actionBtn = '<div class="flex gap-4 text-white font-semibold"><a href="javascript:void(0)" data-id="' . $row->group_id . '" data-del="' . $row->adm_no . '" class="delete bg-red-500 hover:bg-red-600 font-medium rounded-lg text-sm px-5 py-2 text-center deleteStudentGroup">Delete</a> ';
+                    $actionBtn = '<div class="flex gap-4 text-white font-semibold"><a href="javascript:void(0)" data-id="' . $row->lecture_id . '" data-del="' . $row->adm_no . '" class="delete bg-red-500 hover:bg-red-600 font-medium rounded-lg text-sm px-5 py-2 text-center deleteStudentGroup">Delete</a> ';
                     return $actionBtn;
                 })
                 ->rawColumns(['action'])
                 ->make(true);
         }
 
-        return view('admin.student_groups', ['students' => $students, 'groups' => $groups]);
+        return view('admin.student_groups', ['students' => $students]);
     }
 
     public function getLecturesByCourse($id)
     {
-        $courseID = Student::where('adm_no', $id)->get('course_id');
-        $lectures = Lectures::with(['group'])
-            ->where('lecture_id', $id)
-            ->get();
+        $courseID = Student::where('adm_no', $id)->value('course_id');
+        $lectures = Lectures::where('course_id', $courseID)->get();
 
-        $groups = $groupsData->map(function ($lectureGroup) {
-            return [
-                'group_id' => $lectureGroup->group->group_id,
-                'group_name' => $lectureGroup->group->group_name,
-            ];
-        });
+        return response()->json($lectures);
+    }
+
+    public function getGroupsByLecture($id)
+    {
+        $groups = LectureGroups::with('group')->where('lecture_id', $id)->get();
 
         return response()->json($groups);
     }
@@ -797,19 +854,21 @@ class AdminController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'adm_no' => 'required|exists:students,adm_no',
-                'group_id' => 'required|exists:groups,group_id',
+                'lecture_id' => 'required|exists:lectures,lecture_id',
+                'group_id' => 'required|exists:semester_groups,group_id',
             ]);
 
             if ($validator->fails()) {
                 throw new ValidationException($validator);
             }
 
-            StudentGroups::create([
+            StudentLectureGroups::create([
                 'adm_no' => $request->adm_no,
+                'lecture_id' => $request->lecture_id,
                 'group_id' => $request->group_id,
             ]);
 
-            return response()->json(['success' => 'Student Group saved successfully.']);
+            return response()->json(['success' => 'Student Lecture Group saved successfully.']);
         } catch (ValidationException $e) {
             return response()->json(['errors' => $e->validator->errors()], 422);
         } catch (\Exception $e) {
@@ -819,11 +878,11 @@ class AdminController extends Controller
 
     public function deleteStudentGroup(Request $request)
     {
-        StudentGroups::where([
+        StudentLectureGroups::where([
             'adm_no' => $request->adm_no,
-            'group_id' => $request->group_id,
+            'lecture_id' => $request->lecture_id,
         ])->delete();
 
-        return response()->json(['success' => 'Student Group deleted successfully.']);
+        return response()->json(['success' => 'Student Lecture Group deleted successfully.']);
     }
 }

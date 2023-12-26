@@ -1,13 +1,13 @@
 @extends("layouts.teacherLayout")
 @section('sidebar')
-<x-teacher-sidebar focus='' />
+<x-teacher-sidebar focus='lecture_group' />
 @endsection
 @section('content')
 
 <div id="contentContainer" class="p-5 md:px-20 gap-y-20 mt-8 shadow-md">
 
     <div class="flex items-center justify-between mb-6">
-        <h1 class="text-4xl ">Group {{ $groupName }} - Student Details</h1>
+        <h1 class="text-3xl ">{{$lectureName}} - Group {{ $groupName }} Student Details</h1>
     </div>
 
     <table class="min-w-fug-white shadow-md rounded-lg students-table">
@@ -19,8 +19,7 @@
                 <th class="p-4 font-semibold text-gray-700">Email</th>
                 <th class="p-4 font-semibold text-gray-700">Phone Number</th>
                 <th class="p-4 font-semibold text-gray-700">Course</th>
-                <th class="p-4 font-semibold text-gray-700">Year of Study</th>
-                <th class="p-4 font-semibold text-gray-700">Semester</th>
+
             </tr>
         </thead>
         <tbody class="bg-white">
@@ -29,19 +28,20 @@
 </div>
 
 <script type="text/javascript">
-    function getGroupIdFromUrl() {
-        var url = window.location.href;
-        var parts = url.split('/');
-        return parts[parts.length - 1];
-    }
-
     $(function() {
-        var groupID = getGroupIdFromUrl();
+        function getURLParameter(index) {
+            var pathSegments = window.location.pathname.split('/');
+            return pathSegments[index];
+        }
+
+        // Get values from the URL
+        var groupID = getURLParameter(2);
+        var lectureID = getURLParameter(3);
 
         var table = $('.students-table').DataTable({
             processing: true,
             serverSide: true,
-            ajax: "{{ url('teacher-groupStudents') }}/" + groupID,
+            ajax: "{{ url('teacher-groupStudents') }}/" + groupID + "/" + lectureID,
             columns: [{
                     data: 'adm_no',
                     name: 'adm_no',
@@ -72,16 +72,7 @@
                     name: 'student.course.course_code',
                     class: "p-4"
                 },
-                {
-                    data: 'student.year_of_study',
-                    name: 'student.year_of_study',
-                    class: "p-4"
-                },
-                {
-                    data: 'student.semester',
-                    name: 'student.semester',
-                    class: "p-4"
-                },
+
 
             ]
         });
