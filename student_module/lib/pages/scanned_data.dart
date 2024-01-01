@@ -90,7 +90,7 @@ class ScannedDataFormPage extends StatelessWidget {
     String? ipv4,
   }) async {
     const apiUrl =
-        'https://d376-41-90-179-238.ngrok-free.app/api/update-attendance';
+        'https://2321-41-90-180-216.ngrok-free.app/api/update-attendance';
 
     try {
       ProgressDialogComponent progressDialog =
@@ -127,11 +127,24 @@ class ScannedDataFormPage extends StatelessWidget {
                 TextButton(
                   onPressed: () {
                     Navigator.pop(context); // Close the success dialog
-                    Navigator.pushReplacement(
+                    // Navigator.pushReplacement(
+                    //   context,
+                    //   MaterialPageRoute(
+                    //     builder: (context) => const HomeScreen(
+                    //       areButtonsDisabled: true,
+                    //       remainingDisableTime: 1 * 60, // Disable for 1 minute
+                    //     ),
+                    //   ),
+                    // );
+                    Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const HomeScreen(),
+                        builder: (context) => const HomeScreen(
+                          areButtonsDisabled: true,
+                          remainingDisableTime: 1 * 60, // Disable for 1 minute
+                        ),
                       ),
+                      (route) => false, // Remove all previous routes
                     );
                   },
                   child: const Text('OK'),

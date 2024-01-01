@@ -7,9 +7,48 @@ import 'user_provider.dart';
 import 'login_page.dart';
 import '../components/progress_dialog_component.dart';
 import 'qr_code_scanner.dart';
+import 'dart:async';
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+class HomeScreen extends StatefulWidget {
+  final bool areButtonsDisabled;
+  final int remainingDisableTime;
+
+  const HomeScreen({
+    super.key,
+    this.areButtonsDisabled = false,
+    this.remainingDisableTime = 0,
+  });
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  bool areButtonsDisabled = false;
+  int remainingDisableTime = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    areButtonsDisabled = widget.areButtonsDisabled;
+    remainingDisableTime = widget.remainingDisableTime;
+    _startTimer();
+  }
+
+  void _startTimer() {
+    if (areButtonsDisabled && remainingDisableTime > 0) {
+      Timer(const Duration(seconds: 1), () {
+        setState(() {
+          remainingDisableTime--;
+          if (remainingDisableTime == 0) {
+            areButtonsDisabled = false;
+          } else {
+            _startTimer();
+          }
+        });
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +57,7 @@ class HomeScreen extends StatelessWidget {
 
     Future<void> logoutUser(String token) async {
       final Uri logoutUri =
-          Uri.parse('https://d376-41-90-179-238.ngrok-free.app/api/logout');
+          Uri.parse('https://2321-41-90-180-216.ngrok-free.app/api/logout');
 
       try {
         final response = await http.post(
@@ -89,31 +128,77 @@ class HomeScreen extends StatelessWidget {
       }
     }
 
+    // return Scaffold(
+    //   appBar: AppBar(
+    //     title: const Text('Home'),
+    //     actions: [
+    //       IconButton(
+    //         icon: const Icon(Icons.qr_code),
+    //         onPressed: areButtonsDisabled
+    //             ? null
+    //             : () async {
+    //                 await Navigator.push(
+    //                   context,
+    //                   MaterialPageRoute(
+    //                     builder: (context) => const QRCodeScannerPage(),
+    //                   ),
+    //                 );
+    //               },
+    //       ),
+    //       IconButton(
+    //         icon: const Icon(Icons.logout),
+    //         onPressed: areButtonsDisabled
+    //             ? null
+    //             : () async {
+    //                 // Show the progress dialog
+    //                 progressDialog.show();
+
+    //                 // Call the logout API endpoint
+    //                 await logoutUser(userProvider.token);
+    //               },
+    //       ),
+    //     ],
+    //   ),
+    //   body: Center(
+    //     child: Column(
+    //       mainAxisAlignment: MainAxisAlignment.center,
+    //       children: [
+    //         const Text('Welcome to the Home Screen!'),
+    //         Text('Admission Number: ${userProvider.admissionNumber}'),
+    //       ],
+    //     ),
+    //   ),
+    // );
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Home'),
         actions: [
           IconButton(
             icon: const Icon(Icons.qr_code),
-            onPressed: () async {
-              // Show QR code scanner
-              await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const QRCodeScannerPage(),
-                ),
-              );
-            },
+            onPressed: areButtonsDisabled
+                ? null
+                : () async {
+                    // Show QR code scanner
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const QRCodeScannerPage(),
+                      ),
+                    );
+                  },
           ),
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () async {
-              // Show the progress dialog
-              progressDialog.show();
+            onPressed: areButtonsDisabled
+                ? null
+                : () async {
+                    // Show the progress dialog
+                    progressDialog.show();
 
-              // Call the logout API endpoint
-              await logoutUser(userProvider.token);
-            },
+                    // Call the logout API endpoint
+                    await logoutUser(userProvider.token);
+                  },
           ),
         ],
       ),
