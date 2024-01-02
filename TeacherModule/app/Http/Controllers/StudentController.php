@@ -103,4 +103,23 @@ class StudentController extends Controller
 
         return response()->json(['data' => $data]);
     }
+
+    public function getAttendanceRecords(Request $request)
+    {
+        $admNo = $request->route()->parameter('admNo');
+        $lectureID = $request->route()->parameter('lectureID');
+        $groupID = $request->route()->parameter('groupID');
+
+
+        $attendanceRecords = AttendanceRecord::with('lecture')->where('lecture_id', $lectureID)
+            ->where('group_id', $groupID)
+            ->get();
+
+        // Filter student attendance based on admission number
+        $filteredAttendance = $attendanceRecords->flatMap(function ($record) use ($admNo) {
+            return $record->studentAttendance->where('student_adm_no', $admNo)->all();
+        });
+
+        return response()->json(['AttendanceRecord' => $attendanceRecords, 'filteredAttendance' => $filteredAttendance]);
+    }
 }

@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
+import 'package:student_module/pages/attendance_records.dart';
 import 'user_provider.dart';
 import 'login_page.dart';
 import '../components/progress_dialog_component.dart';
@@ -64,29 +65,84 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> fetchOptions() async {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
-    final response = await http.get(Uri.parse(
-        'https://73da-41-90-180-216.ngrok-free.app/api/get-groups/${userProvider.admissionNumber}'));
+    var progresslog = ProgressDialogComponent(context, 'Loading...');
 
-    final parsedResponse = jsonDecode(response.body) as Map<String, dynamic>;
-    final parsedGroups = parsedResponse['groups'] as List<dynamic>;
+    try {
+      progresslog.show();
+      final response = await http.get(
+        Uri.parse(
+            'https://c000-41-90-185-67.ngrok-free.app/api/get-groups/${userProvider.admissionNumber}'),
+        headers: {
+          'Authorization': 'Bearer ${userProvider.token}',
+        },
+      );
 
-    // Sort groups by group_name
-    parsedGroups.sort((a, b) => a['group']['group_name']
-        .toString()
-        .compareTo(b['group']['group_name'].toString()));
+      if (response.statusCode == 200) {
+        final parsedResponse =
+            jsonDecode(response.body) as Map<String, dynamic>;
+        final parsedGroups = parsedResponse['groups'] as List<dynamic>;
 
-    setState(() {
-      options = parsedGroups
-          .map((group) => DropdownMenuItem(
-                value: group['group_id'].toString(),
-                child: Text(
-                  '${group['group']['group_name']} (Year ${group['group']['year']}, Sem ${group['group']['semester']})',
+        // Sort groups by group_name
+        parsedGroups.sort((a, b) => a['group']['group_name']
+            .toString()
+            .compareTo(b['group']['group_name'].toString()));
+
+        setState(() {
+          options = parsedGroups
+              .map((group) => DropdownMenuItem(
+                    value: group['group_id'].toString(),
+                    child: Text(
+                      '${group['group']['group_name']} (Year ${group['group']['year']}, Sem ${group['group']['semester']})',
+                    ),
+                  ))
+              .toList();
+          // Optionally set a default selected option
+          selectedOption = options.first.value;
+        });
+        progresslog.hide();
+      } else {
+        progresslog.hide();
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Error'),
+              content: const Text('Error fetching groups! Try again later.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the error dialog
+                  },
+                  child: const Text('OK'),
                 ),
-              ))
-          .toList();
-      // Optionally set a default selected option
-      selectedOption = options.first.value;
-    });
+              ],
+            );
+          },
+        );
+      }
+    } catch (e) {
+      progresslog.hide();
+
+      // Show error dialog for unexpected errors
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Error'),
+            content:
+                const Text('An unexpected error occurred. Please try again.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the error dialog
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 
   @override
@@ -96,7 +152,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     Future<void> logoutUser(String token) async {
       final Uri logoutUri =
-          Uri.parse('https://73da-41-90-180-216.ngrok-free.app/api/logout');
+          Uri.parse('https://c000-41-90-185-67.ngrok-free.app/api/logout');
 
       try {
         final response = await http.post(
@@ -200,53 +256,88 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: Center(
-        child: Column(
-          children: [
-            DropdownButton<String>(
-              value: selectedOption,
-              items: options,
-              onChanged: (value) {
-                setState(() {
-                  selectedOption = value;
-                });
-                fetchContent(value!);
-              },
-            ),
-            const SizedBox(height: 20),
-            if (lectureData.isNotEmpty)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  for (var data in lectureData)
-                    Column(
-                      children: [
-                        Text(
-                          '${data['lecture']['lecture_code']} - ${data['lecture']['lecture_name']}',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
-                        ),
-                        Text(
-                          'Lecturer: ${data['lecture']['lecturer_allocation'][0]['lecturer']['user']['first_name']} ${data['lecture']['lecturer_allocation'][0]['lecturer']['user']['last_name']}',
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          'Total Hours: ${data['lecture']['total_hours']}',
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                        const Text(
-                          'Hours Absent: ',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                        const SizedBox(height: 20),
-                      ],
-                    ),
-                ],
+      body: Container(
+        color: Colors.white, // Set the desired color for the body
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              DropdownButton<String>(
+                isExpanded: true,
+                value: selectedOption,
+                items: options,
+                onChanged: (value) {
+                  setState(() {
+                    selectedOption = value;
+                  });
+                  fetchContent(value!);
+                },
               ),
-          ],
+              const SizedBox(height: 20),
+              if (lectureData.isNotEmpty)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    for (var data in lectureData)
+                      Column(
+                        children: [
+                          Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        AttendanceRecordsScreen(
+                                      lectureId: data['lecture']['lecture_id'],
+                                      admissionNumber:
+                                          userProvider.admissionNumber,
+                                      groupId: data['group']['group_id'],
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                margin:
+                                    const EdgeInsets.symmetric(vertical: 8.0),
+                                decoration: BoxDecoration(
+                                  color: Colors
+                                      .grey[100], // Set the background color
+                                  borderRadius: BorderRadius.circular(8.0),
+                                ),
+                                child: ListTile(
+                                  title: Text(
+                                    '${data['lecture']['lecture_code']} - ${data['lecture']['lecture_name']}',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                  subtitle: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Lecturer: ${data['lecture']['lecturer_allocation'][0]['lecturer']['user']['first_name']} ${data['lecture']['lecturer_allocation'][0]['lecturer']['user']['last_name']}',
+                                        style: const TextStyle(fontSize: 14),
+                                      ),
+                                    ],
+                                  ),
+                                  trailing: const Icon(Icons.arrow_forward_ios),
+                                ),
+                              ),
+                            ),
+                          ),
+                          if (data != lectureData.last)
+                            const SizedBox(height: 0.5),
+                        ],
+                      ),
+                  ],
+                ),
+            ],
+          ),
         ),
       ),
     );
@@ -254,10 +345,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> fetchContent(String optionValue) async {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
+    var progressLog = ProgressDialogComponent(context, 'Loading...');
 
     try {
-      final response = await http.get(Uri.parse(
-          'https://73da-41-90-180-216.ngrok-free.app/api/get-lectures/${userProvider.admissionNumber}/$optionValue'));
+      progressLog.show();
+      final response = await http.get(
+        Uri.parse(
+            'https://c000-41-90-185-67.ngrok-free.app/api/get-lectures/${userProvider.admissionNumber}/$optionValue'),
+        headers: {
+          'Authorization': 'Bearer ${userProvider.token}',
+        },
+      );
 
       if (response.statusCode == 200) {
         final parsedResponse =
@@ -267,11 +365,48 @@ class _HomeScreenState extends State<HomeScreen> {
         setState(() {
           lectureData = List<Map<String, dynamic>>.from(lectureDataList);
         });
+        progressLog.hide();
       } else {
-        throw Exception('Failed to fetch data');
+        progressLog.hide();
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Error'),
+              content: const Text(
+                  'Failed to fetch data. An unexpected error occurred. Please try again.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the error dialog
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
       }
     } catch (error) {
-      print(error);
+      progressLog.hide();
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Error'),
+            content:
+                const Text('An unexpected error occurred. Please try again.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the error dialog
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 }

@@ -90,8 +90,10 @@ class ScannedDataFormPage extends StatelessWidget {
     String verificationToken, {
     String? ipv4,
   }) async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+
     const apiUrl =
-        'https://73da-41-90-180-216.ngrok-free.app/api/update-attendance';
+        'https://c000-41-90-185-67.ngrok-free.app/api/update-attendance';
 
     try {
       ProgressDialogComponent progressDialog =
@@ -110,7 +112,11 @@ class ScannedDataFormPage extends StatelessWidget {
       }
 
       // Send request to update attendance
-      final response = await http.post(Uri.parse(apiUrl), body: requestBody);
+      final response = await http.post(Uri.parse(apiUrl),
+          headers: {
+            'Authorization': 'Bearer ${userProvider.token}',
+          },
+          body: requestBody);
 
       progressDialog.hide();
 
