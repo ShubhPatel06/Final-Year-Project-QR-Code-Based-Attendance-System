@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AttendanceRecord;
 use App\Models\Student;
 use App\Models\StudentAttendance;
+use App\Models\StudentLectureGroups;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -77,5 +78,29 @@ class StudentController extends Controller
         );
 
         return response()->json(['message' => 'Attendance updated successfully']);
+    }
+
+    public function getGroups(Request $request, $admNo)
+    {
+        $data = StudentLectureGroups::with('group')
+            ->where('adm_no', $admNo)
+            ->select('group_id')
+            ->distinct()
+            ->get();
+
+        return response()->json(['groups' => $data]);
+    }
+
+    public function getLectures(Request $request)
+    {
+        $admNo = $request->route()->parameter('admNo');
+        $groupID = $request->route()->parameter('groupID');
+
+        $data = StudentLectureGroups::with('group', 'lecture', 'lecture.lecturerAllocation.lecturer.user')
+            ->where('adm_no', $admNo)
+            ->where('group_id', $groupID)
+            ->get();
+
+        return response()->json(['data' => $data]);
     }
 }

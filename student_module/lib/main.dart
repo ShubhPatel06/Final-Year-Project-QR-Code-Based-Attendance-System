@@ -22,8 +22,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'My Attendance App',
       theme: ThemeData(
-          // Your theme settings
-          ),
+        fontFamily: 'Poppins',
+      ),
       home: const LoginPage(),
     );
   }

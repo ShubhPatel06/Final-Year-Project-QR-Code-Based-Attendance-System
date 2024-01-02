@@ -288,8 +288,11 @@ class TeacherController extends Controller
 
     public function getAttendanceByID($id)
     {
+        // $data = StudentAttendance::where('attendance_id', $id)
+        //     ->first();
+
         $data = StudentAttendance::where('attendance_id', $id)
-            ->first();
+            ->get();
 
         if (!$data) {
             return response()->json(['error' => 'Record not found.']);

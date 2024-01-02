@@ -32,7 +32,7 @@ class _LoginPageState extends State<LoginPage> {
 
     // final Uri loginUri = Uri.parse('http://10.0.2.2:8000/api/login');
     final Uri loginUri =
-        Uri.parse('https://2321-41-90-180-216.ngrok-free.app/api/login');
+        Uri.parse('https://73da-41-90-180-216.ngrok-free.app/api/login');
 
     try {
       final response = await http.post(
@@ -131,7 +131,7 @@ class _LoginPageState extends State<LoginPage> {
               // Text
               Text(
                 "Attendance System",
-                style: TextStyle(color: Colors.grey.shade700, fontSize: 40),
+                style: TextStyle(color: Colors.grey.shade700, fontSize: 35),
               ),
 
               const SizedBox(height: 20),
@@ -145,8 +145,9 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 25),
 
               // Text field
-              Padding(
+              Container(
                 padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                height: 60,
                 child: TextField(
                   controller: admissionController,
                   keyboardType:
@@ -167,11 +168,12 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
 
-              const SizedBox(height: 25),
+              const SizedBox(height: 20),
 
               // Password Field
-              Padding(
+              Container(
                 padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                height: 60,
                 child: TextField(
                   controller: passwordController,
                   obscureText: true,

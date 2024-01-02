@@ -23,8 +23,8 @@ class ScannedDataFormPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Scanned Data Form'),
-        backgroundColor: Colors.blue, // Adjust the color
+        title: const Text('Scanned Data'),
+        backgroundColor: Colors.blue,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -72,11 +72,12 @@ class ScannedDataFormPage extends StatelessWidget {
       title: Text(
         label,
         style: const TextStyle(
-            fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+            fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black),
       ),
       subtitle: Text(
         value,
-        style: const TextStyle(fontSize: 14, color: Colors.white),
+        style: const TextStyle(
+            fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white),
       ),
       tileColor: color,
     );
@@ -90,7 +91,7 @@ class ScannedDataFormPage extends StatelessWidget {
     String? ipv4,
   }) async {
     const apiUrl =
-        'https://2321-41-90-180-216.ngrok-free.app/api/update-attendance';
+        'https://73da-41-90-180-216.ngrok-free.app/api/update-attendance';
 
     try {
       ProgressDialogComponent progressDialog =
@@ -127,15 +128,6 @@ class ScannedDataFormPage extends StatelessWidget {
                 TextButton(
                   onPressed: () {
                     Navigator.pop(context); // Close the success dialog
-                    // Navigator.pushReplacement(
-                    //   context,
-                    //   MaterialPageRoute(
-                    //     builder: (context) => const HomeScreen(
-                    //       areButtonsDisabled: true,
-                    //       remainingDisableTime: 1 * 60, // Disable for 1 minute
-                    //     ),
-                    //   ),
-                    // );
                     Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(

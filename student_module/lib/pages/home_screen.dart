@@ -8,6 +8,7 @@ import 'login_page.dart';
 import '../components/progress_dialog_component.dart';
 import 'qr_code_scanner.dart';
 import 'dart:async';
+import 'dart:convert';
 
 class HomeScreen extends StatefulWidget {
   final bool areButtonsDisabled;
@@ -27,12 +28,23 @@ class _HomeScreenState extends State<HomeScreen> {
   bool areButtonsDisabled = false;
   int remainingDisableTime = 0;
 
+  String? selectedOption;
+  List<DropdownMenuItem<String>> options = [];
+  List<Map<String, dynamic>> lectureData = [];
+
   @override
   void initState() {
     super.initState();
     areButtonsDisabled = widget.areButtonsDisabled;
     remainingDisableTime = widget.remainingDisableTime;
     _startTimer();
+
+    Future.delayed(Duration.zero, () {
+      fetchOptions().then((_) {
+        // Call fetchContent with the default selected option
+        fetchContent(selectedOption!);
+      });
+    });
   }
 
   void _startTimer() {
@@ -50,6 +62,33 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<void> fetchOptions() async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final response = await http.get(Uri.parse(
+        'https://73da-41-90-180-216.ngrok-free.app/api/get-groups/${userProvider.admissionNumber}'));
+
+    final parsedResponse = jsonDecode(response.body) as Map<String, dynamic>;
+    final parsedGroups = parsedResponse['groups'] as List<dynamic>;
+
+    // Sort groups by group_name
+    parsedGroups.sort((a, b) => a['group']['group_name']
+        .toString()
+        .compareTo(b['group']['group_name'].toString()));
+
+    setState(() {
+      options = parsedGroups
+          .map((group) => DropdownMenuItem(
+                value: group['group_id'].toString(),
+                child: Text(
+                  '${group['group']['group_name']} (Year ${group['group']['year']}, Sem ${group['group']['semester']})',
+                ),
+              ))
+          .toList();
+      // Optionally set a default selected option
+      selectedOption = options.first.value;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     var userProvider = Provider.of<UserProvider>(context);
@@ -57,7 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     Future<void> logoutUser(String token) async {
       final Uri logoutUri =
-          Uri.parse('https://2321-41-90-180-216.ngrok-free.app/api/logout');
+          Uri.parse('https://73da-41-90-180-216.ngrok-free.app/api/logout');
 
       try {
         final response = await http.post(
@@ -128,51 +167,10 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     }
 
-    // return Scaffold(
-    //   appBar: AppBar(
-    //     title: const Text('Home'),
-    //     actions: [
-    //       IconButton(
-    //         icon: const Icon(Icons.qr_code),
-    //         onPressed: areButtonsDisabled
-    //             ? null
-    //             : () async {
-    //                 await Navigator.push(
-    //                   context,
-    //                   MaterialPageRoute(
-    //                     builder: (context) => const QRCodeScannerPage(),
-    //                   ),
-    //                 );
-    //               },
-    //       ),
-    //       IconButton(
-    //         icon: const Icon(Icons.logout),
-    //         onPressed: areButtonsDisabled
-    //             ? null
-    //             : () async {
-    //                 // Show the progress dialog
-    //                 progressDialog.show();
-
-    //                 // Call the logout API endpoint
-    //                 await logoutUser(userProvider.token);
-    //               },
-    //       ),
-    //     ],
-    //   ),
-    //   body: Center(
-    //     child: Column(
-    //       mainAxisAlignment: MainAxisAlignment.center,
-    //       children: [
-    //         const Text('Welcome to the Home Screen!'),
-    //         Text('Admission Number: ${userProvider.admissionNumber}'),
-    //       ],
-    //     ),
-    //   ),
-    // );
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Home'),
+        backgroundColor: Colors.blue, // Adjust the color
         actions: [
           IconButton(
             icon: const Icon(Icons.qr_code),
@@ -204,13 +202,76 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text('Welcome to the Home Screen!'),
-            Text('Admission Number: ${userProvider.admissionNumber}'),
+            DropdownButton<String>(
+              value: selectedOption,
+              items: options,
+              onChanged: (value) {
+                setState(() {
+                  selectedOption = value;
+                });
+                fetchContent(value!);
+              },
+            ),
+            const SizedBox(height: 20),
+            if (lectureData.isNotEmpty)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  for (var data in lectureData)
+                    Column(
+                      children: [
+                        Text(
+                          '${data['lecture']['lecture_code']} - ${data['lecture']['lecture_name']}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
+                        Text(
+                          'Lecturer: ${data['lecture']['lecturer_allocation'][0]['lecturer']['user']['first_name']} ${data['lecture']['lecturer_allocation'][0]['lecturer']['user']['last_name']}',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          'Total Hours: ${data['lecture']['total_hours']}',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                        const Text(
+                          'Hours Absent: ',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        const SizedBox(height: 20),
+                      ],
+                    ),
+                ],
+              ),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> fetchContent(String optionValue) async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+
+    try {
+      final response = await http.get(Uri.parse(
+          'https://73da-41-90-180-216.ngrok-free.app/api/get-lectures/${userProvider.admissionNumber}/$optionValue'));
+
+      if (response.statusCode == 200) {
+        final parsedResponse =
+            jsonDecode(response.body) as Map<String, dynamic>;
+        final lectureDataList = parsedResponse['data'] as List<dynamic>;
+
+        setState(() {
+          lectureData = List<Map<String, dynamic>>.from(lectureDataList);
+        });
+      } else {
+        throw Exception('Failed to fetch data');
+      }
+    } catch (error) {
+      print(error);
+    }
   }
 }
