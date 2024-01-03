@@ -22,7 +22,7 @@ class StudentController extends Controller
         ]);
 
         // Find the user_id in the students_table
-        $student = Student::where('adm_no', $request->input('admission_number'))->first();
+        $student = Student::with('course')->where('adm_no', $request->input('admission_number'))->first();
 
         if (!$student) {
             return response()->json(['error' => 'Student Not Registered'], 401);
@@ -37,7 +37,7 @@ class StudentController extends Controller
 
         $token = $user->createToken('token-name')->plainTextToken;
 
-        return response()->json(['token' => $token, 'user' => $user, 'admission_number' => $student->adm_no], 200);
+        return response()->json(['token' => $token, 'user' => $user, 'admission_number' => $student->adm_no, 'course' => $student->course], 200);
     }
 
     public function logout(Request $request)
@@ -110,24 +110,30 @@ class StudentController extends Controller
         $lectureID = $request->route()->parameter('lectureID');
         $groupID = $request->route()->parameter('groupID');
 
-
         $attendanceRecords = AttendanceRecord::with('lecture')->where('lecture_id', $lectureID)
             ->where('group_id', $groupID)
             ->get();
 
-        // // Filter student attendance based on admission number
-        // $filteredAttendance = $attendanceRecords->flatMap(function ($record) use ($admNo) {
-        //     return $record->studentAttendance->where('student_adm_no', $admNo)->all();
-        // });
-
+        $presentHours = 0;
+        $absentHours = 0;
         $totalHours = 0;
+        $absentPercent = 0;
 
         // Filter student attendance based on admission number
-        $filteredAttendance = $attendanceRecords->flatMap(function ($record) use ($admNo, &$totalHours) {
+        $filteredAttendance = $attendanceRecords->flatMap(function ($record) use ($admNo, &$presentHours, &$absentHours, &$totalHours, &$absentPercent) {
             $attendanceList = $record->studentAttendance->where('student_adm_no', $admNo)->all();
 
             // Calculate total hours only for records where is_present is equal to 1
-            $totalHours += collect($attendanceList)->where('is_present', 1)->sum('hours');
+            $presentHours += collect($attendanceList)->where('is_present', 1)->sum('hours');
+            $absentHours += collect($attendanceList)->where('is_present', 2)->sum('hours');
+            $totalHours += collect($attendanceList)->sum('hours');
+
+            if ($totalHours > 0) {
+                $absentPercent = number_format(($absentHours / $totalHours) * 100, 2);
+                $absentPercent = (float) $absentPercent;
+            } else {
+                $absentPercent = 0.0; // Set absentPercent to 0 if totalHours is zero
+            }
 
             return [
                 'record' => $record,
@@ -135,6 +141,6 @@ class StudentController extends Controller
             ];
         });
 
-        return response()->json(['totalHours' => $totalHours, 'AttendanceRecord' => $attendanceRecords, 'filteredAttendance' => $filteredAttendance]);
+        return response()->json(['presentHours' => $presentHours, 'absentHours' => $absentHours, 'absentPercent' => $absentPercent, 'AttendanceRecord' => $attendanceRecords, 'filteredAttendance' => $filteredAttendance]);
     }
 }

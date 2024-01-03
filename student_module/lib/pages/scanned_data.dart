@@ -133,7 +133,7 @@ class ScannedDataFormPage extends StatelessWidget {
             return AlertDialog(
               title: const Text('Attendance Submitted'),
               content: const Text(
-                  'Your attendance has been submitted successfully.'),
+                  'Your attendance has been submitted successfully. \n Permission to scan a QR Code or Logging out is diabled for a few minutes.'),
               actions: <Widget>[
                 TextButton(
                   onPressed: () {

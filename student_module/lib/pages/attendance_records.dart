@@ -27,7 +27,9 @@ class _AttendanceRecordsScreenState extends State<AttendanceRecordsScreen> {
   List<Map<String, dynamic>> attendanceRecords = [];
   Map<String, dynamic> lectureDetails = {};
   bool isLoading = false;
-  int totalHours = 0;
+  int presentHours = 0;
+  int absentHours = 0;
+  double absentPercent = 0;
 
   @override
   void initState() {
@@ -51,7 +53,6 @@ class _AttendanceRecordsScreenState extends State<AttendanceRecordsScreen> {
       );
 
       if (response.statusCode == 200) {
-        print(response.body);
         final parsedResponse =
             jsonDecode(response.body) as Map<String, dynamic>;
 
@@ -61,9 +62,11 @@ class _AttendanceRecordsScreenState extends State<AttendanceRecordsScreen> {
           lectureDetails = attendanceRecords.isNotEmpty
               ? Map<String, dynamic>.from(attendanceRecords[0]['lecture'])
               : {};
-          totalHours = parsedResponse['totalHours'];
+          presentHours = parsedResponse['presentHours'];
+          absentHours = parsedResponse['absentHours'];
+          absentPercent = parsedResponse['absentPercent'].toDouble();
+          isLoading = false;
         });
-        isLoading = false;
       } else {
         showDialog(
           context: context,
@@ -84,7 +87,9 @@ class _AttendanceRecordsScreenState extends State<AttendanceRecordsScreen> {
           },
         );
       }
-      isLoading = false;
+      setState(() {
+        isLoading = false;
+      });
     } catch (error) {
       showDialog(
         context: context,
@@ -104,7 +109,9 @@ class _AttendanceRecordsScreenState extends State<AttendanceRecordsScreen> {
           );
         },
       );
-      isLoading = false;
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -141,12 +148,33 @@ class _AttendanceRecordsScreenState extends State<AttendanceRecordsScreen> {
                           Text(
                             '${lectureDetails['lecture_code']} - ${lectureDetails['lecture_name']}',
                             style: const TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.bold),
+                                fontSize: 17, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Total Hours Present: $totalHours',
+                            'Hours Present: $presentHours',
                             style: const TextStyle(fontSize: 16),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Hours Absent: $absentHours',
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              const Text(
+                                'Absent Percentage: ',
+                                style: TextStyle(fontSize: 16),
+                              ),
+                              Text(
+                                '$absentPercent%',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),

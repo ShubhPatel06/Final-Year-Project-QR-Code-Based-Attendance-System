@@ -99,7 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ))
               .toList();
           // Optionally set a default selected option
-          selectedOption = options.first.value;
+          selectedOption = options.last.value;
           isLoading = false;
         });
       } else {
@@ -120,7 +120,9 @@ class _HomeScreenState extends State<HomeScreen> {
             );
           },
         );
-        isLoading = false;
+        setState(() {
+          isLoading = false;
+        });
       }
     } catch (e) {
       // Show error dialog for unexpected errors
@@ -142,7 +144,9 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         },
       );
-      isLoading = false;
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -266,88 +270,118 @@ class _HomeScreenState extends State<HomeScreen> {
               child: CircularProgressIndicator(),
             )
           : Container(
-              color: Colors.white, // Set the desired color for the body
+              color: Colors.white,
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(12.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    DropdownButton<String>(
-                      isExpanded: true,
-                      value: selectedOption,
-                      items: options,
-                      onChanged: (value) {
-                        setState(() {
-                          selectedOption = value;
-                        });
-                        fetchContent(value!);
-                      },
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10.0),
+                      child: Text(
+                        'Welcome, ${userProvider.user?['first_name'] ?? 'Guest'} ${userProvider.user?['last_name'] ?? ''}',
+                        style: TextStyle(
+                          color: Colors.blue[500],
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
-                    const SizedBox(height: 20),
+
+                    // Course name
+                    Text(
+                      '${userProvider.course?['course_name']} (${userProvider.course?['course_code']})',
+                      style: TextStyle(
+                          color: Colors.grey[700],
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 10),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                      child: DropdownButton<String>(
+                          isExpanded: true,
+                          value: selectedOption,
+                          icon: const Icon(Icons.arrow_drop_down),
+                          iconSize: 24,
+                          elevation: 16,
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 16,
+                          ),
+                          underline: Container(
+                            height: 2,
+                            color: Colors.blue[500],
+                          ),
+                          onChanged: (value) {
+                            setState(() {
+                              selectedOption = value;
+                            });
+                            fetchContent(value!);
+                          },
+                          items: options),
+                    ),
+                    const SizedBox(height: 15),
                     if (lectureData.isNotEmpty)
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          for (var data in lectureData)
-                            Column(
-                              children: [
-                                Material(
-                                  color: Colors.transparent,
-                                  child: InkWell(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              AttendanceRecordsScreen(
-                                            lectureId: data['lecture']
-                                                ['lecture_id'],
-                                            admissionNumber:
-                                                userProvider.admissionNumber,
-                                            groupId: data['group']['group_id'],
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                    child: Container(
-                                      margin: const EdgeInsets.symmetric(
-                                          vertical: 8.0),
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey[
-                                            100], // Set the background color
-                                        borderRadius:
-                                            BorderRadius.circular(8.0),
-                                      ),
-                                      child: ListTile(
-                                        title: Text(
-                                          '${data['lecture']['lecture_code']} - ${data['lecture']['lecture_name']}',
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 15,
-                                          ),
-                                        ),
-                                        subtitle: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              'Lecturer: ${data['lecture']['lecturer_allocation'][0]['lecturer']['user']['first_name']} ${data['lecture']['lecturer_allocation'][0]['lecturer']['user']['last_name']}',
-                                              style:
-                                                  const TextStyle(fontSize: 14),
-                                            ),
-                                          ],
-                                        ),
-                                        trailing:
-                                            const Icon(Icons.arrow_forward_ios),
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: lectureData.length,
+                          itemBuilder: (context, index) {
+                            var data = lectureData[index];
+
+                            return Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          AttendanceRecordsScreen(
+                                        lectureId: data['lecture']
+                                            ['lecture_id'],
+                                        admissionNumber:
+                                            userProvider.admissionNumber,
+                                        groupId: data['group']['group_id'],
                                       ),
                                     ),
+                                  );
+                                },
+                                child: Container(
+                                  margin:
+                                      const EdgeInsets.symmetric(vertical: 8.0),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[100],
+                                    border:
+                                        Border.all(color: Colors.grey.shade300),
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  ),
+                                  child: ListTile(
+                                    title: Text(
+                                      '${data['lecture']['lecture_code']} - ${data['lecture']['lecture_name']}',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                    subtitle: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Lecturer: ${data['lecture']['lecturer_allocation'][0]['lecturer']['user']['first_name']} ${data['lecture']['lecturer_allocation'][0]['lecturer']['user']['last_name']}',
+                                          style: const TextStyle(fontSize: 14),
+                                        ),
+                                      ],
+                                    ),
+                                    trailing:
+                                        const Icon(Icons.arrow_forward_ios),
                                   ),
                                 ),
-                                if (data != lectureData.last)
-                                  const SizedBox(height: 0.5),
-                              ],
-                            ),
-                        ],
+                              ),
+                            );
+                          },
+                        ),
                       ),
                   ],
                 ),
@@ -400,7 +434,9 @@ class _HomeScreenState extends State<HomeScreen> {
             );
           },
         );
-        isLoading = false;
+        setState(() {
+          isLoading = false;
+        });
       }
     } catch (error) {
       showDialog(
@@ -421,7 +457,9 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         },
       );
-      isLoading = false;
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 }

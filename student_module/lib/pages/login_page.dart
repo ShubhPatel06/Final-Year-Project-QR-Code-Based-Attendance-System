@@ -58,6 +58,7 @@ class _LoginPageState extends State<LoginPage> {
           responseData['admission_number'],
           responseData['token'],
           responseData['user'],
+          responseData['course'],
         );
         progressDialog.hide(); // Hide the progress dialog
 
@@ -153,10 +154,15 @@ class _LoginPageState extends State<LoginPage> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 25.0),
                 height: 60,
-                child: TextField(
+                child: TextFormField(
                   controller: admissionController,
-                  keyboardType:
-                      TextInputType.number, // Set input type to number
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter admission number';
+                    }
+                    return null;
+                  },
                   decoration: InputDecoration(
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(25),
@@ -166,9 +172,21 @@ class _LoginPageState extends State<LoginPage> {
                       borderRadius: BorderRadius.circular(25),
                       borderSide: BorderSide(color: Colors.grey.shade900),
                     ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(25),
+                      borderSide: const BorderSide(color: Colors.red),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(25),
+                      borderSide: const BorderSide(color: Colors.red),
+                    ),
                     fillColor: Colors.grey.shade200,
                     filled: true,
                     hintText: 'Admission Number',
+                    errorStyle: const TextStyle(
+                      color: Colors.red,
+                      fontStyle: FontStyle.italic,
+                    ),
                   ),
                 ),
               ),
@@ -179,9 +197,15 @@ class _LoginPageState extends State<LoginPage> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 25.0),
                 height: 60,
-                child: TextField(
+                child: TextFormField(
                   controller: passwordController,
                   obscureText: true,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter password';
+                    }
+                    return null;
+                  },
                   decoration: InputDecoration(
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(25),
@@ -191,9 +215,21 @@ class _LoginPageState extends State<LoginPage> {
                       borderRadius: BorderRadius.circular(25),
                       borderSide: BorderSide(color: Colors.grey.shade900),
                     ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(25),
+                      borderSide: const BorderSide(color: Colors.red),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(25),
+                      borderSide: const BorderSide(color: Colors.red),
+                    ),
                     fillColor: Colors.grey.shade200,
                     filled: true,
                     hintText: 'Password',
+                    errorStyle: const TextStyle(
+                      color: Colors.red,
+                      fontStyle: FontStyle.italic,
+                    ),
                   ),
                 ),
               ),
