@@ -115,11 +115,26 @@ class StudentController extends Controller
             ->where('group_id', $groupID)
             ->get();
 
+        // // Filter student attendance based on admission number
+        // $filteredAttendance = $attendanceRecords->flatMap(function ($record) use ($admNo) {
+        //     return $record->studentAttendance->where('student_adm_no', $admNo)->all();
+        // });
+
+        $totalHours = 0;
+
         // Filter student attendance based on admission number
-        $filteredAttendance = $attendanceRecords->flatMap(function ($record) use ($admNo) {
-            return $record->studentAttendance->where('student_adm_no', $admNo)->all();
+        $filteredAttendance = $attendanceRecords->flatMap(function ($record) use ($admNo, &$totalHours) {
+            $attendanceList = $record->studentAttendance->where('student_adm_no', $admNo)->all();
+
+            // Calculate total hours only for records where is_present is equal to 1
+            $totalHours += collect($attendanceList)->where('is_present', 1)->sum('hours');
+
+            return [
+                'record' => $record,
+                'attendance' => $attendanceList,
+            ];
         });
 
-        return response()->json(['AttendanceRecord' => $attendanceRecords, 'filteredAttendance' => $filteredAttendance]);
+        return response()->json(['totalHours' => $totalHours, 'AttendanceRecord' => $attendanceRecords, 'filteredAttendance' => $filteredAttendance]);
     }
 }

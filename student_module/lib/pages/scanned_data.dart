@@ -23,8 +23,12 @@ class ScannedDataFormPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Scanned Data'),
+        title: const Text(
+          'Scanned Data',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: Colors.blue,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -93,7 +97,7 @@ class ScannedDataFormPage extends StatelessWidget {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
 
     const apiUrl =
-        'https://c000-41-90-185-67.ngrok-free.app/api/update-attendance';
+        'https://5775-41-90-185-67.ngrok-free.app/api/update-attendance';
 
     try {
       ProgressDialogComponent progressDialog =

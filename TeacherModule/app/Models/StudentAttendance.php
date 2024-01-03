@@ -13,7 +13,7 @@ class StudentAttendance extends Model
 
     protected $primaryKey = 'attendance_id';
 
-    protected $fillable = ['attendance_record_id', 'student_adm_no', 'is_present'];
+    protected $fillable = ['attendance_record_id', 'student_adm_no', 'hours', 'is_present'];
 
     public function attendanceRecord()
     {

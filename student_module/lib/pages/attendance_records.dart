@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -24,6 +26,8 @@ class AttendanceRecordsScreen extends StatefulWidget {
 class _AttendanceRecordsScreenState extends State<AttendanceRecordsScreen> {
   List<Map<String, dynamic>> attendanceRecords = [];
   Map<String, dynamic> lectureDetails = {};
+  bool isLoading = false;
+  int totalHours = 0;
 
   @override
   void initState() {
@@ -32,18 +36,22 @@ class _AttendanceRecordsScreenState extends State<AttendanceRecordsScreen> {
   }
 
   Future<void> fetchAttendanceRecords() async {
+    setState(() {
+      isLoading = true;
+    });
     var userProvider = Provider.of<UserProvider>(context, listen: false);
 
     try {
       final response = await http.get(
         Uri.parse(
-            'https://c000-41-90-185-67.ngrok-free.app/api/get-attendance-records/${widget.admissionNumber}/${widget.lectureId}/${widget.groupId}'),
+            'https://5775-41-90-185-67.ngrok-free.app/api/get-attendance-records/${widget.admissionNumber}/${widget.lectureId}/${widget.groupId}'),
         headers: {
           'Authorization': 'Bearer ${userProvider.token}',
         },
       );
 
       if (response.statusCode == 200) {
+        print(response.body);
         final parsedResponse =
             jsonDecode(response.body) as Map<String, dynamic>;
 
@@ -53,7 +61,9 @@ class _AttendanceRecordsScreenState extends State<AttendanceRecordsScreen> {
           lectureDetails = attendanceRecords.isNotEmpty
               ? Map<String, dynamic>.from(attendanceRecords[0]['lecture'])
               : {};
+          totalHours = parsedResponse['totalHours'];
         });
+        isLoading = false;
       } else {
         showDialog(
           context: context,
@@ -74,6 +84,7 @@ class _AttendanceRecordsScreenState extends State<AttendanceRecordsScreen> {
           },
         );
       }
+      isLoading = false;
     } catch (error) {
       showDialog(
         context: context,
@@ -93,6 +104,7 @@ class _AttendanceRecordsScreenState extends State<AttendanceRecordsScreen> {
           );
         },
       );
+      isLoading = false;
     }
   }
 
@@ -100,71 +112,136 @@ class _AttendanceRecordsScreenState extends State<AttendanceRecordsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Attendance Records'),
+        title: const Text(
+          'Attendance Records',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: Colors.blue,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: ListView.builder(
-        itemCount: attendanceRecords.length,
-        itemBuilder: (context, index) {
-          final record = attendanceRecords[index];
-          final DateTime dateTime = DateTime.parse(record['date']);
-          final String formattedDate = _formatDate(dateTime);
-
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
+      body: isLoading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : attendanceRecords.isEmpty
+              ? const Center(
+                  child: Text(
+                    'No attendance records',
+                    style: TextStyle(fontSize: 25),
+                  ),
+                )
+              : Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      '${lectureDetails['lecture_code']} - ${lectureDetails['lecture_name']}',
-                      style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Total Hours: ${calculateTotalHoursSum()}',
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 10),
-              ListTile(
-                title: Text('Date: $formattedDate'),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text('Start Time: ${formatTime(record['start_time'])}'),
-                        const SizedBox(width: 10),
-                        Text('End Time: ${formatTime(record['end_time'])}'),
-                      ],
-                    ),
-                    Text(
-                        'Total Hours: ${calculateTotalHours(record['start_time'], record['end_time'])}'),
-                    Text(
-                      record['student_attendance'][0]['is_present'] == 1
-                          ? 'Present'
-                          : 'Absent',
-                      style: TextStyle(
-                        color:
-                            record['student_attendance'][0]['is_present'] == 1
-                                ? Colors.green
-                                : Colors.red,
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${lectureDetails['lecture_code']} - ${lectureDetails['lecture_name']}',
+                            style: const TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Total Hours Present: $totalHours',
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                        ],
                       ),
                     ),
-                    // Add more details as needed
+                    const SizedBox(height: 10),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: attendanceRecords.length,
+                        itemBuilder: (context, index) {
+                          final record = attendanceRecords[index];
+                          final DateTime dateTime =
+                              DateTime.parse(record['date']);
+                          final String formattedDate = _formatDate(dateTime);
+
+                          return Column(
+                            children: [
+                              Container(
+                                margin: const EdgeInsets.symmetric(
+                                    vertical: 0, horizontal: 15),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[100],
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                padding: const EdgeInsets.all(1),
+                                child: ListTile(
+                                  title: Text(
+                                    formattedDate,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  subtitle: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text(
+                                            'Start Time: ${formatTime(record['start_time'])}',
+                                            style: const TextStyle(
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Text(
+                                            'End Time: ${formatTime(record['end_time'])}',
+                                            style: const TextStyle(
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ],
+                                      ),
+                                      Text(
+                                        'Hours: ${record['student_attendance'][0]['hours']}',
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                      Text(
+                                        record['student_attendance'][0]
+                                                    ['is_present'] ==
+                                                1
+                                            ? 'Present'
+                                            : 'Absent',
+                                        style: TextStyle(
+                                          color: record['student_attendance'][0]
+                                                      ['is_present'] ==
+                                                  1
+                                              ? Colors.green
+                                              : Colors.red,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  trailing: Icon(
+                                    record['student_attendance'][0]
+                                                ['is_present'] ==
+                                            1
+                                        ? Icons.check_circle
+                                        : Icons.cancel,
+                                    color: record['student_attendance'][0]
+                                                ['is_present'] ==
+                                            1
+                                        ? Colors.green
+                                        : Colors.red,
+                                    size: 45,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(
+                                  height: 16), // Add SizedBox after each record
+                            ],
+                          );
+                        },
+                      ),
+                    ),
                   ],
                 ),
-              ),
-            ],
-          );
-        },
-      ),
     );
   }
 
@@ -251,34 +328,5 @@ class _AttendanceRecordsScreenState extends State<AttendanceRecordsScreen> {
 
     String formattedTime = '$hour:${minute == 0 ? '00' : minute}';
     return formattedTime;
-  }
-
-  int calculateTotalHours(String startTime, String endTime) {
-    DateTime startDateTime = DateTime.parse('2000-01-01 $startTime');
-    DateTime endDateTime = DateTime.parse('2000-01-01 $endTime');
-
-    Duration difference = endDateTime.difference(startDateTime);
-    int totalHours = difference.inMinutes ~/ 60.0;
-
-    return totalHours;
-  }
-
-  int calculateTotalHoursSum() {
-    int totalHoursSum = 0;
-
-    for (var record in attendanceRecords) {
-      String startTime = record['start_time'];
-      String endTime = record['end_time'];
-
-      DateTime startDateTime = DateTime.parse('2000-01-01 $startTime');
-      DateTime endDateTime = DateTime.parse('2000-01-01 $endTime');
-
-      Duration difference = endDateTime.difference(startDateTime);
-      int totalHours = difference.inMinutes ~/ 60;
-
-      totalHoursSum += totalHours;
-    }
-
-    return totalHoursSum;
   }
 }

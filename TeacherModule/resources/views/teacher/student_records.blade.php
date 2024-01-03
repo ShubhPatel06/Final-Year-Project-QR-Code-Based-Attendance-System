@@ -20,6 +20,7 @@
                 <th class="p-4 font-semibold text-gray-700">Admission Number</th>
                 <th class="p-4 font-semibold text-gray-700">First Name</th>
                 <th class="p-4 font-semibold text-gray-700">Last Name</th>
+                <th class="p-4 font-semibold text-gray-700">Hours</th>
                 <th class="p-4 font-semibold text-gray-700">Attendance</th>
                 <th class="p-4 font-semibold text-gray-700">Action</th>
             </tr>
@@ -57,6 +58,11 @@
                 {
                     data: 'student.user.last_name',
                     name: 'student.user.last_name',
+                    class: "p-4"
+                },
+                {
+                    data: 'hours',
+                    name: 'hours',
                     class: "p-4"
                 },
                 {

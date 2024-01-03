@@ -32,6 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String? selectedOption;
   List<DropdownMenuItem<String>> options = [];
   List<Map<String, dynamic>> lectureData = [];
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -65,13 +66,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> fetchOptions() async {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
-    var progresslog = ProgressDialogComponent(context, 'Loading...');
+    setState(() {
+      isLoading = true;
+    });
 
     try {
-      progresslog.show();
       final response = await http.get(
         Uri.parse(
-            'https://c000-41-90-185-67.ngrok-free.app/api/get-groups/${userProvider.admissionNumber}'),
+            'https://5775-41-90-185-67.ngrok-free.app/api/get-groups/${userProvider.admissionNumber}'),
         headers: {
           'Authorization': 'Bearer ${userProvider.token}',
         },
@@ -98,10 +100,9 @@ class _HomeScreenState extends State<HomeScreen> {
               .toList();
           // Optionally set a default selected option
           selectedOption = options.first.value;
+          isLoading = false;
         });
-        progresslog.hide();
       } else {
-        progresslog.hide();
         showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -119,10 +120,9 @@ class _HomeScreenState extends State<HomeScreen> {
             );
           },
         );
+        isLoading = false;
       }
     } catch (e) {
-      progresslog.hide();
-
       // Show error dialog for unexpected errors
       showDialog(
         context: context,
@@ -142,6 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         },
       );
+      isLoading = false;
     }
   }
 
@@ -152,7 +153,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     Future<void> logoutUser(String token) async {
       final Uri logoutUri =
-          Uri.parse('https://c000-41-90-185-67.ngrok-free.app/api/logout');
+          Uri.parse('https://5775-41-90-185-67.ngrok-free.app/api/logout');
 
       try {
         final response = await http.post(
@@ -225,8 +226,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home'),
+        title: const Text(
+          'Home',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: Colors.blue, // Adjust the color
+        iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           IconButton(
             icon: const Icon(Icons.qr_code),
@@ -256,102 +261,112 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: Container(
-        color: Colors.white, // Set the desired color for the body
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              DropdownButton<String>(
-                isExpanded: true,
-                value: selectedOption,
-                items: options,
-                onChanged: (value) {
-                  setState(() {
-                    selectedOption = value;
-                  });
-                  fetchContent(value!);
-                },
-              ),
-              const SizedBox(height: 20),
-              if (lectureData.isNotEmpty)
-                Column(
+      body: isLoading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : Container(
+              color: Colors.white, // Set the desired color for the body
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    for (var data in lectureData)
+                    DropdownButton<String>(
+                      isExpanded: true,
+                      value: selectedOption,
+                      items: options,
+                      onChanged: (value) {
+                        setState(() {
+                          selectedOption = value;
+                        });
+                        fetchContent(value!);
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    if (lectureData.isNotEmpty)
                       Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        AttendanceRecordsScreen(
-                                      lectureId: data['lecture']['lecture_id'],
-                                      admissionNumber:
-                                          userProvider.admissionNumber,
-                                      groupId: data['group']['group_id'],
-                                    ),
-                                  ),
-                                );
-                              },
-                              child: Container(
-                                margin:
-                                    const EdgeInsets.symmetric(vertical: 8.0),
-                                decoration: BoxDecoration(
-                                  color: Colors
-                                      .grey[100], // Set the background color
-                                  borderRadius: BorderRadius.circular(8.0),
-                                ),
-                                child: ListTile(
-                                  title: Text(
-                                    '${data['lecture']['lecture_code']} - ${data['lecture']['lecture_name']}',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15,
-                                    ),
-                                  ),
-                                  subtitle: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Lecturer: ${data['lecture']['lecturer_allocation'][0]['lecturer']['user']['first_name']} ${data['lecture']['lecturer_allocation'][0]['lecturer']['user']['last_name']}',
-                                        style: const TextStyle(fontSize: 14),
+                          for (var data in lectureData)
+                            Column(
+                              children: [
+                                Material(
+                                  color: Colors.transparent,
+                                  child: InkWell(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              AttendanceRecordsScreen(
+                                            lectureId: data['lecture']
+                                                ['lecture_id'],
+                                            admissionNumber:
+                                                userProvider.admissionNumber,
+                                            groupId: data['group']['group_id'],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: Container(
+                                      margin: const EdgeInsets.symmetric(
+                                          vertical: 8.0),
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[
+                                            100], // Set the background color
+                                        borderRadius:
+                                            BorderRadius.circular(8.0),
                                       ),
-                                    ],
+                                      child: ListTile(
+                                        title: Text(
+                                          '${data['lecture']['lecture_code']} - ${data['lecture']['lecture_name']}',
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 15,
+                                          ),
+                                        ),
+                                        subtitle: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Lecturer: ${data['lecture']['lecturer_allocation'][0]['lecturer']['user']['first_name']} ${data['lecture']['lecturer_allocation'][0]['lecturer']['user']['last_name']}',
+                                              style:
+                                                  const TextStyle(fontSize: 14),
+                                            ),
+                                          ],
+                                        ),
+                                        trailing:
+                                            const Icon(Icons.arrow_forward_ios),
+                                      ),
+                                    ),
                                   ),
-                                  trailing: const Icon(Icons.arrow_forward_ios),
                                 ),
-                              ),
+                                if (data != lectureData.last)
+                                  const SizedBox(height: 0.5),
+                              ],
                             ),
-                          ),
-                          if (data != lectureData.last)
-                            const SizedBox(height: 0.5),
                         ],
                       ),
                   ],
                 ),
-            ],
-          ),
-        ),
-      ),
+              ),
+            ),
     );
   }
 
   Future<void> fetchContent(String optionValue) async {
+    setState(() {
+      isLoading = true;
+    });
+
     final userProvider = Provider.of<UserProvider>(context, listen: false);
-    var progressLog = ProgressDialogComponent(context, 'Loading...');
 
     try {
-      progressLog.show();
       final response = await http.get(
         Uri.parse(
-            'https://c000-41-90-185-67.ngrok-free.app/api/get-lectures/${userProvider.admissionNumber}/$optionValue'),
+            'https://5775-41-90-185-67.ngrok-free.app/api/get-lectures/${userProvider.admissionNumber}/$optionValue'),
         headers: {
           'Authorization': 'Bearer ${userProvider.token}',
         },
@@ -364,10 +379,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
         setState(() {
           lectureData = List<Map<String, dynamic>>.from(lectureDataList);
+          isLoading = false;
         });
-        progressLog.hide();
       } else {
-        progressLog.hide();
         showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -386,9 +400,9 @@ class _HomeScreenState extends State<HomeScreen> {
             );
           },
         );
+        isLoading = false;
       }
     } catch (error) {
-      progressLog.hide();
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -407,6 +421,7 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         },
       );
+      isLoading = false;
     }
   }
 }

@@ -24,6 +24,11 @@ class _LoginPageState extends State<LoginPage> {
     super.initState();
   }
 
+  bool isInputValid() {
+    return admissionController.text.isNotEmpty &&
+        passwordController.text.isNotEmpty;
+  }
+
   Future<void> loginUser(
       int admissionNumber, String password, UserProvider userProvider) async {
     ProgressDialogComponent progressDialog =
@@ -32,7 +37,7 @@ class _LoginPageState extends State<LoginPage> {
 
     // final Uri loginUri = Uri.parse('http://10.0.2.2:8000/api/login');
     final Uri loginUri =
-        Uri.parse('https://c000-41-90-185-67.ngrok-free.app/api/login');
+        Uri.parse('https://5775-41-90-185-67.ngrok-free.app/api/login');
 
     try {
       final response = await http.post(
@@ -199,15 +204,40 @@ class _LoginPageState extends State<LoginPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 25.0),
                 child: ElevatedButton(
                   onPressed: () {
-                    int admissionNumber = int.parse(admissionController.text);
-                    String password = passwordController.text;
+                    if (isInputValid()) {
+                      int admissionNumber =
+                          int.tryParse(admissionController.text) ??
+                              0; // Handle invalid integer input
+                      String password = passwordController.text;
 
-                    // Access the UserProvider using Provider.of
-                    var userProvider =
-                        Provider.of<UserProvider>(context, listen: false);
+                      // Access the UserProvider using Provider.of
+                      var userProvider =
+                          Provider.of<UserProvider>(context, listen: false);
 
-                    // Call the loginUser function here
-                    loginUser(admissionNumber, password, userProvider);
+                      // Call the loginUser function here
+                      loginUser(admissionNumber, password, userProvider);
+                    } else {
+                      // Show an error message for empty input fields
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: const Text('Error'),
+                            content: const Text(
+                                'Please enter both admission number and password.'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context)
+                                      .pop(); // Close the error dialog
+                                },
+                                child: const Text('OK'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue[500],

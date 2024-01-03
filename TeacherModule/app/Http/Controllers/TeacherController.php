@@ -21,6 +21,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Database\QueryException;
+use Carbon\Carbon;
 
 class TeacherController extends Controller
 {
@@ -223,14 +224,24 @@ class TeacherController extends Controller
             // Get students based on the group_id
             $students = StudentLectureGroups::with(['student'])->where('group_id', $request->input('group_id'))->get();
 
+            $startTime = Carbon::parse($request->input('start_time'));
+            $endTime = Carbon::parse($request->input('end_time'));
+            $hoursDifference = $endTime->diffInHours($startTime);
+
             // Create student attendance records
             foreach ($students as $student) {
-
-                // dd($attendanceRecord->record_id);
-                StudentAttendance::create([
+                $existingRecord = StudentAttendance::where([
                     'attendance_record_id' => $attendanceRecord->record_id,
                     'student_adm_no' => $student->student->adm_no,
-                ]);
+                ])->first();
+
+                if (!$existingRecord) {
+                    StudentAttendance::create([
+                        'attendance_record_id' => $attendanceRecord->record_id,
+                        'student_adm_no' => $student->student->adm_no,
+                        'hours' => $hoursDifference,
+                    ]);
+                }
             }
 
             return response()->json(['success' => 'Record saved successfully.']);
@@ -288,11 +299,8 @@ class TeacherController extends Controller
 
     public function getAttendanceByID($id)
     {
-        // $data = StudentAttendance::where('attendance_id', $id)
-        //     ->first();
-
         $data = StudentAttendance::where('attendance_id', $id)
-            ->get();
+            ->first();
 
         if (!$data) {
             return response()->json(['error' => 'Record not found.']);
