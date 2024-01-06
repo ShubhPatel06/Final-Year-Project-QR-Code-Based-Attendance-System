@@ -18,6 +18,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController admissionController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  bool isPasswordVisible = false;
 
   @override
   void initState() {
@@ -37,7 +38,7 @@ class _LoginPageState extends State<LoginPage> {
 
     // final Uri loginUri = Uri.parse('http://10.0.2.2:8000/api/login');
     final Uri loginUri =
-        Uri.parse('https://5775-41-90-185-67.ngrok-free.app/api/login');
+        Uri.parse('https://2a8a-41-90-178-122.ngrok-free.app/api/login');
 
     try {
       final response = await http.post(
@@ -199,7 +200,7 @@ class _LoginPageState extends State<LoginPage> {
                 height: 60,
                 child: TextFormField(
                   controller: passwordController,
-                  obscureText: true,
+                  obscureText: !isPasswordVisible,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter password';
@@ -226,6 +227,20 @@ class _LoginPageState extends State<LoginPage> {
                     fillColor: Colors.grey.shade200,
                     filled: true,
                     hintText: 'Password',
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        isPasswordVisible
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                        color: Colors.grey.shade600,
+                      ),
+                      onPressed: () {
+                        // Toggle the password visibility
+                        setState(() {
+                          isPasswordVisible = !isPasswordVisible;
+                        });
+                      },
+                    ),
                     errorStyle: const TextStyle(
                       color: Colors.red,
                       fontStyle: FontStyle.italic,

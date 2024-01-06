@@ -97,7 +97,7 @@ class ScannedDataFormPage extends StatelessWidget {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
 
     const apiUrl =
-        'https://5775-41-90-185-67.ngrok-free.app/api/update-attendance';
+        'https://2a8a-41-90-178-122.ngrok-free.app/api/update-attendance';
 
     try {
       ProgressDialogComponent progressDialog =
@@ -133,7 +133,7 @@ class ScannedDataFormPage extends StatelessWidget {
             return AlertDialog(
               title: const Text('Attendance Submitted'),
               content: const Text(
-                  'Your attendance has been submitted successfully. \n Permission to scan a QR Code or Logging out is diabled for a few minutes.'),
+                  'Your attendance has been submitted successfully. \n Permission to scan a QR Code or Logging out is disabled for a few minutes.'),
               actions: <Widget>[
                 TextButton(
                   onPressed: () {
@@ -180,6 +180,7 @@ class ScannedDataFormPage extends StatelessWidget {
       }
     } catch (error) {
       // Show generic error dialog for exceptions
+      print(error);
       showDialog(
         context: context,
         builder: (BuildContext context) {

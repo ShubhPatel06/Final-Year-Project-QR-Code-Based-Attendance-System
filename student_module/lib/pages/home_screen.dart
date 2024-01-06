@@ -73,7 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       final response = await http.get(
         Uri.parse(
-            'https://5775-41-90-185-67.ngrok-free.app/api/get-groups/${userProvider.admissionNumber}'),
+            'https://2a8a-41-90-178-122.ngrok-free.app/api/get-groups/${userProvider.admissionNumber}'),
         headers: {
           'Authorization': 'Bearer ${userProvider.token}',
         },
@@ -157,7 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     Future<void> logoutUser(String token) async {
       final Uri logoutUri =
-          Uri.parse('https://5775-41-90-185-67.ngrok-free.app/api/logout');
+          Uri.parse('https://2a8a-41-90-178-122.ngrok-free.app/api/logout');
 
       try {
         final response = await http.post(
@@ -400,7 +400,7 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       final response = await http.get(
         Uri.parse(
-            'https://5775-41-90-185-67.ngrok-free.app/api/get-lectures/${userProvider.admissionNumber}/$optionValue'),
+            'https://2a8a-41-90-178-122.ngrok-free.app/api/get-lectures/${userProvider.admissionNumber}/$optionValue'),
         headers: {
           'Authorization': 'Bearer ${userProvider.token}',
         },

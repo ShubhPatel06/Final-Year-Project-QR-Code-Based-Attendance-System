@@ -226,6 +226,15 @@
             return num < 10 ? `0${num}` : num;
         }
 
+        $('body').on('click', '.deleteQR', function() {
+            record_id = $(this).data('id');
+
+            if (confirm("Are you sure you want to delete?")) {
+                deleteQRCode(record_id);
+            }
+
+        });
+
         function deleteQRCode(qrCodeId) {
             $.ajax({
                 url: `/delete-qrcode/${qrCodeId}`,

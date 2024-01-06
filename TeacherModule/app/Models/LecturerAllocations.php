@@ -11,7 +11,7 @@ class LecturerAllocations extends Model
 
     protected $table = 'lecturer_allocations';
 
-    protected $primaryKey = 'lecturer_id';
+    protected $primaryKey = 'allocation_id';
 
     protected $fillable = ['lecturer_id', 'lecture_id', 'group_id'];
 

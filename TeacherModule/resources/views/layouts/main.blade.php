@@ -23,9 +23,7 @@
     $user = Auth::User();
     @endphp
 
-    <nav class="fixed md:z-50 top-0 w-full h-16 shadow-md flex md:justify-between justify-end items-center px-8">
-
-        <div class="text-2xl md:block hidden">Attendance System</div>
+    <nav class="md:z-50 top-0 w-full h-16 shadow-md flex justify-end items-center px-8">
 
         <div class="flex items-center gap-4 text-lg">
             <span>{{ $user->first_name }} {{ $user->last_name }}</span>
@@ -37,7 +35,7 @@
     </nav>
 
 
-    <div class="mt-16">
+    <div class="mt-2">
         @yield('layoutContent')
     </div>
 </body>

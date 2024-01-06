@@ -23,7 +23,14 @@
             </div>
             <div class="my-4">
                 <label for="password" class="text-gray-700 font-semibold">Password</label>
-                <input type="password" id="password" name="password" autocomplete="off" class="rounded-lg mt-1 w-full px-3 py-2 border border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500" />
+                <div class="relative">
+                    <input type="password" id="password" name="password" autocomplete="off" class="rounded-lg mt-1 w-full px-3 py-2 border border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500" />
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                        <button type="button" onclick="togglePasswordVisibility()" class="text-gray-400 focus:outline-none">
+                            <i id="passwordVisibilityIcon" class="far fa-eye text-gray-700"></i> <!-- Font Awesome eye icon -->
+                        </button>
+                    </div>
+                </div>
                 @error('password')
                 <span class="text-red-500 text-sm" role="alert">
                     {{ $message }}
@@ -37,4 +44,19 @@
         </form>
     </div>
 </section>
+
+<script>
+    function togglePasswordVisibility() {
+        var passwordInput = document.getElementById('password');
+        var passwordIcon = document.getElementById('passwordVisibilityIcon');
+
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            passwordIcon.className = 'far fa-eye-slash text-gray-700'; // Font Awesome eye-slash icon
+        } else {
+            passwordInput.type = 'password';
+            passwordIcon.className = 'far fa-eye text-gray-700'; // Font Awesome eye icon
+        }
+    }
+</script>
 @endsection

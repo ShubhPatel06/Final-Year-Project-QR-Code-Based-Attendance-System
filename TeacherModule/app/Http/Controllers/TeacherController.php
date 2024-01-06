@@ -8,9 +8,7 @@ use App\Models\Groups;
 use App\Models\LectureGroups;
 use App\Models\LecturerAllocations;
 use App\Models\Lectures;
-use App\Models\Student;
 use App\Models\StudentAttendance;
-use App\Models\StudentGroups;
 use App\Models\StudentLectureGroups;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -37,49 +35,15 @@ class TeacherController extends Controller
         }
     }
 
-    public function getLectures(Request $request)
-    {
-        $user = Auth::user();
-        if ($request->ajax()) {
-            $data = LecturerAllocations::with(['lecture', 'lecture.course'])
-                ->where('lecturer_id', $user->user_id)
-                ->get();
-
-            // dd($data);
-            return DataTables::of($data)
-                ->addIndexColumn()
-                ->addColumn('action', function ($row) {
-                    $actionBtn = '<div class="flex gap-4 text-white font-semibold"><a href="javascript:void(0)" data-id="' . $row->lecture_id . '" class="edit bg-emerald-500 hover:bg-emerald-600 font-medium rounded-lg text-sm px-5 py-2 text-center viewGroups">View Groups</a></div>';
-                    return $actionBtn;
-                })
-                ->rawColumns(['action'])
-                ->make(true);
-        }
-
-        return view('teacher.lectures');
-    }
-
     public function getLectureGroups(Request $request)
     {
         $user = Auth::user();
 
         if ($request->ajax()) {
-            $groups = LecturerAllocations::with(['lecture', 'group'])
+            $groups = LecturerAllocations::with(['lecture', 'lecture.course', 'group'])
                 ->where('lecturer_id', $user->user_id)
                 ->get();
 
-            // foreach ($lectures as $lecture) {
-            //     foreach ($lecture->groups as $group) {
-            //         $data[] = [
-            //             'lecture_name' => $lecture->lecture_name,
-            //             'group_id' => $group->group_id,
-            //             'group_name' => $group->group_name,
-            //             'year' => $group->year,
-            //             'semester' => $group->semester,
-            //             'action' => '<div class="flex gap-4 text-white font-semibold"><a href="' . route('teacher.group_students', ['groupID' => $group->group_id]) . '" data-id="' . $group->group_id . '" class="edit bg-emerald-500 hover:bg-emerald-600 font-medium rounded-lg text-sm px-5 py-2 text-center viewStudents">View Students</a></div>',
-            //         ];
-            //     }
-            // }
 
             return DataTables::of($groups)
                 ->addIndexColumn()
@@ -137,6 +101,9 @@ class TeacherController extends Controller
                     if ($row->qr_code_path !== null) {
                         $actionBtn .= '<button data-qr-code="' . $row->qr_code_path . '" data-id="' . $row->record_id . '" class="bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-sm px-5 py-2 text-center displayQR">Display QR Code</button>';
                     }
+                    if ($row->qr_code_path !== null) {
+                        $actionBtn .= '<button data-qr-code="' . $row->qr_code_path . '" data-id="' . $row->record_id . '" class="bg-red-500 hover:bg-red-600 font-medium rounded-lg text-sm px-5 py-2 text-center deleteQR">Delete QR Code</button>';
+                    }
 
                     $actionBtn .= '</div>';
                     return $actionBtn;
@@ -147,7 +114,10 @@ class TeacherController extends Controller
 
         $lectures = LecturerAllocations::with('lecture')
             ->where('lecturer_id', $teacher->user_id)
+            ->select('lecture_id')
+            ->distinct()
             ->get();
+
         return view('teacher.attendance', ['lectures' => $lectures]);
     }
 

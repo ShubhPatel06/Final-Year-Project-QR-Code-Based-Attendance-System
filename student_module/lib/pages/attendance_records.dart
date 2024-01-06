@@ -46,7 +46,7 @@ class _AttendanceRecordsScreenState extends State<AttendanceRecordsScreen> {
     try {
       final response = await http.get(
         Uri.parse(
-            'https://5775-41-90-185-67.ngrok-free.app/api/get-attendance-records/${widget.admissionNumber}/${widget.lectureId}/${widget.groupId}'),
+            'https://2a8a-41-90-178-122.ngrok-free.app/api/get-attendance-records/${widget.admissionNumber}/${widget.lectureId}/${widget.groupId}'),
         headers: {
           'Authorization': 'Bearer ${userProvider.token}',
         },
@@ -229,34 +229,80 @@ class _AttendanceRecordsScreenState extends State<AttendanceRecordsScreen> {
                                         style: const TextStyle(
                                             fontWeight: FontWeight.w600),
                                       ),
+                                      // Text(
+                                      //   record['student_attendance'][0]
+                                      //               ['is_present'] ==
+                                      //           1
+                                      //       ? 'Present'
+                                      //       : 'Absent',
+                                      //   style: TextStyle(
+                                      //     color: record['student_attendance'][0]
+                                      //                 ['is_present'] ==
+                                      //             1
+                                      //         ? Colors.green
+                                      //         : Colors.red,
+                                      //     fontWeight: FontWeight.bold,
+                                      //   ),
+                                      // ),
                                       Text(
                                         record['student_attendance'][0]
                                                     ['is_present'] ==
                                                 1
                                             ? 'Present'
-                                            : 'Absent',
+                                            : record['student_attendance'][0]
+                                                        ['is_present'] ==
+                                                    2
+                                                ? 'Absent'
+                                                : 'Not Marked',
                                         style: TextStyle(
                                           color: record['student_attendance'][0]
                                                       ['is_present'] ==
                                                   1
                                               ? Colors.green
-                                              : Colors.red,
+                                              : record['student_attendance'][0]
+                                                          ['is_present'] ==
+                                                      2
+                                                  ? Colors.red
+                                                  : Colors
+                                                      .amber, // Yellow-orangish color
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
                                     ],
                                   ),
+                                  // trailing: Icon(
+                                  //   record['student_attendance'][0]
+                                  //               ['is_present'] ==
+                                  //           1
+                                  //       ? Icons.check_circle
+                                  //       : Icons.cancel,
+                                  //   color: record['student_attendance'][0]
+                                  //               ['is_present'] ==
+                                  //           1
+                                  //       ? Colors.green
+                                  //       : Colors.red,
+                                  //   size: 45,
+                                  // ),
                                   trailing: Icon(
                                     record['student_attendance'][0]
                                                 ['is_present'] ==
                                             1
                                         ? Icons.check_circle
-                                        : Icons.cancel,
+                                        : record['student_attendance'][0]
+                                                    ['is_present'] ==
+                                                2
+                                            ? Icons.cancel
+                                            : Icons.remove, // 'dash' icon
                                     color: record['student_attendance'][0]
                                                 ['is_present'] ==
                                             1
                                         ? Colors.green
-                                        : Colors.red,
+                                        : record['student_attendance'][0]
+                                                    ['is_present'] ==
+                                                2
+                                            ? Colors.red
+                                            : Colors
+                                                .amber, // Yellow-orangish color for 'dash' icon
                                     size: 45,
                                   ),
                                 ),

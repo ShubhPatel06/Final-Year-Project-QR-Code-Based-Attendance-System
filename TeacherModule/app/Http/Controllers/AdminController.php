@@ -127,11 +127,19 @@ class AdminController extends Controller
                 'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $request->user_id . ',user_id'],
                 'phoneNo' => ['required', 'string', 'max:255'],
                 'role_id' => ['required', 'integer', 'in:1,2,3'],
-                'password' => ['required', 'string', 'min:6'],
+
             ]);
 
             if ($validator->fails()) {
                 throw new ValidationException($validator);
+            }
+
+            if ($request->user_id) {
+                // If user_id is present, it's an update, so don't require password
+                $rules['password'] = ['nullable', 'string', 'min:6'];
+            } else {
+                // If user_id is not present, it's a new user, so require password
+                $rules['password'] = ['required', 'string', 'min:6'];
             }
 
             $userData = [
