@@ -52,7 +52,10 @@
                 {
                     data: 'group.group_name',
                     name: 'group.group_name',
-                    class: "p-4"
+                    class: "p-4",
+                    render: function(data, type, row, meta) {
+                        return data + ' (' + row.group.division.division_name + ')';
+                    }
                 },
                 {
                     data: 'action',
@@ -89,7 +92,7 @@
                     $('#group_id').append('<option value="" selected disabled>Select Group</option>');
 
                     $.each(data, function(index, group) {
-                        $('#group_id').append('<option value="' + group.group.group_id + '"> ' + group.group.group_name + '</option>');
+                        $('#group_id').append('<option value="' + group.group.group_id + '"> ' + group.group.group_name + ' (' + group.group.division.division_name + ')</option>');
                     });
                 },
                 error: function(xhr, status, error) {

@@ -5,7 +5,7 @@
 @section('content')
 
 <div id="contentContainer" class="p-5 md:px-20 gap-y-20 mt-8 shadow-md">
-    <x-lecture-group-modal :lectures='$lectures' :groups='$groups' />
+    <x-lecture-group-modal :lectures='$lectures' />
 
     <div class="flex items-center justify-between mb-6">
         <h1 class="text-4xl ">Lecture Groups Details</h1>
@@ -45,7 +45,10 @@
                 {
                     data: 'group.group_name',
                     name: 'group.group_name',
-                    class: "p-4"
+                    class: 'p-4',
+                    render: function(data, type, row, meta) {
+                        return data + ' (' + row.group.division.division_name + ')';
+                    }
                 },
                 {
                     data: 'action',
@@ -74,6 +77,28 @@
 
             $('#lecture_group-modal').remove('flex');
             $('#lecture_group-modal').addClass('hidden');
+        });
+
+        $('#lecture_id').change(function() {
+            var lecture_id = $(this).val();
+
+            $.ajax({
+                url: '/get-groups-by-course/' + lecture_id,
+                type: 'GET',
+                success: function(data) {
+                    $('#group_id').empty();
+
+                    $('#group_id').append('<option value="" selected disabled>Select Group</option>');
+
+                    $.each(data, function(index, group) {
+                        $('#group_id').append('<option value="' + group.group_id + '"> ' + group.group_name + ' (' + group.division.division_name + ')</option>');
+
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr.responseText);
+                }
+            });
         });
 
         $('#saveBtn').click(function(e) {

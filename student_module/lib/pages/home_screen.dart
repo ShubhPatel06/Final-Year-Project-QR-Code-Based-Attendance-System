@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:student_module/pages/attendance_records.dart';
 import 'user_provider.dart';
 import 'login_page.dart';
@@ -39,12 +40,16 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     areButtonsDisabled = widget.areButtonsDisabled;
     remainingDisableTime = widget.remainingDisableTime;
+
     _startTimer();
 
     Future.delayed(Duration.zero, () {
       fetchOptions().then((_) {
-        // Call fetchContent with the default selected option
-        fetchContent(selectedOption!);
+        if (options.isNotEmpty) {
+          // Set the default selected option to the last item in the list
+          selectedOption = options.last.value;
+          fetchContent(selectedOption!);
+        }
       });
     });
   }
@@ -73,7 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       final response = await http.get(
         Uri.parse(
-            'https://2a8a-41-90-178-122.ngrok-free.app/api/get-groups/${userProvider.admissionNumber}'),
+            'https://ca9d-102-223-32-74.ngrok-free.app/api/get-groups/${userProvider.admissionNumber}'),
         headers: {
           'Authorization': 'Bearer ${userProvider.token}',
         },
@@ -157,7 +162,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     Future<void> logoutUser(String token) async {
       final Uri logoutUri =
-          Uri.parse('https://2a8a-41-90-178-122.ngrok-free.app/api/logout');
+          Uri.parse('https://ca9d-102-223-32-74.ngrok-free.app/api/logout');
 
       try {
         final response = await http.post(
@@ -170,6 +175,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
         if (response.statusCode == 200) {
           // Clear user details in the provider
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          prefs.remove('isLoggedIn');
           userProvider.logout();
 
           progressDialog.hide();
@@ -400,7 +407,7 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       final response = await http.get(
         Uri.parse(
-            'https://2a8a-41-90-178-122.ngrok-free.app/api/get-lectures/${userProvider.admissionNumber}/$optionValue'),
+            'https://ca9d-102-223-32-74.ngrok-free.app/api/get-lectures/${userProvider.admissionNumber}/$optionValue'),
         headers: {
           'Authorization': 'Bearer ${userProvider.token}',
         },
@@ -439,6 +446,7 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       }
     } catch (error) {
+      print(error);
       showDialog(
         context: context,
         builder: (BuildContext context) {

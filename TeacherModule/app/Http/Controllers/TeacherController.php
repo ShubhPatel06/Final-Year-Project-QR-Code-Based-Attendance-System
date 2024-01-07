@@ -40,7 +40,7 @@ class TeacherController extends Controller
         $user = Auth::user();
 
         if ($request->ajax()) {
-            $groups = LecturerAllocations::with(['lecture', 'lecture.course', 'group'])
+            $groups = LecturerAllocations::with(['lecture', 'lecture.course', 'group', 'group.division'])
                 ->where('lecturer_id', $user->user_id)
                 ->get();
 
@@ -86,7 +86,7 @@ class TeacherController extends Controller
         $teacher = Auth::user();
 
         if ($request->ajax()) {
-            $data = AttendanceRecord::with(['lecture', 'group'])
+            $data = AttendanceRecord::with(['lecture', 'group', 'group.division'])
                 ->get();
 
             return DataTables::of($data)
@@ -99,10 +99,10 @@ class TeacherController extends Controller
 
                     // Display QR Code link if qr_code_path is not null
                     if ($row->qr_code_path !== null) {
-                        $actionBtn .= '<button data-qr-code="' . $row->qr_code_path . '" data-id="' . $row->record_id . '" class="bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-sm px-5 py-2 text-center displayQR">Display QR Code</button>';
+                        $actionBtn .= '<button data-qr-code="' . $row->qr_code_path . '" data-id="' . $row->record_id . '" class="bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-sm px-5 py-2 text-center displayQR">Display</button>';
                     }
                     if ($row->qr_code_path !== null) {
-                        $actionBtn .= '<button data-qr-code="' . $row->qr_code_path . '" data-id="' . $row->record_id . '" class="bg-red-500 hover:bg-red-600 font-medium rounded-lg text-sm px-5 py-2 text-center deleteQR">Delete QR Code</button>';
+                        $actionBtn .= '<button data-qr-code="' . $row->qr_code_path . '" data-id="' . $row->record_id . '" class="bg-red-500 hover:bg-red-600 font-medium rounded-lg text-sm px-5 py-2 text-center deleteQR">Delete Code</button>';
                     }
 
                     $actionBtn .= '</div>';

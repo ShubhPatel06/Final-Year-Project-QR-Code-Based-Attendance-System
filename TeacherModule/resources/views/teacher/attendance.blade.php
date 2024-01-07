@@ -51,7 +51,10 @@
                 {
                     data: 'group.group_name',
                     name: 'group.group_name',
-                    class: "p-4"
+                    class: "p-4",
+                    render: function(data, type, row, meta) {
+                        return data + ' (' + row.group.division.division_name + ')';
+                    }
                 },
                 {
                     data: 'date',

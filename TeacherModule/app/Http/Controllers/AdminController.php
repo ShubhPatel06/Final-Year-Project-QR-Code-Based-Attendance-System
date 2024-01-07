@@ -597,10 +597,9 @@ class AdminController extends Controller
     public function getLectureGroups(Request $request)
     {
         $lectures = Lectures::all();
-        $groups = Groups::all();
 
         if ($request->ajax()) {
-            $lectureGroups = LectureGroups::with(['lecture', 'group'])->get();
+            $lectureGroups = LectureGroups::with(['lecture', 'group', 'group.division'])->get();
             return DataTables::of($lectureGroups)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
@@ -611,7 +610,16 @@ class AdminController extends Controller
                 ->make(true);
         }
 
-        return view('admin.lecture_groups', ['lectures' => $lectures, 'groups' => $groups]);
+        return view('admin.lecture_groups', ['lectures' => $lectures]);
+    }
+
+    public function getGroupsByCourse($id)
+    {
+        $courseID = Lectures::where('course_id', $id)->value('course_id');
+        $divisionID = CourseDivisions::where('course_id', $id)->value('course_id');
+        $groups = Groups::with('division')->where('division_id', $divisionID)->get();
+
+        return response()->json($groups);
     }
 
     public function storeLectureGroup(Request $request)
@@ -656,7 +664,7 @@ class AdminController extends Controller
         $lectures = Lectures::all();
 
         if ($request->ajax()) {
-            $lecturerAllocations = LecturerAllocations::with(['lecturer', 'lecturer.user', 'lecture', 'group'])->get();
+            $lecturerAllocations = LecturerAllocations::with(['lecturer', 'lecturer.user', 'lecture', 'group', 'group.division'])->get();
             return DataTables::of($lecturerAllocations)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
@@ -827,7 +835,7 @@ class AdminController extends Controller
         $students = Student::with(['user'])->get();
 
         if ($request->ajax()) {
-            $studentGroups = StudentLectureGroups::with(['student', 'student.user', 'lecture', 'group'])->get();
+            $studentGroups = StudentLectureGroups::with(['student', 'student.user', 'lecture', 'group', 'group.division'])->get();
 
             return DataTables::of($studentGroups)
                 ->addIndexColumn()
@@ -852,7 +860,7 @@ class AdminController extends Controller
 
     public function getGroupsByLecture($id)
     {
-        $groups = LectureGroups::with('group')->where('lecture_id', $id)->get();
+        $groups = LectureGroups::with('group', 'group.division')->where('lecture_id', $id)->get();
 
         return response()->json($groups);
     }

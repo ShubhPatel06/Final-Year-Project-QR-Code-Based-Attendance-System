@@ -9,11 +9,45 @@ use App\Models\StudentAttendance;
 use App\Models\StudentLectureGroups;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
+use Yajra\DataTables\Facades\DataTables;
 
 class StudentController extends Controller
 {
+    public function index()
+    {
+        $student = Auth::user();
+        if ($student) {
+            $courseName = $student->student->course->course_name;
+            $admNo = $student->student->adm_no;
+            return view('student.index', ['student' => $student, 'admNo' => $admNo, 'courseName' => $courseName]);
+        }
+    }
+
+    public function getStudentLectures(Request $request)
+    {
+        $user = Auth::user();
+
+        if ($request->ajax()) {
+            $lectures = StudentLectureGroups::with('lecture', 'group', 'group.division')->where('adm_no', $user->student->adm_no)
+                ->get();
+
+            // dd($lectures);
+            return DataTables::of($lectures)
+                ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+                    $actionBtn = '<div class="flex gap-4 text-white font-semibold"><a href="' . route('student.attendance', ['groupID' => $row->group_id, 'lectureID' => $row->lecture_id]) . '"  data-id="' . $row->lecture_id . '" class="edit bg-emerald-500 hover:bg-emerald-600 font-medium rounded-lg text-sm px-5 py-2 text-center viewAttendance">View Attendance</a></div>';
+                    return $actionBtn;
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+
+        return view('student.lectures');
+    }
+
     public function login(Request $request)
     {
         $request->validate([

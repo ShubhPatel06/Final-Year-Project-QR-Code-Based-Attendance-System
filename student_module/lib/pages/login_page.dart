@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'user_provider.dart'; // Import the UserProvider class
 import '../components/progress_dialog_component.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -38,7 +39,7 @@ class _LoginPageState extends State<LoginPage> {
 
     // final Uri loginUri = Uri.parse('http://10.0.2.2:8000/api/login');
     final Uri loginUri =
-        Uri.parse('https://2a8a-41-90-178-122.ngrok-free.app/api/login');
+        Uri.parse('https://ca9d-102-223-32-74.ngrok-free.app/api/login');
 
     try {
       final response = await http.post(
@@ -53,6 +54,13 @@ class _LoginPageState extends State<LoginPage> {
       if (response.statusCode == 200) {
         // Login successful, handle the response
         Map<String, dynamic> responseData = jsonDecode(response.body);
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setBool('isLoggedIn', true);
+
+        prefs.setInt('admissionNumber', responseData['admission_number']);
+        prefs.setString('token', responseData['token']);
+        prefs.setString('user', jsonEncode(responseData['user']));
+        prefs.setString('course', jsonEncode(responseData['course']));
 
         // Set user details in the provider
         userProvider.setUserDetails(
@@ -93,6 +101,7 @@ class _LoginPageState extends State<LoginPage> {
       }
     } catch (error) {
       progressDialog.hide(); // Hide the progress dialog
+      print(error);
 
       // Show error dialog for unexpected errors
       showDialog(

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\StudentController;
 use App\Http\Controllers\TeacherController;
 use Illuminate\Support\Facades\Route;
 
@@ -95,6 +96,7 @@ Route::group(['middleware' => ['auth', 'checkUserRole:1']], function () {
 
     Route::get('/get-lectures/{id}', [AdminController::class, 'getLecturesByCourse']);
     Route::get('/get-groups/{id}', [AdminController::class, 'getGroupsByLecture']);
+    Route::get('/get-groups-by-course/{id}', [AdminController::class, 'getGroupsByCourse']);
 });
 
 // Teacher routes
@@ -110,6 +112,12 @@ Route::group(['middleware' => ['auth', 'checkUserRole:2']], function () {
     Route::get('/get-attendance/{id}', [TeacherController::class, 'getAttendanceByID'])->name('teacher.getAttedance');
     Route::post('/edit-attendance', [TeacherController::class, 'editAttendance'])->name('teacher.editAttendance');
     Route::post('/edit-all-attendance', [TeacherController::class, 'editAllAttendance'])->name('teacher.editAllAttendance');
+});
+
+Route::group(['middleware' => ['auth', 'checkUserRole:3']], function () {
+    Route::get('/student-dashboard', [StudentController::class, 'index'])->name('student.dashboard');
+    Route::get('/student-lectures', [StudentController::class, 'getStudentLectures'])->name('student.lectures');
+    Route::get('/student-attendance', [StudentController::class, 'getStudentAttendance'])->name('student.attendance');
 });
 
 Route::group(['middleware' => 'auth'], function () {

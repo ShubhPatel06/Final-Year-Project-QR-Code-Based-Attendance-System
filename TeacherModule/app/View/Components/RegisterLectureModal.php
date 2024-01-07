@@ -6,18 +6,14 @@ use Closure;
 use Illuminate\View\Component;
 use Illuminate\Contracts\View\View;
 
-class LectureGroupModal extends Component
+class RegisterLectureModal extends Component
 {
     /**
      * Create a new component instance.
      */
-
-    public $lectures;
-
-    public function __construct($lectures)
+    public function __construct()
     {
-
-        $this->lectures = $lectures;
+        //
     }
 
     /**
@@ -25,6 +21,6 @@ class LectureGroupModal extends Component
      */
     public function render(): View|Closure|string
     {
-        return view('components.lecture-group-modal');
+        return view('components.register-lecture-modal');
     }
 }

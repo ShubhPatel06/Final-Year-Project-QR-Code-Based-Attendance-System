@@ -39,6 +39,7 @@ dependencies:
   progress_dialog_null_safe: ^1.0.7
   qr_code_scanner: ^1.0.1
   dart_ipify: ^1.1.1
+  shared_preferences: ^2.2.2
 
 dev_dependencies:
   flutter_test:
