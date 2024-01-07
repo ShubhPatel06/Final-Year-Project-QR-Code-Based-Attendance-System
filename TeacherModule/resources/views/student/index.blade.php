@@ -1,4 +1,4 @@
-@extends("layouts.adminLayout")
+@extends("layouts.studentLayout")
 @section('sidebar')
 <x-student-sidebar focus='dashboard' />
 @endsection

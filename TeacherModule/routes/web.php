@@ -117,7 +117,9 @@ Route::group(['middleware' => ['auth', 'checkUserRole:2']], function () {
 Route::group(['middleware' => ['auth', 'checkUserRole:3']], function () {
     Route::get('/student-dashboard', [StudentController::class, 'index'])->name('student.dashboard');
     Route::get('/student-lectures', [StudentController::class, 'getStudentLectures'])->name('student.lectures');
-    Route::get('/student-attendance', [StudentController::class, 'getStudentAttendance'])->name('student.attendance');
+    Route::get('/student-attendance/${lectureID}/${groupID}', [StudentController::class, 'getStudentAttendance'])->name('student.attendance');
+    Route::get('/get-groups-by-lecture/{id}', [StudentController::class, 'getGroupsByLecture']);
+    Route::post('/register-lecture', [StudentController::class, 'registerLecture'])->name('student.registerLecture');
 });
 
 Route::group(['middleware' => 'auth'], function () {

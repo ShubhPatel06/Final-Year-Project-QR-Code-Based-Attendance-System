@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\AttendanceRecord;
+use App\Models\Groups;
+use App\Models\LectureGroups;
+use App\Models\Lectures;
 use App\Models\Student;
 use App\Models\StudentAttendance;
 use App\Models\StudentLectureGroups;
@@ -13,6 +16,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class StudentController extends Controller
 {
@@ -30,9 +35,14 @@ class StudentController extends Controller
     {
         $user = Auth::user();
 
+        $courseID = Student::where('adm_no', $user->student->adm_no)->value('course_id');
+        $courseLectures = Lectures::where('course_id', $courseID)->get();
+        $admNo = $user->student->adm_no;
+
         if ($request->ajax()) {
             $lectures = StudentLectureGroups::with('lecture', 'group', 'group.division')->where('adm_no', $user->student->adm_no)
                 ->get();
+
 
             // dd($lectures);
             return DataTables::of($lectures)
@@ -45,7 +55,80 @@ class StudentController extends Controller
                 ->make(true);
         }
 
-        return view('student.lectures');
+        return view('student.lectures', ['courseLectures' => $courseLectures, 'admNo' => $admNo]);
+    }
+
+    public function getGroupsByLecture($id)
+    {
+        $groups = LectureGroups::with('group', 'group.division')->where('lecture_id', $id)->get();
+
+        return response()->json($groups);
+    }
+
+    public function registerLecture(Request $request)
+    {
+        $user = Auth::user();
+        $admNo = $user->student->adm_no;
+
+        try {
+            $validator = Validator::make($request->all(), [
+                'lecture_id' => 'required|exists:lectures,lecture_id',
+                'group_id' => 'required|exists:semester_groups,group_id',
+            ]);
+
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+
+            // Check if the user is already registered for the given lecture
+            $existingRegistration = StudentLectureGroups::where('adm_no', $admNo)
+                ->where('lecture_id', $request->lecture_id)
+                ->exists();
+
+            if ($existingRegistration) {
+                throw new ValidationException($validator->addError('lecture_id', 'You are already registered for this lecture.'));
+            }
+
+            StudentLectureGroups::create([
+                'adm_no' => $admNo,
+                'lecture_id' => $request->lecture_id,
+                'group_id' => $request->group_id,
+            ]);
+
+            return response()->json(['success' => 'Lecture registered successfully.']);
+        } catch (ValidationException $e) {
+            return response()->json(['errors' => $e->validator->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'An error occurred while registering for the lecture.'], 500);
+        }
+    }
+
+    public function getStudentAttendance(Request $request)
+    {
+        $lectureID = $request->route()->parameter('lectureID');
+        $groupID = $request->route()->parameter('groupID');
+
+        $lecture = Lectures::where('lecture_id', $lectureID)->first();
+        $group = Groups::with('division')->where('group_id', $groupID)->first();
+
+        if ($request->ajax()) {
+
+            $attendanceRecords = AttendanceRecord::where('lecture_id', $lectureID)
+                ->where('group_id', $groupID)
+                ->get();
+
+            // dd($lectureCode);
+
+            return DataTables::of($attendanceRecords)
+                ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+                    $actionBtn = '<div class="flex gap-4 text-white font-semibold"><a href=""  data-id="' . $row->record_id . '" class="edit bg-emerald-500 hover:bg-emerald-600 font-medium rounded-lg text-sm px-5 py-2 text-center viewDetails">View Details</a></div>';
+                    return $actionBtn;
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+        return view('student.attendance', ['lecture' => $lecture, 'group' => $group]);
     }
 
     public function login(Request $request)

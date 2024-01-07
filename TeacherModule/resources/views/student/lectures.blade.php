@@ -1,11 +1,11 @@
-@extends("layouts.teacherLayout")
+@extends("layouts.studentLayout")
 @section('sidebar')
 <x-student-sidebar focus='lecture' />
 @endsection
 @section('content')
 
 <div id="contentContainer" class="p-5 md:px-20 gap-y-20 mt-8 shadow-md">
-    <x-register-lecture-modal />
+    <x-register-lecture-modal :courseLectures="$courseLectures" :admNo='$admNo' />
 
     <div class="flex items-center justify-between mb-6">
         <h1 class="text-4xl ">Lecture Details</h1>
@@ -72,6 +72,8 @@
             $('#group_id').val('');
             $('#register-lectureForm').trigger("reset");
             $('#modalTitle').html("Register for Lecture");
+            var admNoValue = $('#adm_no').val();
+            console.log('adm_no value:', admNoValue);
         });
 
         $('#closeModal').click(function() {
@@ -80,6 +82,87 @@
             $('#register-lecture-modal').remove('flex');
             $('#register-lecture-modal').addClass('hidden');
         });
+
+        $('#lecture_id').change(function() {
+            var lecture_id = $(this).val();
+
+            $.ajax({
+                url: '/get-groups-by-lecture/' + lecture_id,
+                type: 'GET',
+                success: function(data) {
+                    $('#group_id').empty();
+
+                    $('#group_id').append('<option value="" selected disabled>Select Group</option>');
+
+                    $.each(data, function(index, group) {
+                        $('#group_id').append('<option value="' + group.group.group_id + '"> ' + group.group.group_name + ' (' + group.group.division.division_name + ')</option>');
+
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr.responseText);
+                }
+            });
+        });
+
+
+        $('#saveBtn').click(function(e) {
+            e.preventDefault();
+            $(this).html('Saving..');
+
+            $.ajax({
+                data: $('#register-lectureForm').serialize(),
+                url: "{{ route('student.registerLecture') }}",
+                type: "POST",
+                dataType: 'json',
+                success: function(data) {
+                    if (data.errors) {
+                        // Display validation errors in the modal
+                        displayErrors(data.errors);
+                    } else {
+                        // Reset the form and close the modal on success
+                        $('#register-lectureForm .error-message').remove();
+
+                        $('#register-lectureForm').trigger("reset");
+                        $('#register-lecture-modal').addClass('hidden');
+
+                        table.draw();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.log('Error:', xhr);
+
+                    if (xhr.responseJSON && xhr.responseJSON.errors) {
+                        // Display validation errors in the modal
+                        displayErrors(xhr.responseJSON.errors);
+                    } else {
+                        var errorMessage = "An error occurred while registering the lecture. Please try again.";
+
+                        alert(errorMessage);
+                    }
+
+                    $('#saveBtn').html('Register');
+
+                }
+            });
+        });
+
+        function displayErrors(errors) {
+            // Remove any existing error messages
+            $('#register-lectureForm .error-message').remove();
+
+            // Display validation errors in the modal
+            $.each(errors, function(field, messages) {
+                var fieldInput = $('#' + field);
+                var errorMessage = '<div class="error-message text-red-500 text-sm mt-1">' + messages.join('<br>') + '</div>';
+                fieldInput.after(errorMessage);
+            });
+
+            var firstErrorField = Object.keys(errors)[0];
+            if (firstErrorField) {
+                $('#' + firstErrorField).focus();
+            }
+        }
     });
 </script>
 

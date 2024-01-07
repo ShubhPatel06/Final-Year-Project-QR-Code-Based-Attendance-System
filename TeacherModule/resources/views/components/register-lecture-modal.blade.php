@@ -13,14 +13,13 @@
                 <h3 class="mb-4 text-xl font-medium text-gray-900 " id="modalTitle"></h3>
                 <form class="space-y-6" action="#" method="POST" id="register-lectureForm">
                     @csrf
-                    <input type="hidden" id="admNo">
-                    <input type="hidden" id="groupID">
-                    <input type="hidden" id="lectureID">
                     <div class="col-span-2">
                         <label for="lecture_id" class="block mb-2 text-sm font-medium text-gray-900">Lecture</label>
                         <select name="lecture_id" id="lecture_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2">
                             <option value="" selected disabled>Select Lecture</option>
-
+                            @foreach ($courseLectures as $lecture)
+                            <option value="{{ $lecture->lecture_id }}">{{ $lecture->lecture_name}} </option>
+                            @endforeach
                         </select>
                     </div>
                     <div class="col-span-2">

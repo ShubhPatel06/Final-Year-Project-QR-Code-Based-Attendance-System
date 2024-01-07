@@ -13,7 +13,6 @@ use App\Models\Lecturers;
 use App\Models\Lectures;
 use App\Models\Roles;
 use App\Models\Student;
-use App\Models\StudentGroups;
 use App\Models\StudentLectureGroups;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -876,6 +875,15 @@ class AdminController extends Controller
 
             if ($validator->fails()) {
                 throw new ValidationException($validator);
+            }
+
+            // Check if the user is already registered for the given lecture
+            $existingRegistration = StudentLectureGroups::where('adm_no', $request->adm_no)
+                ->where('lecture_id', $request->lecture_id)
+                ->exists();
+
+            if ($existingRegistration) {
+                throw new ValidationException($validator->addError('lecture_id', 'Student already registered for this lecture.'));
             }
 
             StudentLectureGroups::create([
