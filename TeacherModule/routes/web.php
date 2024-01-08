@@ -94,6 +94,9 @@ Route::group(['middleware' => ['auth', 'checkUserRole:1']], function () {
     Route::post('/create-student_group', [AdminController::class, 'storeStudentGroup'])->name('student_group.store');
     Route::delete('/delete-student_group', [AdminController::class, 'deleteStudentGroup'])->name('student_group.delete');
 
+    Route::get('/admin-attendance', [AdminController::class, 'attendance'])->name('admin.attendance');
+    Route::get('/admin-studentRecords/{recordID}', [AdminController::class, 'getStudentAttendanceRecords'])->name('admin.student_records');
+
     Route::get('/get-lectures/{id}', [AdminController::class, 'getLecturesByCourse']);
     Route::get('/get-groups/{id}', [AdminController::class, 'getGroupsByLecture']);
     Route::get('/get-groups-by-course/{id}', [AdminController::class, 'getGroupsByCourse']);

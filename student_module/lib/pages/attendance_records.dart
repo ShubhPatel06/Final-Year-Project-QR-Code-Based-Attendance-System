@@ -46,7 +46,7 @@ class _AttendanceRecordsScreenState extends State<AttendanceRecordsScreen> {
     try {
       final response = await http.get(
         Uri.parse(
-            'https://ca9d-102-223-32-74.ngrok-free.app/api/get-attendance-records/${widget.admissionNumber}/${widget.lectureId}/${widget.groupId}'),
+            'https://c778-41-90-184-100.ngrok-free.app/api/get-attendance-records/${userProvider.admissionNumber}/${widget.lectureId}/${widget.groupId}'),
         headers: {
           'Authorization': 'Bearer ${userProvider.token}',
         },
@@ -229,21 +229,6 @@ class _AttendanceRecordsScreenState extends State<AttendanceRecordsScreen> {
                                         style: const TextStyle(
                                             fontWeight: FontWeight.w600),
                                       ),
-                                      // Text(
-                                      //   record['student_attendance'][0]
-                                      //               ['is_present'] ==
-                                      //           1
-                                      //       ? 'Present'
-                                      //       : 'Absent',
-                                      //   style: TextStyle(
-                                      //     color: record['student_attendance'][0]
-                                      //                 ['is_present'] ==
-                                      //             1
-                                      //         ? Colors.green
-                                      //         : Colors.red,
-                                      //     fontWeight: FontWeight.bold,
-                                      //   ),
-                                      // ),
                                       Text(
                                         record['student_attendance'][0]
                                                     ['is_present'] ==
@@ -270,19 +255,6 @@ class _AttendanceRecordsScreenState extends State<AttendanceRecordsScreen> {
                                       ),
                                     ],
                                   ),
-                                  // trailing: Icon(
-                                  //   record['student_attendance'][0]
-                                  //               ['is_present'] ==
-                                  //           1
-                                  //       ? Icons.check_circle
-                                  //       : Icons.cancel,
-                                  //   color: record['student_attendance'][0]
-                                  //               ['is_present'] ==
-                                  //           1
-                                  //       ? Colors.green
-                                  //       : Colors.red,
-                                  //   size: 45,
-                                  // ),
                                   trailing: Icon(
                                     record['student_attendance'][0]
                                                 ['is_present'] ==

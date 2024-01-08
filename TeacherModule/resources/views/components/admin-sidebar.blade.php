@@ -1,5 +1,4 @@
 <div id="main-nav" class="pt-20 z-40 hidden w-[50%] top-0 left-0 md:flex md:w-[18%] fixed h-[100vh] bg-slate-200">
-
     <div class="flex flex-col gap-y-2 mt-2 items-start w-full text-sm my-8 px-8">
         <div class="{{ $focus=='dashboard' ? 'bg-blue-500 text-white px-3' : 'text-black' }} flex flex-row h-12 items-center gap-4 text-sm mx-4 lg:text-base rounded drop-shadow">
             <i class="fa-solid fa-house"></i>
@@ -52,6 +51,10 @@
         <div class="{{ $focus=='student_group' ? 'bg-blue-500 text-white px-3' : 'text-black' }} flex flex-row h-12 items-center gap-4 text-sm mx-4 lg:text-base rounded drop-shadow">
             <i class="fa-solid fa-users-line"></i>
             <p class=""><a href="{{route('admin.student_groups')}}">Student Groups</a></p>
+        </div>
+        <div class="{{ $focus=='attendance' ? 'bg-blue-600 text-white px-3' : 'text-black' }} flex flex-row h-12 items-center space-x-4 text-sm mx-4 lg:text-base rounded drop-shadow">
+            <i class="fa-solid fa-clipboard-user"></i>
+            <p class=""><a href="{{route('admin.attendance')}}">Attendance</a></p>
         </div>
     </div>
 </div>
@@ -113,6 +116,10 @@
             <i class="fa-solid fa-users-line"></i>
             <p class=""><a href="{{route('admin.student_groups')}}">Student Groups</a></p>
         </div>
+        <div class="{{ $focus=='attendance' ? 'bg-blue-600 text-white px-3' : 'text-black' }} flex flex-row h-12 items-center space-x-4 text-sm mx-4 lg:text-base rounded drop-shadow">
+            <i class="fa-solid fa-clipboard-user"></i>
+            <p class=""><a href="{{route('admin.attendance')}}">Attendance</a></p>
+        </div>
     </div>
 </div>
 
@@ -156,6 +163,9 @@
     @break
     @case('student_group')
     <i class="fa-solid fa-users-line"></i>
+    @break
+    @case('attendance')
+    <i class="fa-solid fa-clipboard-user"></i>
     @break
 
     @default

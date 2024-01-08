@@ -38,6 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+
     areButtonsDisabled = widget.areButtonsDisabled;
     remainingDisableTime = widget.remainingDisableTime;
 
@@ -78,7 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       final response = await http.get(
         Uri.parse(
-            'https://ca9d-102-223-32-74.ngrok-free.app/api/get-groups/${userProvider.admissionNumber}'),
+            'https://c778-41-90-184-100.ngrok-free.app/api/get-groups/${userProvider.admissionNumber}'),
         headers: {
           'Authorization': 'Bearer ${userProvider.token}',
         },
@@ -162,7 +163,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     Future<void> logoutUser(String token) async {
       final Uri logoutUri =
-          Uri.parse('https://ca9d-102-223-32-74.ngrok-free.app/api/logout');
+          Uri.parse('https://c778-41-90-184-100.ngrok-free.app/api/logout');
 
       try {
         final response = await http.post(
@@ -294,7 +295,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                     ),
-
+                    Text(
+                      'Remaining Disable Time: $remainingDisableTime',
+                      style: TextStyle(fontSize: 18),
+                    ),
                     // Course name
                     Text(
                       '${userProvider.course?['course_name']} (${userProvider.course?['course_code']})',
@@ -407,7 +411,7 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       final response = await http.get(
         Uri.parse(
-            'https://ca9d-102-223-32-74.ngrok-free.app/api/get-lectures/${userProvider.admissionNumber}/$optionValue'),
+            'https://c778-41-90-184-100.ngrok-free.app/api/get-lectures/${userProvider.admissionNumber}/$optionValue'),
         headers: {
           'Authorization': 'Bearer ${userProvider.token}',
         },

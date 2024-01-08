@@ -105,30 +105,74 @@ class StudentController extends Controller
 
     public function getStudentAttendance(Request $request)
     {
+        $user = Auth::user();
+        $admNo = $user->student->adm_no;
+
         $lectureID = $request->route()->parameter('lectureID');
         $groupID = $request->route()->parameter('groupID');
 
         $lecture = Lectures::where('lecture_id', $lectureID)->first();
         $group = Groups::with('division')->where('group_id', $groupID)->first();
 
-        if ($request->ajax()) {
+        $presentHours = 0;
+        $absentHours = 0;
+        $totalHours = 0;
+        $absentPercent = 0.0;
 
-            $attendanceRecords = AttendanceRecord::where('lecture_id', $lectureID)
-                ->where('group_id', $groupID)
+        $recordIDs = AttendanceRecord::where('lecture_id', $lectureID)
+            ->where('group_id', $groupID)
+            ->pluck('record_id');
+
+        $allStudentAttendanceData = [];
+
+        foreach ($recordIDs as $recordID) {
+            $studentAttendanceData = StudentAttendance::with('attendanceRecord')
+                ->where('attendance_record_id', $recordID)
+                ->where('student_adm_no', $admNo)
                 ->get();
 
-            // dd($lectureCode);
+            $allStudentAttendanceData[] = $studentAttendanceData;
+        }
 
-            return DataTables::of($attendanceRecords)
+        $flattenedData = [];
+        foreach ($allStudentAttendanceData as $collection) {
+            foreach ($collection as $studentAttendance) {
+                $totalHours += $studentAttendance->hours;
+
+                if ($studentAttendance->is_present == 1) {
+                    $presentHours += $studentAttendance->hours;
+                } elseif ($studentAttendance->is_present == 2) {
+                    $absentHours += $studentAttendance->hours;
+                }
+
+                $flattenedData[] = [
+                    'date' => $studentAttendance->attendanceRecord->date,
+                    'start_time' => $studentAttendance->attendanceRecord->start_time,
+                    'end_time' => $studentAttendance->attendanceRecord->end_time,
+                    'hours' => $studentAttendance->hours,
+                    'is_present' => $studentAttendance->is_present,
+                ];
+            }
+        }
+
+        $absentPercent = ($totalHours > 0) ? ($absentHours / $totalHours) * 100 : 0;
+        $absentPercent = number_format($absentPercent, 2);
+
+        if ($request->ajax()) {
+
+            return DataTables::of($flattenedData)
                 ->addIndexColumn()
-                ->addColumn('action', function ($row) {
-                    $actionBtn = '<div class="flex gap-4 text-white font-semibold"><a href=""  data-id="' . $row->record_id . '" class="edit bg-emerald-500 hover:bg-emerald-600 font-medium rounded-lg text-sm px-5 py-2 text-center viewDetails">View Details</a></div>';
-                    return $actionBtn;
-                })
-                ->rawColumns(['action'])
                 ->make(true);
         }
-        return view('student.attendance', ['lecture' => $lecture, 'group' => $group]);
+
+        // return view('student.attendance', ['lecture' => $lecture, 'group' => $group]);
+        return view('student.attendance', [
+            'lecture' => $lecture,
+            'group' => $group,
+            'presentHours' => $presentHours,
+            'absentHours' => $absentHours,
+            'absentPercent' => $absentPercent,
+        ]);
     }
 
     public function login(Request $request)

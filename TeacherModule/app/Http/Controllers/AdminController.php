@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\AttendanceRecord;
 use App\Models\CourseDivisions;
 use App\Models\Courses;
 use App\Models\Faculty;
@@ -13,6 +14,7 @@ use App\Models\Lecturers;
 use App\Models\Lectures;
 use App\Models\Roles;
 use App\Models\Student;
+use App\Models\StudentAttendance;
 use App\Models\StudentLectureGroups;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -908,5 +910,50 @@ class AdminController extends Controller
         ])->delete();
 
         return response()->json(['success' => 'Student Lecture Group deleted successfully.']);
+    }
+
+    public function attendance(Request $request)
+    {
+
+        if ($request->ajax()) {
+            $data = AttendanceRecord::with(['lecture', 'group', 'group.division'])
+                ->get();
+
+            return DataTables::of($data)
+                ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+
+                    $actionBtn = '<div class="flex gap-4 text-white font-semibold">';
+
+                    $actionBtn .= '<a href="' . route('admin.student_records', ['recordID' => $row->record_id]) . '" data-id="' . $row->record_id . '" class="edit bg-emerald-500 hover:bg-emerald-600 font-medium rounded-lg text-sm px-5 py-2 text-center viewStudentRecords">Student Records</a>';
+
+                    $actionBtn .= '</div>';
+                    return $actionBtn;
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+
+        return view('admin.attendance');
+    }
+
+    public function getStudentAttendanceRecords(Request $request, $recordID)
+    {
+        $data = AttendanceRecord::with(['lecture', 'group', 'group.division'])->where('record_id', $recordID)
+            ->first();
+
+        // dd($data);
+
+        if ($request->ajax()) {
+            $data = StudentAttendance::with(['student.user'])
+                ->where('attendance_record_id', $recordID)
+                ->get();
+
+            return DataTables::of($data)
+                ->addIndexColumn()
+                ->make(true);
+        }
+
+        return view('admin.student_records', ['data' => $data]);
     }
 }

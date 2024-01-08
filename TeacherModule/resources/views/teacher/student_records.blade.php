@@ -69,13 +69,13 @@
                     data: 'is_present',
                     name: 'is_present',
                     class: "p-4",
-                    render: function(data) {
+                    render: function(data, type, row) {
                         if (data === null) {
-                            return 'Not Marked';
+                            return '<span class="bg-amber-400 p-[0.35rem] rounded-md text-white font-semibold">Not Marked</span>';
                         } else if (data === 1) {
-                            return 'Present';
+                            return '<span class="bg-emerald-400 p-[0.35rem] rounded-md text-white font-semibold">Present</span>';
                         } else if (data === 2) {
-                            return 'Absent';
+                            return '<span class="bg-red-400 p-[0.35rem] rounded-md text-white font-semibold">Absent</span>';
                         } else {
                             return '';
                         }

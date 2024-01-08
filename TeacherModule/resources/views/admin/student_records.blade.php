@@ -1,27 +1,22 @@
-@extends("layouts.studentLayout")
+@extends("layouts.adminLayout")
 @section('sidebar')
-<x-student-sidebar focus='lecture' />
+<x-admin-sidebar focus='attendance' />
 @endsection
 @section('content')
 
 <div id="contentContainer" class="p-5 md:px-20 gap-y-20 mt-8 shadow-md">
 
     <div class=" mb-6">
-        <h1 class="text-3xl ">{{$lecture->lecture_name}} {{$group->group_name}} ({{$group->division->division_name}})</h1>
-        <h2 class="text-2xl mt-4">Attendance Details</h2>
+        <h1 class="text-3xl ">{{$data->lecture->lecture_name}} {{$data->group->group_name}} ({{$data->group->division->division_name}})</h1>
+        <h2 class="text-2xl mt-4">Student Attendance Details</h2>
     </div>
-    <div class="mb-6">
-        <p class="text-xl mb-1">Hours Present: {{ $presentHours }}</p>
-        <p class="text-xl mb-1">Hours Absent: {{ $absentHours }}</p>
-        <p class="text-xl">Absent Percentage: {{ $absentPercent }}%</p>
-    </div>
-    <table class="min-w-fug-white shadow-md rounded-lg lectures-table" id="attendance-table">
+
+    <table class="min-w-fug-white shadow-md rounded-lg students-table" id="students-table">
         <thead>
             <tr class="bg-slate-200">
-
-                <th class="p-4 font-semibold text-gray-700">Date</th>
-                <th class="p-4 font-semibold text-gray-700">Start Time</th>
-                <th class="p-4 font-semibold text-gray-700">End Time</th>
+                <th class="p-4 font-semibold text-gray-700">Admission Number</th>
+                <th class="p-4 font-semibold text-gray-700">First Name</th>
+                <th class="p-4 font-semibold text-gray-700">Last Name</th>
                 <th class="p-4 font-semibold text-gray-700">Hours</th>
                 <th class="p-4 font-semibold text-gray-700">Attendance</th>
             </tr>
@@ -29,36 +24,36 @@
         <tbody class="bg-white">
         </tbody>
     </table>
-
 </div>
+
 <script type="text/javascript">
     $(function() {
-        function getURLParameter(index) {
-            var pathSegments = window.location.pathname.split('/');
-            return pathSegments[index];
+        function getRecordIdFromUrl() {
+
+            var url = window.location.href;
+            var parts = url.split('/');
+            return parts[parts.length - 1];
         }
 
-        // Get values from the URL
-        var lectureID = getURLParameter(2);
-        var groupID = getURLParameter(3);
+        var recordID = getRecordIdFromUrl();
 
-        var table = $('#attendance-table').DataTable({
+        var table = $('.students-table').DataTable({
             processing: true,
             serverSide: true,
-            ajax: "{{ url('student-attendance') }}/" + lectureID + "/" + groupID,
+            ajax: "{{ url('admin-studentRecords') }}/" + recordID,
             columns: [{
-                    data: 'date',
-                    name: 'date',
+                    data: 'student_adm_no',
+                    name: 'student_adm_no',
                     class: "p-4"
                 },
                 {
-                    data: 'start_time',
-                    name: 'start_time',
+                    data: 'student.user.first_name',
+                    name: 'student.user.first_name',
                     class: "p-4"
                 },
                 {
-                    data: 'end_time',
-                    name: 'end_time',
+                    data: 'student.user.last_name',
+                    name: 'student.user.last_name',
                     class: "p-4"
                 },
                 {
@@ -85,6 +80,7 @@
 
             ]
         });
+
 
     });
 </script>

@@ -97,7 +97,7 @@ class ScannedDataFormPage extends StatelessWidget {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
 
     const apiUrl =
-        'https://ca9d-102-223-32-74.ngrok-free.app/api/update-attendance';
+        'https://c778-41-90-184-100.ngrok-free.app/api/update-attendance';
 
     try {
       ProgressDialogComponent progressDialog =
