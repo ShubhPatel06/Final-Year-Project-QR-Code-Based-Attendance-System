@@ -295,10 +295,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                     ),
-                    Text(
-                      'Remaining Disable Time: $remainingDisableTime',
-                      style: TextStyle(fontSize: 18),
-                    ),
                     // Course name
                     Text(
                       '${userProvider.course?['course_name']} (${userProvider.course?['course_code']})',

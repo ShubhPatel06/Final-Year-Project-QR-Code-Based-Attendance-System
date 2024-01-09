@@ -40,6 +40,7 @@ class _AttendanceRecordsScreenState extends State<AttendanceRecordsScreen> {
   Future<void> fetchAttendanceRecords() async {
     setState(() {
       isLoading = true;
+      attendanceRecords = [];
     });
     var userProvider = Provider.of<UserProvider>(context, listen: false);
 
