@@ -616,8 +616,9 @@ class AdminController extends Controller
 
     public function getGroupsByCourse($id)
     {
-        $courseID = Lectures::where('course_id', $id)->value('course_id');
-        $divisionID = CourseDivisions::where('course_id', $id)->value('course_id');
+        $courseID = Lectures::where('lecture_id', $id)->value('course_id');
+        // dd($courseID);
+        $divisionID = CourseDivisions::where('course_id', $courseID)->value('division_id');
         $groups = Groups::with('division')->where('division_id', $divisionID)->get();
 
         return response()->json($groups);
@@ -746,7 +747,7 @@ class AdminController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'user_id' => 'required|exists:users,user_id',
+                'user_id' => 'required|exists:users,user_id|unique:students,user_id',
                 'course_id' => 'required|exists:courses,course_id',
             ]);
 

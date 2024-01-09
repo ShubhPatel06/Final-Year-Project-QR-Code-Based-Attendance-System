@@ -86,10 +86,47 @@ class TeacherController extends Controller
         $teacher = Auth::user();
 
         if ($request->ajax()) {
-            $data = AttendanceRecord::with(['lecture', 'group', 'group.division'])
+            // $data = AttendanceRecord::with(['lecture', 'group', 'group.division'])
+            //     ->get();
+
+            // return DataTables::of($data)
+            //     ->addIndexColumn()
+            //     ->addColumn('action', function ($row) {
+
+            //         $actionBtn = '<div class="flex gap-4 text-white font-semibold">';
+
+            //         $actionBtn .= '<a href="' . route('teacher.student_records', ['recordID' => $row->record_id]) . '" data-id="' . $row->record_id . '" class="edit bg-emerald-500 hover:bg-emerald-600 font-medium rounded-lg text-sm px-5 py-2 text-center viewStudentRecords">Student Records</a>';
+
+            //         // Display QR Code link if qr_code_path is not null
+            //         if ($row->qr_code_path !== null) {
+            //             $actionBtn .= '<button data-qr-code="' . $row->qr_code_path . '" data-id="' . $row->record_id . '" class="bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-sm px-5 py-2 text-center displayQR">Display</button>';
+            //         }
+            //         if ($row->qr_code_path !== null) {
+            //             $actionBtn .= '<button data-qr-code="' . $row->qr_code_path . '" data-id="' . $row->record_id . '" class="bg-red-500 hover:bg-red-600 font-medium rounded-lg text-sm px-5 py-2 text-center deleteQR">Delete Code</button>';
+            //         }
+
+            //         $actionBtn .= '</div>';
+            //         return $actionBtn;
+            //     })
+            //     ->rawColumns(['action'])
+            //     ->make(true);
+
+            $allocations = LecturerAllocations::where('lecturer_id', $teacher->user_id)
+                ->select('lecture_id', 'group_id')
                 ->get();
 
-            return DataTables::of($data)
+            // dd($allocations);
+            $lectureIds = $allocations->pluck('lecture_id');
+            $groupIds = $allocations->pluck('group_id');
+
+            // Retrieve attendance records based on lecture_id and group_id
+            $attendanceRecords = AttendanceRecord::with('lecture', 'group', 'group.division')->whereIn('lecture_id', $lectureIds)
+                ->whereIn('group_id', $groupIds)
+                ->get();
+
+            // dd($attendanceRecords);
+
+            return DataTables::of($attendanceRecords)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
 

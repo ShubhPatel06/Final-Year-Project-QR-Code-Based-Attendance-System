@@ -46,7 +46,7 @@ class _AttendanceRecordsScreenState extends State<AttendanceRecordsScreen> {
     try {
       final response = await http.get(
         Uri.parse(
-            'https://c778-41-90-184-100.ngrok-free.app/api/get-attendance-records/${userProvider.admissionNumber}/${widget.lectureId}/${widget.groupId}'),
+            'https://78c5-41-90-184-100.ngrok-free.app/api/get-attendance-records/${userProvider.admissionNumber}/${widget.lectureId}/${widget.groupId}'),
         headers: {
           'Authorization': 'Bearer ${userProvider.token}',
         },
